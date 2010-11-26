@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
+include(FindPkgConfig)
+
 # Set the build type.  Options are:
 #  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
 #  Debug          : w/ debug symbols, w/o optimization
@@ -29,7 +31,17 @@ rosbuild_genmsg()
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-rosbuild_add_library(ros_import src/ros_import.cpp)
-target_link_libraries(ros_import dynamic-graph)
+pkg_check_modules(JRL_MAL REQUIRED jrl-mal)
+pkg_check_modules(DYNAMIC_GRAPH REQUIRED dynamic-graph)
 
-# rosbuild_add_library(sot_to_ros src/sot_to_ros.cpp)
+rosbuild_add_library(ros_import src/ros_import.cpp)
+rosbuild_add_compile_flags(ros_import ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS})
+rosbuild_add_link_flags(ros_import ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS})
+target_link_libraries(ros_import
+  ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES})
+
+rosbuild_add_library(ros_export src/ros_export.cpp)
+rosbuild_add_compile_flags(ros_export ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS})
+rosbuild_add_link_flags(ros_export ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS})
+target_link_libraries(ros_export
+  ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES})
