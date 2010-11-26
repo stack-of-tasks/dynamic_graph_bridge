@@ -28,3 +28,8 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_link_boost(${PROJECT_NAME} thread)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
+
+rosbuild_add_library(ros_import src/ros_import.cpp)
+target_link_libraries(ros_import dynamic-graph)
+
+# rosbuild_add_library(sot_to_ros src/sot_to_ros.cpp)
