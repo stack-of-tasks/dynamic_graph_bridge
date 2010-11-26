@@ -34,13 +34,15 @@ rosbuild_genmsg()
 pkg_check_modules(JRL_MAL REQUIRED jrl-mal)
 pkg_check_modules(DYNAMIC_GRAPH REQUIRED dynamic-graph)
 
-rosbuild_add_library(ros_import src/ros_import.cpp)
+rosbuild_add_library(ros_import
+  src/ros_import.cpp src/ros_import.hh src/converter.hh src/sot_to_ros.hh)
 rosbuild_add_compile_flags(ros_import ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS})
 rosbuild_add_link_flags(ros_import ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS})
 target_link_libraries(ros_import
   ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES})
 
-rosbuild_add_library(ros_export src/ros_export.cpp)
+rosbuild_add_library(ros_export
+  src/ros_export.cpp src/ros_export.hh src/converter.hh src/sot_to_ros.hh)
 rosbuild_add_compile_flags(ros_export ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS})
 rosbuild_add_link_flags(ros_export ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS})
 target_link_libraries(ros_export

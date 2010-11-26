@@ -29,10 +29,13 @@ namespace dynamicgraph
       nh_ (rosInit ()),
       bindedSignal_ ()
   {
+    ros::AsyncSpinner spinner (1);
+    spinner.start ();
   }
 
   RosExport::~RosExport ()
   {
+    ros::waitForShutdown();
   }
 
   void RosExport::display (std::ostream& os) const

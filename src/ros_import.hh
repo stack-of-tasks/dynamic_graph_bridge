@@ -10,14 +10,11 @@
 
 # include <ros/ros.h>
 
+# include "converter.hh"
+# include "sot_to_ros.hh"
+
 namespace dynamicgraph
 {
-  template <typename SotType>
-  class SotToRos;
-
-  template <typename D, typename S>
-  void converter (D& dst, const S& src);
-
   class RosImport : public dynamicgraph::Entity
   {
   public:

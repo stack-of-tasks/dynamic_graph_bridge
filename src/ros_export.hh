@@ -10,13 +10,16 @@
 
 # include <ros/ros.h>
 
+# include "converter.hh"
+# include "sot_to_ros.hh"
+
 namespace dynamicgraph
 {
   class RosExport : public dynamicgraph::Entity
   {
   public:
     typedef std::pair<boost::shared_ptr<dynamicgraph::SignalBase<int> >,
-		      boost::shared_ptr<ros::Publisher> >
+		      boost::shared_ptr<ros::Subscriber> >
       bindedSignal_t;
 
     static const std::string CLASS_NAME;
@@ -38,6 +41,13 @@ namespace dynamicgraph
     void rm (const std::string& signal);
     void list ();
     void clear ();
+
+    template <typename T>
+    void add (const std::string& signal, const std::string& topic);
+
+    template <typename T>
+    void callback (boost::shared_ptr<dynamicgraph::SignalBase<int> > signal,
+		   const T& message);
 
     ros::NodeHandle nh_;
     std::map<std::string, bindedSignal_t> bindedSignal_;
