@@ -14,18 +14,21 @@ namespace dynamicgraph
 {
   DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosImport, "RosImport");
 
-  RosImport::RosImport (const std::string& n)
-    : dynamicgraph::Entity(n),
-      nh_ (),
-      bindedSignal_ ()
+  const char* rosInit()
   {
     int argc = 1;
     char* arg0 = strdup("ros_import");
     char* argv[] = {arg0, 0};
     ros::init(argc, argv, "ros_import");
     free (arg0);
+    return "dynamic_graph";
+  }
 
-    nh_ = ros::NodeHandle ("dynamic_graph");
+  RosImport::RosImport (const std::string& n)
+    : dynamicgraph::Entity(n),
+      nh_ (rosInit ()),
+      bindedSignal_ ()
+  {
   }
 
   RosImport::~RosImport ()
