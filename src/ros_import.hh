@@ -1,6 +1,7 @@
 #ifndef DYNAMIC_GRAPH_ROS_IMPORT_HH
 # define DYNAMIC_GRAPH_ROS_IMPORT_HH
 # include <iostream>
+# include <map>
 
 # include <boost/shared_ptr.hpp>
 

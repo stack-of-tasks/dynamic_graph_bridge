@@ -12,5 +12,6 @@
   <depend package="std_msgs"/>
   <depend package="roscpp"/>
 
+  <rosdep name="jrl-mal"/>
   <rosdep name="dynamic-graph"/>
 </package>

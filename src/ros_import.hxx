@@ -1,6 +1,13 @@
 #ifndef DYNAMIC_GRAPH_ROS_IMPORT_HXX
 # define DYNAMIC_GRAPH_ROS_IMPORT_HXX
+# include <vector>
+# include <jrl/mal/boost.hh>
 # include <std_msgs/Float64.h>
+# include "dynamic_graph/Matrix.h"
+# include "dynamic_graph/Vector.h"
+
+
+namespace ml = maal::boost;
 
 namespace dynamicgraph
 {
@@ -14,11 +21,50 @@ namespace dynamicgraph
   };
 
   template <>
+  struct SotToRos<ml::Matrix>
+  {
+    typedef ml::Matrix sot_t;
+    typedef dynamic_graph::Matrix ros_t;
+    typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
+    typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+  };
+
+  template <>
+  struct SotToRos<ml::Vector>
+  {
+    typedef ml::Vector sot_t;
+    typedef dynamic_graph::Vector ros_t;
+    typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
+    typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+  };
+
+
+  template <>
   void converter (SotToRos<double>::ros_t& dst,
 		  const SotToRos<double>::sot_t& src)
   {
     dst.data = src;
   }
+
+  template <>
+  void converter (SotToRos<ml::Matrix>::ros_t& dst,
+		  const SotToRos<ml::Matrix>::sot_t& src)
+  {
+    dst.width = src.nbRows ();
+    dst.data.resize (src.nbCols () * src.nbRows ());
+    for (unsigned i = 0; i < src.nbCols () * src.nbRows (); ++i)
+      dst.data[i] =  src.elementAt (i);
+  }
+
+  template <>
+  void converter (SotToRos<ml::Vector>::ros_t& dst,
+		  const SotToRos<ml::Vector>::sot_t& src)
+  {
+    dst.data.resize (src.size ());
+    for (unsigned i = 0; i < src.size (); ++i)
+      dst.data[i] =  src.elementAt (i);
+  }
+
 
   template <typename T>
   T&

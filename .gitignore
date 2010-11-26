@@ -1,5 +1,5 @@
 lib/
 msg/lisp/
 msg_gen/
-src/hueblob/
+src/dynamic_graph/
 bin/

@@ -56,8 +56,15 @@ namespace dynamicgraph
       }
     else if (cmdLine == "add")
       {
-	cmdArgs >> signal >> topic;
-	add<double> (signal, topic);
+	cmdArgs >> type >> signal >> topic;
+	if (type == "double")
+	  add<double> (signal, topic);
+	else if (type == "matrix")
+	  add<ml::Matrix> (signal, topic);
+	else if (type == "vector")
+	  add<ml::Vector> (signal, topic);
+	else
+	  throw "bad type";
       }
     else if (cmdLine == "rm")
       {
