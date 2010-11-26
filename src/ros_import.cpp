@@ -26,19 +26,6 @@ namespace dynamicgraph
     free (arg0);
 
     nh_ = ros::NodeHandle ("dynamic_graph");
-
-    //ros::Publisher blob_pub = n.advertise<hueblob::Blob>("blob", 1000);
-
-    // ros::Rate loop_rate(10);
-
-    // while (ros::ok())
-    //   {
-    // 	hueblob::Blob blob;
-    // 	blob_pub.publish(blob);
-
-    // 	ros::spinOnce();
-    // 	loop_rate.sleep();
-    //   }
   }
 
   RosImport::~RosImport ()
@@ -54,13 +41,17 @@ namespace dynamicgraph
 			       std::istringstream& cmdArgs,
 			       std::ostream& os)
   {
+    std::string type;
     std::string signal;
     std::string topic;
 
     if (cmdLine == "help")
       {
 	os << "RosImport: "<< std::endl
-	   << "  - add <SIGNAL> <TOPIC>" << std::endl;
+	   << "  - add <TYPE> <SIGNAL> <TOPIC>" << std::endl
+	   << "  - rm <SIGNAL>" << std::endl
+	   << "  - clear" << std::endl
+	   << "  - list" << std::endl;
 	Entity::commandLine (cmdLine, cmdArgs, os);
       }
     else if (cmdLine == "add")
@@ -70,8 +61,8 @@ namespace dynamicgraph
       }
     else if (cmdLine == "rm")
       {
-	cmdArgs >> signal >> topic;
-	rm (signal, topic);
+	cmdArgs >> signal;
+	rm (signal);
       }
     else if (cmdLine == "clear")
       clear ();
@@ -86,8 +77,9 @@ namespace dynamicgraph
     return CLASS_NAME;
   }
 
-  void RosImport::rm (const std::string& signal, const std::string& topic)
+  void RosImport::rm (const std::string& signal)
   {
+    bindedSignal_.erase (signal);
   }
 
   void RosImport::list ()
