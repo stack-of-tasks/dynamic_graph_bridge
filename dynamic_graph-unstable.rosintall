@@ -1,0 +1,4 @@
+- git:
+    local-name: dynamic_graph
+    uri: git://github.com/jrl-umi3218/ros-dynamic_graph.git
+    version: master
