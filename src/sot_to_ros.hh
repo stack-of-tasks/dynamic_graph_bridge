@@ -18,6 +18,7 @@ namespace dynamicgraph
   {
     typedef double sot_t;
     typedef std_msgs::Float64 ros_t;
+    typedef std_msgs::Float64ConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
   };
@@ -27,6 +28,7 @@ namespace dynamicgraph
   {
     typedef ml::Matrix sot_t;
     typedef dynamic_graph::Matrix ros_t;
+    typedef dynamic_graph::MatrixConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
   };
@@ -36,6 +38,7 @@ namespace dynamicgraph
   {
     typedef ml::Vector sot_t;
     typedef dynamic_graph::Vector ros_t;
+    typedef dynamic_graph::VectorConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
   };

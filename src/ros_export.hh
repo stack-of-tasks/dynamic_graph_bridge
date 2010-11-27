@@ -45,9 +45,15 @@ namespace dynamicgraph
     template <typename T>
     void add (const std::string& signal, const std::string& topic);
 
-    template <typename T>
-    void callback (boost::shared_ptr<dynamicgraph::SignalBase<int> > signal,
-		   const T& message);
+    // template <typename R, typename S>
+    // void callback
+    // (boost::shared_ptr<dynamicgraph::SignalTimeDependent<S, int> > signal,
+    //  const R& data);
+
+    template <typename R, typename S>
+    void callback
+    (boost::shared_ptr<dynamicgraph::SignalTimeDependent<S, int> > signal,
+     const R& data);
 
     ros::NodeHandle nh_;
     std::map<std::string, bindedSignal_t> bindedSignal_;

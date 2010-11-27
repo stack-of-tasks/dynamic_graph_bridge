@@ -12,24 +12,37 @@ namespace ml = maal::boost;
 
 namespace dynamicgraph
 {
-  template <typename T>
+  // template <typename R, typename S>
+  // void
+  // RosExport::callback
+  // (boost::shared_ptr<dynamicgraph::SignalTimeDependent<S, int> > signal,
+  //  const R& data)
+  // {
+  //   // typedef S sot_t;
+  //   // sot_t value;
+  //   // converter (value, data);
+  //   // (*signal) (value);
+  // }
+
+  template <typename R, typename S>
   void
-  RosExport::callback (boost::shared_ptr<dynamicgraph::SignalBase<int> > signal,
-		       const T& data)
+  RosExport::callback
+  (boost::shared_ptr<dynamicgraph::SignalTimeDependent<S, int> > signal,
+   const R& data)
   {
-    typedef typename SotToRos<T>::sot_t sot_t;
+    typedef S sot_t;
     sot_t value;
     converter (value, data);
     (*signal) (value);
   }
 
+
   template <typename T>
   void RosExport::add (const std::string& signal, const std::string& topic)
   {
     typedef typename SotToRos<T>::sot_t sot_t;
-    typedef typename SotToRos<T>::ros_t ros_t;
+    typedef typename SotToRos<T>::ros_const_ptr_t ros_const_ptr_t;
     typedef typename SotToRos<T>::signal_t signal_t;
-    typedef typename SotToRos<T>::callback_t callback_t;
 
     // Initialize the bindedSignal object.
     bindedSignal_t bindedSignal;
@@ -38,15 +51,19 @@ namespace dynamicgraph
     boost::format signalName ("RosExport(%1%)::%2%");
     signalName % name % signal;
 
-    bindedSignal.first = boost::make_shared<signal_t>(0, signalName.str ());
+    boost::shared_ptr<signal_t> signal_ =
+      boost::make_shared<signal_t>(0, signalName.str ());
+    bindedSignal.first = signal_;
     signalRegistration (*bindedSignal.first);
 
     // Initialize the publisher.
+    typedef boost::function<void (const ros_const_ptr_t& data)> callback_t;
+    callback_t callback = boost::bind
+      (&RosExport::callback<ros_const_ptr_t, sot_t>,
+       this, signal_, _1);
+
     bindedSignal.second =
-      boost::make_shared<ros::Publisher>
-      (nh_.subscribe
-       (topic, 1, boost::bind (&RosExport::callback<T>,
-			       this, bindedSignal.first)));
+      boost::make_shared<ros::Subscriber> (nh_.subscribe (topic, 1, callback));
 
     bindedSignal_[signal] = bindedSignal;
   }
