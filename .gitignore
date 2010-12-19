@@ -1,5 +1,6 @@
 lib/
 msg/lisp/
+msg/java/
 msg_gen/
-src/dynamic_graph/
+src/dynamic_graph_bridge/
 bin/

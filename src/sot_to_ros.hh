@@ -3,8 +3,8 @@
 # include <vector>
 # include <jrl/mal/boost.hh>
 # include <std_msgs/Float64.h>
-# include "dynamic_graph/Matrix.h"
-# include "dynamic_graph/Vector.h"
+# include "dynamic_graph_bridge/Matrix.h"
+# include "dynamic_graph_bridge/Vector.h"
 
 namespace dynamicgraph
 {
@@ -27,8 +27,8 @@ namespace dynamicgraph
   struct SotToRos<ml::Matrix>
   {
     typedef ml::Matrix sot_t;
-    typedef dynamic_graph::Matrix ros_t;
-    typedef dynamic_graph::MatrixConstPtr ros_const_ptr_t;
+    typedef dynamic_graph_bridge::Matrix ros_t;
+    typedef dynamic_graph_bridge::MatrixConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
   };
@@ -37,8 +37,8 @@ namespace dynamicgraph
   struct SotToRos<ml::Vector>
   {
     typedef ml::Vector sot_t;
-    typedef dynamic_graph::Vector ros_t;
-    typedef dynamic_graph::VectorConstPtr ros_const_ptr_t;
+    typedef dynamic_graph_bridge::Vector ros_t;
+    typedef dynamic_graph_bridge::VectorConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
   };

@@ -2,8 +2,8 @@
 # define DYNAMIC_GRAPH_ROS_IMPORT_HXX
 # include <vector>
 # include <std_msgs/Float64.h>
-# include "dynamic_graph/Matrix.h"
-# include "dynamic_graph/Vector.h"
+# include "dynamic_graph_bridge/Matrix.h"
+# include "dynamic_graph_bridge/Vector.h"
 
 # include "sot_to_ros.hh"
 

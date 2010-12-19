@@ -4,8 +4,8 @@
 # include <boost/bind.hpp>
 # include <jrl/mal/boost.hh>
 # include <std_msgs/Float64.h>
-# include "dynamic_graph/Matrix.h"
-# include "dynamic_graph/Vector.h"
+# include "dynamic_graph_bridge/Matrix.h"
+# include "dynamic_graph_bridge/Vector.h"
 
 
 namespace ml = maal::boost;
