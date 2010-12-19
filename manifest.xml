@@ -1,17 +1,17 @@
 <package>
-  <description brief="dynamic_graph">
+  <description brief="Dynamic graph ROS bridge">
 
-     Dynamic graph bindings.
+     ROS bindings for dynamic graph.
 
   </description>
   <author>Thomas Moulard</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/dynamic_graph</url>
+  <url>http://ros.org/wiki/dynamic-graph-bridge</url>
 
   <depend package="std_msgs"/>
   <depend package="roscpp"/>
 
-  <rosdep name="jrl-mal"/>
-  <rosdep name="dynamic-graph"/>
+  <depend package="jrl-mal"/>
+  <depend package="dynamic-graph"/>
 </package>
