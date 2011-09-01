@@ -7,6 +7,8 @@
 
 # include "sot_to_ros.hh"
 
+# include <iostream>
+
 namespace dynamicgraph
 {
   template <typename T>
@@ -42,8 +44,10 @@ namespace dynamicgraph
     callback_t signalCallback = boost::bind
       (&RosImport::sendData<sot_t>, this, bindedSignal.second, _1, _2);
 
-    bindedSignal.first = boost::make_shared<signal_t>
+    boost::shared_ptr<signal_t> signalPtr = boost::make_shared<signal_t>
       (signalCallback, sotNOSIGNAL, signalName.str ());
+    signalPtr->setNeedUpdateFromAllChildren (true);
+    bindedSignal.first = signalPtr;
     signalRegistration (*bindedSignal.first);
 
     bindedSignal_[signal] = bindedSignal;

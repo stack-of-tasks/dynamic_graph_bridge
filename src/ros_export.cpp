@@ -1,3 +1,4 @@
+#include <boost/assign.hpp>
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/function.hpp>
@@ -14,6 +15,94 @@ namespace dynamicgraph
 {
   DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosExport, "RosExport");
 
+  namespace command
+  {
+    namespace rosExport
+    {
+      Clear::Clear
+      (RosExport& entity, const std::string& docstring)
+	: Command
+	  (entity,
+	   std::vector<Value::Type> (),
+	   docstring)
+      {}
+
+      Value Clear::doExecute ()
+      {
+	RosExport& entity =
+	  static_cast<RosExport&> (owner ());
+
+	entity.clear ();
+	return Value ();
+      }
+
+      List::List
+      (RosExport& entity, const std::string& docstring)
+	: Command
+	  (entity,
+	   std::vector<Value::Type> (),
+	   docstring)
+      {}
+
+      Value List::doExecute ()
+      {
+	RosExport& entity =
+	  static_cast<RosExport&> (owner ());
+	entity.list ();
+	return Value ();
+      }
+
+      Add::Add
+      (RosExport& entity, const std::string& docstring)
+	: Command
+	  (entity,
+	   boost::assign::list_of
+	   (Value::STRING) (Value::STRING) (Value::STRING),
+	   docstring)
+      {}
+
+      Value Add::doExecute ()
+      {
+	RosExport& entity =
+	  static_cast<RosExport&> (owner ());
+	std::vector<Value> values = getParameterValues ();
+
+	const std::string& type = values[0].value ();
+	const std::string& signal = values[1].value ();
+	const std::string& topic = values[2].value ();
+
+	if (type == "double")
+	  entity.add<double> (signal, topic);
+	else if (type == "matrix")
+	  entity.add<ml::Matrix> (signal, topic);
+	else if (type == "vector")
+	  entity.add<ml::Vector> (signal, topic);
+	else
+	  throw std::runtime_error("bad type");
+	return Value ();
+      }
+
+      Rm::Rm
+      (RosExport& entity, const std::string& docstring)
+	: Command
+	  (entity,
+	   boost::assign::list_of (Value::STRING),
+	   docstring)
+      {}
+
+      Value Rm::doExecute ()
+      {
+	RosExport& entity =
+	  static_cast<RosExport&> (owner ());
+	std::vector<Value> values = getParameterValues ();
+	const std::string& signal = values[0].value ();
+	entity.rm (signal);
+	return Value ();
+      }
+    } // end of errorEstimator.
+  } // end of namespace command.
+
+
   const char* rosInit()
   {
     int argc = 1;
@@ -27,69 +116,35 @@ namespace dynamicgraph
   RosExport::RosExport (const std::string& n)
     : dynamicgraph::Entity(n),
       nh_ (rosInit ()),
-      bindedSignal_ ()
+      bindedSignal_ (),
+      spinner_ (1)
   {
-    ros::AsyncSpinner spinner (1);
-    spinner.start ();
+    spinner_.start ();
+
+    std::string docstring;
+    addCommand ("add",
+		new command::rosExport::Add
+		(*this, docstring));
+    addCommand ("rm",
+		new command::rosExport::Rm
+		(*this, docstring));
+    addCommand ("clear",
+		new command::rosExport::Clear
+		(*this, docstring));
+    addCommand ("list",
+		new command::rosExport::List
+		(*this, docstring));
   }
 
   RosExport::~RosExport ()
   {
+    spinner_.stop ();
     ros::waitForShutdown();
   }
 
   void RosExport::display (std::ostream& os) const
   {
     os << CLASS_NAME << std::endl;
-  }
-
-  void RosExport::commandLine (const std::string& cmdLine,
-			       std::istringstream& cmdArgs,
-			       std::ostream& os)
-  {
-    std::string type;
-    std::string signal;
-    std::string topic;
-
-    if (cmdLine == "help")
-      {
-	os << "RosExport: "<< std::endl
-	   << "  - add <TYPE> <SIGNAL> <TOPIC>" << std::endl
-	   << "  - rm <SIGNAL>" << std::endl
-	   << "  - clear" << std::endl
-	   << "  - list" << std::endl;
-	Entity::commandLine (cmdLine, cmdArgs, os);
-      }
-    else if (cmdLine == "add")
-      {
-	cmdArgs >> type >> signal >> topic;
-	if (type == "double")
-	  add<double> (signal, topic);
-	else if (type == "matrix")
-	  ;
-	  //add<ml::Matrix> (signal, topic);
-	else if (type == "vector")
-	  ;
-	  //add<ml::Vector> (signal, topic);
-	else
-	  throw "bad type";
-      }
-    else if (cmdLine == "rm")
-      {
-	cmdArgs >> signal;
-	rm (signal);
-      }
-    else if (cmdLine == "clear")
-      clear ();
-    else if (cmdLine == "list")
-      list ();
-    else
-      Entity::commandLine (cmdLine, cmdArgs, os);
-  }
-
-  const std::string& RosExport::getClassName ()
-  {
-    return CLASS_NAME;
   }
 
   void RosExport::rm (const std::string& signal)

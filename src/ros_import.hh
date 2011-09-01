@@ -7,6 +7,7 @@
 
 # include <dynamic-graph/entity.h>
 # include <dynamic-graph/signal-time-dependent.h>
+# include <dynamic-graph/command.h>
 
 # include <ros/ros.h>
 
@@ -15,28 +16,48 @@
 
 namespace dynamicgraph
 {
+  class RosImport;
+
+  namespace command
+  {
+    namespace rosImport
+    {
+      using ::dynamicgraph::command::Command;
+      using ::dynamicgraph::command::Value;
+
+# define ROS_IMPORT_MAKE_COMMAND(CMD)			\
+      class CMD : public Command			\
+      {							\
+      public:						\
+	CMD (RosImport& entity,				\
+	     const std::string& docstring);		\
+	virtual Value doExecute ();			\
+      }
+
+      ROS_IMPORT_MAKE_COMMAND(Add);
+      ROS_IMPORT_MAKE_COMMAND(Clear);
+      ROS_IMPORT_MAKE_COMMAND(List);
+      ROS_IMPORT_MAKE_COMMAND(Rm);
+
+#undef ROS_IMPORT_MAKE_COMMAND
+
+    } // end of namespace errorEstimator.
+  } // end of namespace command.
+
+
   class RosImport : public dynamicgraph::Entity
   {
+    DYNAMIC_GRAPH_ENTITY_DECL();
   public:
     typedef std::pair<boost::shared_ptr<dynamicgraph::SignalBase<int> >,
 		      boost::shared_ptr<ros::Publisher> >
       bindedSignal_t;
 
-    static const std::string CLASS_NAME;
-
     RosImport (const std::string& n);
     virtual ~RosImport ();
 
     void display (std::ostream& os) const;
-    virtual void
-    commandLine (const std::string& cmdLine,
-		 std::istringstream& cmdArgs,
-		 std::ostream& os);
 
-
-    virtual const std::string& getClassName ();
-
-  private:
     void add (const std::string& signal, const std::string& topic);
     void rm (const std::string& signal);
     void list ();
@@ -49,6 +70,7 @@ namespace dynamicgraph
     template <typename T>
     void add (const std::string& signal, const std::string& topic);
 
+  private:
     ros::NodeHandle nh_;
     std::map<std::string, bindedSignal_t> bindedSignal_;
   };

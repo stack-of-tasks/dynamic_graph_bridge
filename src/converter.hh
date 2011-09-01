@@ -40,6 +40,45 @@ namespace dynamicgraph
       dst.data[i] =  src.elementAt (i);
   }
 
+  template <>
+  inline void converter
+  (SotToRos<ml::Vector>::sot_t& dst,
+   const SotToRos<ml::Vector>::ros_t& src)
+  {
+    dst.resize (src.data.size ());
+    for (unsigned i = 0; i < src.data.size (); ++i)
+      dst.elementAt (i) =  src.data[i];
+  }
+
+  template <>
+  inline void converter
+  (SotToRos<ml::Matrix>::sot_t& dst,
+   const SotToRos<ml::Matrix>::ros_t& src)
+  {
+    dst.resize (src.width, src.data.size () / src.width);
+    for (unsigned i = 0; i < src.data.size (); ++i)
+      dst.elementAt (i) =  src.data[i];
+  }
+
+  template <>
+  inline void converter
+  (SotToRos<ml::Vector>::sot_t& dst,
+   const boost::shared_ptr<SotToRos<ml::Vector>::ros_t const>& src)
+  {
+    dst.resize (src->data.size ());
+    for (unsigned i = 0; i < src->data.size (); ++i)
+      dst.elementAt (i) =  src->data[i];
+  }
+
+  template <>
+  inline void converter
+  (SotToRos<ml::Matrix>::sot_t& dst,
+   const boost::shared_ptr<SotToRos<ml::Matrix>::ros_t const>& src)
+  {
+    dst.resize (src->width, src->data.size () / src->width);
+    for (unsigned i = 0; i < src->data.size (); ++i)
+      dst.elementAt (i) =  src->data[i];
+  }
 
 } // end of namespace dynamicgraph.
 

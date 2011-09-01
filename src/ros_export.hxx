@@ -7,33 +7,22 @@
 # include "dynamic_graph_bridge/Matrix.h"
 # include "dynamic_graph_bridge/Vector.h"
 
+#include <iostream>//FIXME:
 
 namespace ml = maal::boost;
 
 namespace dynamicgraph
 {
-  // template <typename R, typename S>
-  // void
-  // RosExport::callback
-  // (boost::shared_ptr<dynamicgraph::SignalTimeDependent<S, int> > signal,
-  //  const R& data)
-  // {
-  //   // typedef S sot_t;
-  //   // sot_t value;
-  //   // converter (value, data);
-  //   // (*signal) (value);
-  // }
-
   template <typename R, typename S>
   void
   RosExport::callback
-  (boost::shared_ptr<dynamicgraph::SignalTimeDependent<S, int> > signal,
+  (boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal,
    const R& data)
   {
     typedef S sot_t;
     sot_t value;
     converter (value, data);
-    (*signal) (value);
+    signal->setConstant (value);
   }
 
 
@@ -42,7 +31,7 @@ namespace dynamicgraph
   {
     typedef typename SotToRos<T>::sot_t sot_t;
     typedef typename SotToRos<T>::ros_const_ptr_t ros_const_ptr_t;
-    typedef typename SotToRos<T>::signal_t signal_t;
+    typedef typename SotToRos<T>::signalIn_t signal_t;
 
     // Initialize the bindedSignal object.
     bindedSignal_t bindedSignal;
@@ -51,8 +40,8 @@ namespace dynamicgraph
     boost::format signalName ("RosExport(%1%)::%2%");
     signalName % name % signal;
 
-    boost::shared_ptr<signal_t> signal_ =
-      boost::make_shared<signal_t>(0, signalName.str ());
+    boost::shared_ptr<signal_t> signal_ (new signal_t (0, signalName.str ()));
+    signal_->setConstant (sot_t ());
     bindedSignal.first = signal_;
     signalRegistration (*bindedSignal.first);
 
