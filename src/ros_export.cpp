@@ -77,6 +77,8 @@ namespace dynamicgraph
 	  entity.add<ml::Matrix> (signal, topic);
 	else if (type == "vector")
 	  entity.add<ml::Vector> (signal, topic);
+	else if (type == "matrixHomo")
+	  entity.add<sot::MatrixHomogeneous> (signal, topic);
 	else
 	  throw std::runtime_error("bad type");
 	return Value ();

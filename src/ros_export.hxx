@@ -9,7 +9,7 @@
 
 #include <iostream>//FIXME:
 
-namespace ml = maal::boost;
+namespace ml = ::maal::boost;
 
 namespace dynamicgraph
 {
