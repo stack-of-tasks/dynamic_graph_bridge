@@ -7,6 +7,13 @@
 
 namespace dynamicgraph
 {
+  /// \brief Handle ROS <-> dynamic-graph conversion.
+  ///
+  /// Implements all ROS/dynamic-graph conversions required by the
+  /// bridge.
+  ///
+  ///Relies on the SotToRos type trait to make sure valid pair of
+  /// types are used.
   template <typename D, typename S>
   void converter (D& dst, const S& src);
 
@@ -53,6 +60,16 @@ namespace dynamicgraph
     dst.rotation.y = quaternion.y ();
     dst.rotation.z = quaternion.z ();
     dst.rotation.w = quaternion.w ();
+  }
+
+  template <>
+  inline void converter
+  (SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::ros_t& dst,
+   const SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::sot_t& src)
+  {
+    converter
+      <SotToRos<sot::MatrixHomogeneous>::ros_t,
+      SotToRos<sot::MatrixHomogeneous>::sot_t> (dst.transform, src);
   }
 
   template <>
@@ -106,6 +123,16 @@ namespace dynamicgraph
 
   template <>
   inline void converter
+  (SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::sot_t& dst,
+   const SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::ros_t& src)
+  {
+    converter
+      <SotToRos<sot::MatrixHomogeneous>::sot_t,
+      SotToRos<sot::MatrixHomogeneous>::ros_t> (dst, src.transform);
+  }
+
+  template <>
+  inline void converter
   (SotToRos<ml::Vector>::sot_t& dst,
    const boost::shared_ptr<SotToRos<ml::Vector>::ros_t const>& src)
   {
@@ -132,6 +159,17 @@ namespace dynamicgraph
     converter
       <SotToRos<sot::MatrixHomogeneous>::sot_t,
       SotToRos<sot::MatrixHomogeneous>::ros_t> (dst, *src);
+  }
+
+  template <>
+  inline void converter
+   (SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::sot_t& dst,
+    const boost::shared_ptr
+    <SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::ros_t const>& src)
+  {
+    converter
+      <SotToRos<sot::MatrixHomogeneous>::sot_t,
+      SotToRos<sot::MatrixHomogeneous>::ros_t> (dst, src->transform);
   }
 
 

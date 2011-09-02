@@ -47,6 +47,13 @@ namespace dynamicgraph
   } // end of namespace command.
 
 
+  namespace internal
+  {
+    template <typename T>
+    struct Add;
+  } // end of internal namespace.
+
+  /// \brief Publish ROS information in the dynamic-graph.
   class RosExport : public dynamicgraph::Entity
   {
     DYNAMIC_GRAPH_ENTITY_DECL();
@@ -68,12 +75,30 @@ namespace dynamicgraph
     template <typename T>
     void add (const std::string& signal, const std::string& topic);
 
-  private:
+    std::map<std::string, bindedSignal_t>&
+    bindedSignal ()
+    {
+      return bindedSignal_;
+    }
+
+    ros::NodeHandle& nh ()
+    {
+      return nh_;
+    }
+
     template <typename R, typename S>
     void callback
     (boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal,
      const R& data);
 
+    template <typename R>
+    void callbackTimestamp
+    (boost::shared_ptr<dynamicgraph::SignalPtr<ml::Vector, int> > signal,
+     const R& data);
+
+    template <typename T>
+    friend class internal::Add;
+  private:
     ros::NodeHandle nh_;
     std::map<std::string, bindedSignal_t> bindedSignal_;
     ros::AsyncSpinner spinner_;

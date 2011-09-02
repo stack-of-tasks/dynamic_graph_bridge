@@ -45,6 +45,7 @@ namespace dynamicgraph
   } // end of namespace command.
 
 
+  /// \brief Publish dynamic-graph information into ROS.
   class RosImport : public dynamicgraph::Entity
   {
     DYNAMIC_GRAPH_ENTITY_DECL();
