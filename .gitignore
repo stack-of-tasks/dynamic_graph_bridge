@@ -4,3 +4,4 @@ msg/java/
 msg_gen/
 src/dynamic_graph_bridge/
 bin/
+build/
