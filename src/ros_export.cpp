@@ -144,7 +144,7 @@ namespace dynamicgraph
   RosExport::~RosExport ()
   {
     spinner_.stop ();
-    ros::waitForShutdown();
+    nh_.shutdown ();
   }
 
   void RosExport::display (std::ostream& os) const
