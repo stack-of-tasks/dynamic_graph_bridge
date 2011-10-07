@@ -55,9 +55,20 @@ rosbuild_add_link_flags(ros_export ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS}
 target_link_libraries(ros_export
   ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES} ${SOT_CORE_LIBRARIES})
 
+rosbuild_add_library(ros_joint_state
+  src/ros_joint_state.cpp src/ros_joint_state.hh src/converter.hh src/sot_to_ros.hh)
+rosbuild_add_compile_flags(ros_joint_state ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS}
+  ${SOT_CORE_CFLAGS})
+rosbuild_add_link_flags(ros_joint_state ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS}
+  ${SOT_CORE_LDFLAGS})
+target_link_libraries(ros_joint_state
+  ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES} ${SOT_CORE_LIBRARIES})
+
+
 
 INSTALL(TARGETS ros_import DESTINATION lib)
 INSTALL(TARGETS ros_export DESTINATION lib)
+INSTALL(TARGETS ros_joint_state DESTINATION lib)
 
 INCLUDE(cmake/python.cmake)
 
@@ -81,6 +92,18 @@ DYNAMIC_GRAPH_PYTHON_MODULE("ros/ros_export"
   ros/ros_export/wrap
   )
 SET_TARGET_PROPERTIES(dynamic_graph/ros/ros_export/wrap
+  PROPERTIES
+  COMPILE_FLAGS
+  ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${SOT_CORE_CFLAGS}
+  LINK_FLAGS
+  ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS} ${SOT_CORE_LDFLAGS}
+  )
+
+DYNAMIC_GRAPH_PYTHON_MODULE("ros/ros_joint_state"
+  ros_joint_state
+  ros/ros_joint_state/wrap
+  )
+SET_TARGET_PROPERTIES(dynamic_graph/ros/ros_joint_state/wrap
   PROPERTIES
   COMPILE_FLAGS
   ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${SOT_CORE_CFLAGS}
