@@ -4,6 +4,7 @@
 # include <map>
 
 # include <boost/shared_ptr.hpp>
+# include <boost/tuple/tuple.hpp>
 
 # include <dynamic-graph/entity.h>
 # include <dynamic-graph/signal-time-dependent.h>
@@ -50,9 +51,13 @@ namespace dynamicgraph
   {
     DYNAMIC_GRAPH_ENTITY_DECL();
   public:
-    typedef std::pair<boost::shared_ptr<dynamicgraph::SignalBase<int> >,
-		      boost::shared_ptr<ros::Publisher> >
-      bindedSignal_t;
+    typedef boost::function<void (int)> callback_t;
+
+    typedef boost::tuple<
+      boost::shared_ptr<dynamicgraph::SignalBase<int> >,
+      boost::shared_ptr<ros::Publisher>,
+      callback_t>
+    bindedSignal_t;
 
     RosImport (const std::string& n);
     virtual ~RosImport ();
@@ -64,9 +69,12 @@ namespace dynamicgraph
     void list ();
     void clear ();
 
+    int& trigger (int&, int);
+
     template <typename T>
-    T& sendData (boost::shared_ptr<ros::Publisher> publisher,
-		 T& data, int time);
+    void sendData (boost::shared_ptr<ros::Publisher> publisher,
+		   boost::shared_ptr<typename SotToRos<T>::signal_t> signal,
+		   int time);
 
     template <typename T>
     void add (const std::string& signal, const std::string& topic);
@@ -74,6 +82,7 @@ namespace dynamicgraph
   private:
     ros::NodeHandle nh_;
     std::map<std::string, bindedSignal_t> bindedSignal_;
+    dynamicgraph::SignalTimeDependent<int,int> trigger_;
   };
 } // end of namespace dynamicgraph.
 

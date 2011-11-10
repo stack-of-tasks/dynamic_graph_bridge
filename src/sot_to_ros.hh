@@ -3,6 +3,8 @@
 # include <vector>
 # include <utility>
 
+# include <boost/format.hpp>
+
 # include <jrl/mal/boost.hh>
 # include <std_msgs/Float64.h>
 # include "dynamic_graph_bridge/Matrix.h"
@@ -14,6 +16,10 @@
 # include <dynamic-graph/signal-time-dependent.h>
 # include <dynamic-graph/signal-ptr.h>
 # include <sot/core/matrix-homogeneous.hh>
+
+# define MAKE_SIGNAL_STRING(NAME, IS_INPUT, OUTPUT_TYPE, SIGNAL_NAME)	\
+  makeSignalString (typeid (*this).name (), NAME,			\
+		    IS_INPUT, OUTPUT_TYPE, SIGNAL_NAME)
 
 namespace dynamicgraph
 {
@@ -34,9 +40,11 @@ namespace dynamicgraph
     typedef double sot_t;
     typedef std_msgs::Float64 ros_t;
     typedef std_msgs::Float64ConstPtr ros_const_ptr_t;
-    typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
+    typedef dynamicgraph::Signal<sot_t, int> signal_t;
     typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
   };
 
   template <>
@@ -48,6 +56,8 @@ namespace dynamicgraph
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
     typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
   };
 
   template <>
@@ -59,6 +69,8 @@ namespace dynamicgraph
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
     typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
   };
 
   template <>
@@ -70,6 +82,8 @@ namespace dynamicgraph
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
     typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
   };
 
   // Stamped transformation
@@ -82,8 +96,25 @@ namespace dynamicgraph
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
     typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
   };
 
+  inline std::string
+  makeSignalString (const std::string& className,
+		    const std::string& instanceName,
+		    bool isInputSignal,
+		    const std::string& signalType,
+		    const std::string& signalName)
+  {
+    boost::format fmt ("%s(%s)::%s(%s)::%s");
+    fmt % className
+      % instanceName
+      % (isInputSignal ? "input" : "output")
+      % signalType
+      % signalName;
+    return fmt.str ();
+  }
 } // end of namespace dynamicgraph.
 
 #endif //! DYNAMIC_GRAPH_ROS_SOT_TO_ROS_HH

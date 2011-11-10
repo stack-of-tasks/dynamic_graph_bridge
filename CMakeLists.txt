@@ -36,6 +36,7 @@ pkg_check_modules(DYNAMIC_GRAPH REQUIRED dynamic-graph)
 pkg_check_modules(SOT_CORE REQUIRED sot-core)
 
 rosbuild_add_library(ros_import
+  src/sot_to_ros.cpp
   src/ros_import.cpp src/ros_import.hh src/converter.hh src/sot_to_ros.hh)
 rosbuild_add_compile_flags(ros_import ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS}
   ${SOT_CORE_CFLAGS})
@@ -45,6 +46,7 @@ target_link_libraries(ros_import
   ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES} ${SOT_CORE_LIBRARIES})
 
 rosbuild_add_library(ros_export
+  src/sot_to_ros.cpp
   src/ros_export.cpp src/ros_export.hh src/converter.hh src/sot_to_ros.hh)
 rosbuild_add_compile_flags(ros_export ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS}
   ${SOT_CORE_CFLAGS})

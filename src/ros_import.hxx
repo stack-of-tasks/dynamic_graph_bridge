@@ -12,14 +12,14 @@
 namespace dynamicgraph
 {
   template <typename T>
-  T&
+  void
   RosImport::sendData (boost::shared_ptr<ros::Publisher> publisher,
-		       T& data, int time)
+		       boost::shared_ptr<typename SotToRos<T>::signal_t> signal,
+		       int time)
   {
     typename SotToRos<T>::ros_t result;
-    converter (result, data);
+    converter (result, signal->access (time));
     publisher->publish (result);
-    return data;
   }
 
   template <typename T>
@@ -28,27 +28,29 @@ namespace dynamicgraph
     typedef typename SotToRos<T>::sot_t sot_t;
     typedef typename SotToRos<T>::ros_t ros_t;
     typedef typename SotToRos<T>::signal_t signal_t;
-    typedef typename SotToRos<T>::callback_t callback_t;
 
     // Initialize the bindedSignal object.
     bindedSignal_t bindedSignal;
 
     // Initialize the publisher.
-    bindedSignal.second =
+    boost::get<1> (bindedSignal) =
       boost::make_shared<ros::Publisher> (nh_.advertise<ros_t>(topic, 1));
 
     // Initialize the signal.
-    boost::format signalName ("RosImport(%1%)::%2%");
-    signalName % name % signal;
+    boost::shared_ptr<signal_t> signalPtr =
+      boost::make_shared<signal_t>
+      (MAKE_SIGNAL_STRING(name, true, SotToRos<T>::signalTypeName, signal));
+    boost::get<0> (bindedSignal) = signalPtr;
+    signalRegistration (*boost::get<0> (bindedSignal));
 
-    callback_t signalCallback = boost::bind
-      (&RosImport::sendData<sot_t>, this, bindedSignal.second, _1, _2);
-
-    boost::shared_ptr<signal_t> signalPtr = boost::make_shared<signal_t>
-      (signalCallback, sotNOSIGNAL, signalName.str ());
-    signalPtr->setNeedUpdateFromAllChildren (true);
-    bindedSignal.first = signalPtr;
-    signalRegistration (*bindedSignal.first);
+    // Initialize the callback.
+    callback_t callback = boost::bind
+      (&RosImport::sendData<T>,
+       this,
+       boost::get<1> (bindedSignal),
+       signalPtr,
+       _1);
+    boost::get<2> (bindedSignal) = callback;
 
     bindedSignal_[signal] = bindedSignal;
   }

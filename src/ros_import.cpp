@@ -2,6 +2,7 @@
 
 #include <boost/assign.hpp>
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
@@ -119,8 +120,14 @@ namespace dynamicgraph
   RosImport::RosImport (const std::string& n)
     : dynamicgraph::Entity(n),
       nh_ (rosInit ()),
-      bindedSignal_ ()
+      bindedSignal_ (),
+      trigger_ (boost::bind (&RosImport::trigger, this, _1, _2),
+		sotNOSIGNAL,
+		MAKE_SIGNAL_STRING(name, true, "int", "trigger"))
   {
+    signalRegistration (trigger_);
+    trigger_.setNeedUpdateFromAllChildren (true);
+
     std::string docstring;
     addCommand ("add",
 		new command::rosImport::Add
@@ -158,6 +165,18 @@ namespace dynamicgraph
   void RosImport::clear ()
   {
     bindedSignal_.clear ();
+  }
+
+  int& RosImport::trigger (int& dummy, int t)
+  {
+    typedef std::map<std::string, bindedSignal_t>::iterator iterator_t;
+
+    for (iterator_t it = bindedSignal_.begin ();
+	 it != bindedSignal_.end (); ++it)
+      {
+	boost::get<2>(it->second) (t);
+      }
+    return dummy;
   }
 
 } // end of namespace dynamicgraph.
