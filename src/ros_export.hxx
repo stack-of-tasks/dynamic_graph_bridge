@@ -62,7 +62,7 @@ namespace dynamicgraph
 	bindedSignal.first = signal_;
 	rosExport.signalRegistration (*bindedSignal.first);
 
-	// Initialize the publisher.
+	// Initialize the subscriber.
 	typedef boost::function<void (const ros_const_ptr_t& data)> callback_t;
 	callback_t callback = boost::bind
 	  (&RosExport::callback<ros_const_ptr_t, sot_t>,
