@@ -174,7 +174,7 @@ namespace dynamicgraph
     for (iterator_t it = bindedSignal_.begin ();
 	 it != bindedSignal_.end (); ++it)
       {
-	boost::get<2>(it->second) (t);
+	boost::get<1>(it->second) (t);
       }
     return dummy;
   }

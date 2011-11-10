@@ -12,6 +12,8 @@
 
 # include <ros/ros.h>
 
+# include <realtime_tools/realtime_publisher.h>
+
 # include "converter.hh"
 # include "sot_to_ros.hh"
 
@@ -55,7 +57,6 @@ namespace dynamicgraph
 
     typedef boost::tuple<
       boost::shared_ptr<dynamicgraph::SignalBase<int> >,
-      boost::shared_ptr<ros::Publisher>,
       callback_t>
     bindedSignal_t;
 
@@ -72,9 +73,13 @@ namespace dynamicgraph
     int& trigger (int&, int);
 
     template <typename T>
-    void sendData (boost::shared_ptr<ros::Publisher> publisher,
-		   boost::shared_ptr<typename SotToRos<T>::signal_t> signal,
-		   int time);
+    void
+    sendData
+    (boost::shared_ptr
+     <realtime_tools::RealtimePublisher
+     <typename SotToRos<T>::ros_t> > publisher,
+     boost::shared_ptr<typename SotToRos<T>::signal_t> signal,
+     int time);
 
     template <typename T>
     void add (const std::string& signal, const std::string& topic);

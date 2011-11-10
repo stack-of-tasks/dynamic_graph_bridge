@@ -2,6 +2,7 @@
 # define DYNAMIC_GRAPH_ROS_IMPORT_HXX
 # include <vector>
 # include <std_msgs/Float64.h>
+
 # include "dynamic_graph_bridge/Matrix.h"
 # include "dynamic_graph_bridge/Vector.h"
 
@@ -13,13 +14,19 @@ namespace dynamicgraph
 {
   template <typename T>
   void
-  RosImport::sendData (boost::shared_ptr<ros::Publisher> publisher,
-		       boost::shared_ptr<typename SotToRos<T>::signal_t> signal,
-		       int time)
+  RosImport::sendData
+  (boost::shared_ptr
+   <realtime_tools::RealtimePublisher
+   <typename SotToRos<T>::ros_t> > publisher,
+   boost::shared_ptr<typename SotToRos<T>::signal_t> signal,
+   int time)
   {
     typename SotToRos<T>::ros_t result;
-    converter (result, signal->access (time));
-    publisher->publish (result);
+    if (publisher->trylock ())
+      {
+	converter (publisher->msg_, signal->access (time));
+	publisher->unlockAndPublish ();
+      }
   }
 
   template <typename T>
@@ -33,8 +40,11 @@ namespace dynamicgraph
     bindedSignal_t bindedSignal;
 
     // Initialize the publisher.
-    boost::get<1> (bindedSignal) =
-      boost::make_shared<ros::Publisher> (nh_.advertise<ros_t>(topic, 1));
+    boost::shared_ptr
+      <realtime_tools::RealtimePublisher<ros_t> >
+      pubPtr =
+      boost::make_shared<realtime_tools::RealtimePublisher<ros_t> >
+      (nh_, topic, 1);
 
     // Initialize the signal.
     boost::shared_ptr<signal_t> signalPtr =
@@ -47,10 +57,10 @@ namespace dynamicgraph
     callback_t callback = boost::bind
       (&RosImport::sendData<T>,
        this,
-       boost::get<1> (bindedSignal),
+       pubPtr,
        signalPtr,
        _1);
-    boost::get<2> (bindedSignal) = callback;
+    boost::get<1> (bindedSignal) = callback;
 
     bindedSignal_[signal] = bindedSignal;
   }

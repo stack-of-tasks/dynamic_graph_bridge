@@ -5,6 +5,7 @@
 # include <dynamic-graph/signal-time-dependent.h>
 
 # include <ros/ros.h>
+# include <realtime_tools/realtime_publisher.h>
 # include <sensor_msgs/JointState.h>
 
 # include "converter.hh"
@@ -27,7 +28,7 @@ namespace dynamicgraph
   private:
     ros::NodeHandle nh_;
     signalVectorIn_t state_;
-    ros::Publisher publisher_;
+    realtime_tools::RealtimePublisher<sensor_msgs::JointState> publisher_;
     sensor_msgs::JointState jointState_;
     dynamicgraph::SignalTimeDependent<int,int> trigger_;
   };

@@ -24,7 +24,7 @@ namespace dynamicgraph
     : Entity (n),
       nh_ (rosInit ()),
       state_ (0, MAKE_SIGNAL_STRING(name, true, "Vector", "state")),
-      publisher_ (nh_.advertise<sensor_msgs::JointState>("jointState", 5)),
+      publisher_ (nh_, "jointState", 5),
       jointState_ (),
       trigger_ (boost::bind (&RosJointState::trigger, this, _1, _2),
 		sotNOSIGNAL,
@@ -46,32 +46,38 @@ namespace dynamicgraph
   int&
   RosJointState::trigger (int& dummy, int t)
   {
-    std::size_t s = state_.access (t).size ();
-
-    // Update header.
-    ++jointState_.header.seq;
-    jointState_.header.stamp.sec = 0;
-    jointState_.header.stamp.nsec = 0;
-
-    // Fill names if needed.
-    if (jointState_.name.size () != s)
+    if (publisher_.trylock ())
       {
-	boost::format fmtFreeFlyer ("free-flyer-%s");
-	boost::format fmtJoint ("joint-%s");
-	jointState_.name.resize (s);
+	std::size_t s = state_.access (t).size ();
+
+	// Update header.
+	++jointState_.header.seq;
+
+	ros::Time now = ros::Time::now ();
+	jointState_.header.stamp.sec = now.sec;
+	jointState_.header.stamp.nsec = now.nsec;
+
+	// Fill names if needed.
+	if (jointState_.name.size () != s)
+	  {
+	    boost::format fmtFreeFlyer ("free-flyer-%s");
+	    boost::format fmtJoint ("joint-%s");
+	    jointState_.name.resize (s);
+	    for (std::size_t i = 0; i < s; ++i)
+	      if (i < 6)
+		jointState_.name[i] = (fmtFreeFlyer % i).str ();
+	      else
+		jointState_.name[i] = (fmtJoint % (i - 6)).str ();
+	  }
+
+	// Fill position.
+	jointState_.position.resize (s);
 	for (std::size_t i = 0; i < s; ++i)
-	  if (i < 6)
-	    jointState_.name[i] = (fmtFreeFlyer % i).str ();
-	  else
-	    jointState_.name[i] = (fmtJoint % (i - 6)).str ();
+	  jointState_.position[i] = state_.access (t) (i);
+
+	publisher_.msg_ = jointState_;
+	publisher_.unlockAndPublish ();
       }
-
-    // Fill position.
-    jointState_.position.resize (s);
-    for (std::size_t i = 0; i < s; ++i)
-      jointState_.position[i] = state_.access (t) (i);
-
-    publisher_.publish (jointState_);
     return dummy;
   }
 } // end of namespace dynamicgraph.
