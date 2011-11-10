@@ -28,7 +28,9 @@ namespace dynamicgraph
       jointState_ (),
       trigger_ (boost::bind (&RosJointState::trigger, this, _1, _2),
 		sotNOSIGNAL,
-		MAKE_SIGNAL_STRING(name, true, "int", "trigger"))
+		MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
+      rate_ (ROS_JOINT_STATE_PUBLISHER_RATE),
+      lastPublicated_ (ros::Time::now () - rate_ - rate_)
   {
     signalRegistration (state_ << trigger_);
     trigger_.setNeedUpdateFromAllChildren (true);
@@ -46,8 +48,10 @@ namespace dynamicgraph
   int&
   RosJointState::trigger (int& dummy, int t)
   {
-    if (publisher_.trylock ())
+    ros::Duration dt = ros::Time::now () - lastPublicated_;
+    if (dt > rate_ && publisher_.trylock ())
       {
+	lastPublicated_ = ros::Time::now ();
 	std::size_t s = state_.access (t).size ();
 
 	// Update header.

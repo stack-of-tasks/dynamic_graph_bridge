@@ -123,7 +123,9 @@ namespace dynamicgraph
       bindedSignal_ (),
       trigger_ (boost::bind (&RosImport::trigger, this, _1, _2),
 		sotNOSIGNAL,
-		MAKE_SIGNAL_STRING(name, true, "int", "trigger"))
+		MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
+      rate_ (ROS_JOINT_STATE_PUBLISHER_RATE),
+      lastPublicated_ (ros::Time::now () - rate_ - rate_)
   {
     signalRegistration (trigger_);
     trigger_.setNeedUpdateFromAllChildren (true);
@@ -170,6 +172,10 @@ namespace dynamicgraph
   int& RosImport::trigger (int& dummy, int t)
   {
     typedef std::map<std::string, bindedSignal_t>::iterator iterator_t;
+
+    ros::Duration dt = ros::Time::now () - lastPublicated_;
+    if (dt < rate_)
+      return dummy;
 
     for (iterator_t it = bindedSignal_.begin ();
 	 it != bindedSignal_.end (); ++it)

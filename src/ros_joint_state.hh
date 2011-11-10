@@ -21,6 +21,8 @@ namespace dynamicgraph
     /// \brief Vector input signal.
     typedef SignalPtr<ml::Vector, int> signalVectorIn_t;
 
+    static const double ROS_JOINT_STATE_PUBLISHER_RATE = 1. / 100.;
+
     RosJointState (const std::string& n);
     virtual ~RosJointState ();
 
@@ -31,6 +33,8 @@ namespace dynamicgraph
     realtime_tools::RealtimePublisher<sensor_msgs::JointState> publisher_;
     sensor_msgs::JointState jointState_;
     dynamicgraph::SignalTimeDependent<int,int> trigger_;
+    ros::Duration rate_;
+    ros::Time lastPublicated_;
   };
 } // end of namespace dynamicgraph.
 

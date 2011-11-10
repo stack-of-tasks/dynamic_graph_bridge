@@ -60,6 +60,8 @@ namespace dynamicgraph
       callback_t>
     bindedSignal_t;
 
+    static const double ROS_JOINT_STATE_PUBLISHER_RATE = 1. / 100.;
+
     RosImport (const std::string& n);
     virtual ~RosImport ();
 
@@ -88,6 +90,8 @@ namespace dynamicgraph
     ros::NodeHandle nh_;
     std::map<std::string, bindedSignal_t> bindedSignal_;
     dynamicgraph::SignalTimeDependent<int,int> trigger_;
+    ros::Duration rate_;
+    ros::Time lastPublicated_;
   };
 } // end of namespace dynamicgraph.
 
