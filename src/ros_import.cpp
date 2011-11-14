@@ -13,6 +13,7 @@
 #include <dynamic-graph/factory.h>
 #include <dynamic-graph/command.h>
 
+#include "ros_init.hh"
 #include "ros_import.hh"
 
 namespace dynamicgraph
@@ -114,17 +115,6 @@ namespace dynamicgraph
       }
     } // end of errorEstimator.
   } // end of namespace command.
-
-
-  const char* rosInit()
-  {
-    int argc = 1;
-    char* arg0 = strdup("ros_import");
-    char* argv[] = {arg0, 0};
-    ros::init(argc, argv, "ros_import");
-    free (arg0);
-    return "dynamic_graph";
-  }
 
   RosImport::RosImport (const std::string& n)
     : dynamicgraph::Entity(n),
