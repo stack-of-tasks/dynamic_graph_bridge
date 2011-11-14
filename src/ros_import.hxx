@@ -51,6 +51,7 @@ namespace dynamicgraph
       boost::make_shared<signal_t>
       (MAKE_SIGNAL_STRING(name, true, SotToRos<T>::signalTypeName, signal));
     boost::get<0> (bindedSignal) = signalPtr;
+    SotToRos<T>::setDefault(*signalPtr);
     signalRegistration (*boost::get<0> (bindedSignal));
 
     // Initialize the callback.

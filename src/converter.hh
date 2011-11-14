@@ -1,12 +1,37 @@
 #ifndef DYNAMIC_GRAPH_ROS_CONVERTER_HH
 # define DYNAMIC_GRAPH_ROS_CONVERTER_HH
+# include <stdexcept>
 # include "sot_to_ros.hh"
+
+# include <boost/static_assert.hpp>
+
+# include <ros/time.h>
+# include <std_msgs/Header.h>
 
 # include <LinearMath/btMatrix3x3.h>
 # include <LinearMath/btQuaternion.h>
 
+# define SOT_TO_ROS_IMPL(T)						\
+  template <>								\
+  inline void								\
+  converter (SotToRos<T>::ros_t& dst, const SotToRos<T>::sot_t& src)
+
+# define ROS_TO_SOT_IMPL(T)						\
+  template <>								\
+  inline void								\
+  converter (SotToRos<T>::sot_t& dst, const SotToRos<T>::ros_t& src)
+
 namespace dynamicgraph
 {
+  inline
+  void
+  makeHeader(std_msgs::Header& header)
+  {
+    header.seq = 0;
+    header.stamp = ros::Time::now ();
+    header.frame_id = "/dynamic_graph/world";
+  }
+
   /// \brief Handle ROS <-> dynamic-graph conversion.
   ///
   /// Implements all ROS/dynamic-graph conversions required by the
@@ -17,23 +42,35 @@ namespace dynamicgraph
   template <typename D, typename S>
   void converter (D& dst, const S& src);
 
-  template <>
-  inline void converter (SotToRos<double>::ros_t& dst,
-			 const SotToRos<double>::sot_t& src)
+  // Double
+  SOT_TO_ROS_IMPL(double)
   {
     dst.data = src;
   }
 
-  template <>
-  inline void converter (SotToRos<double>::sot_t& dst,
-			 const SotToRos<double>::ros_const_ptr_t& src)
+  ROS_TO_SOT_IMPL(double)
   {
-    dst = src->data;
+    dst = src.data;
   }
 
-  template <>
-  inline void converter (SotToRos<ml::Matrix>::ros_t& dst,
-			 const SotToRos<ml::Matrix>::sot_t& src)
+  // Vector
+  SOT_TO_ROS_IMPL(ml::Vector)
+  {
+    dst.data.resize (src.size ());
+    for (unsigned i = 0; i < src.size (); ++i)
+      dst.data[i] =  src.elementAt (i);
+  }
+
+  ROS_TO_SOT_IMPL(ml::Vector)
+  {
+    dst.resize (src.data.size ());
+    for (unsigned i = 0; i < src.data.size (); ++i)
+      dst.elementAt (i) =  src.data[i];
+  }
+
+
+  // Matrix
+  SOT_TO_ROS_IMPL(ml::Matrix)
   {
     dst.width = src.nbRows ();
     dst.data.resize (src.nbCols () * src.nbRows ());
@@ -41,9 +78,15 @@ namespace dynamicgraph
       dst.data[i] =  src.elementAt (i);
   }
 
-  template <>
-  inline void converter (SotToRos<sot::MatrixHomogeneous>::ros_t& dst,
-			 const SotToRos<sot::MatrixHomogeneous>::sot_t& src)
+  ROS_TO_SOT_IMPL(ml::Matrix)
+  {
+    dst.resize (src.width, src.data.size () / src.width);
+    for (unsigned i = 0; i < src.data.size (); ++i)
+      dst.elementAt (i) =  src.data[i];
+  }
+
+  // Homogeneous matrix.
+  SOT_TO_ROS_IMPL(sot::MatrixHomogeneous)
   {
     btMatrix3x3 rotation;
     btQuaternion quaternion;
@@ -62,49 +105,7 @@ namespace dynamicgraph
     dst.rotation.w = quaternion.w ();
   }
 
-  template <>
-  inline void converter
-  (SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::ros_t& dst,
-   const SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::sot_t& src)
-  {
-    converter
-      <SotToRos<sot::MatrixHomogeneous>::ros_t,
-      SotToRos<sot::MatrixHomogeneous>::sot_t> (dst.transform, src);
-  }
-
-  template <>
-  inline void converter (SotToRos<ml::Vector>::ros_t& dst,
-			 const SotToRos<ml::Vector>::sot_t& src)
-  {
-    dst.data.resize (src.size ());
-    for (unsigned i = 0; i < src.size (); ++i)
-      dst.data[i] =  src.elementAt (i);
-  }
-
-  template <>
-  inline void converter
-  (SotToRos<ml::Vector>::sot_t& dst,
-   const SotToRos<ml::Vector>::ros_t& src)
-  {
-    dst.resize (src.data.size ());
-    for (unsigned i = 0; i < src.data.size (); ++i)
-      dst.elementAt (i) =  src.data[i];
-  }
-
-  template <>
-  inline void converter
-  (SotToRos<ml::Matrix>::sot_t& dst,
-   const SotToRos<ml::Matrix>::ros_t& src)
-  {
-    dst.resize (src.width, src.data.size () / src.width);
-    for (unsigned i = 0; i < src.data.size (); ++i)
-      dst.elementAt (i) =  src.data[i];
-  }
-
-  template <>
-  inline void converter
-  (SotToRos<sot::MatrixHomogeneous>::sot_t& dst,
-   const SotToRos<sot::MatrixHomogeneous>::ros_t& src)
+  ROS_TO_SOT_IMPL(sot::MatrixHomogeneous)
   {
     btQuaternion quaternion
       (src.rotation.x, src.rotation.y, src.rotation.z, src.rotation.w);
@@ -121,58 +122,128 @@ namespace dynamicgraph
     dst(2, 3) = src.translation.z;
   }
 
-  template <>
-  inline void converter
-  (SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::sot_t& dst,
-   const SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::ros_t& src)
+
+  // Twist.
+  SOT_TO_ROS_IMPL(specific::Twist)
   {
-    converter
-      <SotToRos<sot::MatrixHomogeneous>::sot_t,
-      SotToRos<sot::MatrixHomogeneous>::ros_t> (dst, src.transform);
+    if (src.size () != 6)
+      throw std::runtime_error ("failed to convert invalid twist");
+    dst.linear.x = src (0);
+    dst.linear.y = src (1);
+    dst.linear.z = src (2);
+    dst.angular.x = src (3);
+    dst.angular.y = src (4);
+    dst.angular.z = src (5);
   }
 
-  template <>
-  inline void converter
-  (SotToRos<ml::Vector>::sot_t& dst,
-   const boost::shared_ptr<SotToRos<ml::Vector>::ros_t const>& src)
+  ROS_TO_SOT_IMPL(specific::Twist)
   {
-    converter
-      <SotToRos<ml::Vector>::sot_t,
-      SotToRos<ml::Vector>::ros_t> (dst, *src);
-  }
-
-  template <>
-  inline void converter
-  (SotToRos<ml::Matrix>::sot_t& dst,
-   const boost::shared_ptr<SotToRos<ml::Matrix>::ros_t const>& src)
-  {
-    converter
-      <SotToRos<ml::Matrix>::sot_t,
-      SotToRos<ml::Matrix>::ros_t> (dst, *src);
-  }
-
-  template <>
-  inline void converter
-  (SotToRos<sot::MatrixHomogeneous>::sot_t& dst,
-   const boost::shared_ptr<SotToRos<sot::MatrixHomogeneous>::ros_t const>& src)
-  {
-    converter
-      <SotToRos<sot::MatrixHomogeneous>::sot_t,
-      SotToRos<sot::MatrixHomogeneous>::ros_t> (dst, *src);
-  }
-
-  template <>
-  inline void converter
-   (SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::sot_t& dst,
-    const boost::shared_ptr
-    <SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >::ros_t const>& src)
-  {
-    converter
-      <SotToRos<sot::MatrixHomogeneous>::sot_t,
-      SotToRos<sot::MatrixHomogeneous>::ros_t> (dst, src->transform);
+    dst.resize (6);
+    dst (0) = src.linear.x;
+    dst (1) = src.linear.y;
+    dst (2) = src.linear.z;
+    dst (3) = src.angular.x;
+    dst (4) = src.angular.y;
+    dst (5) = src.angular.z;
   }
 
 
+  /// \brief This macro generates a converter for a stamped type from
+  /// dynamic-graph to ROS.  I.e. A data associated with its
+  /// timestamp.
+# define DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(T, ATTRIBUTE, EXTRA)	\
+  template <>								\
+  inline void converter							\
+  (SotToRos<std::pair<T, ml::Vector> >::ros_t& dst,			\
+   const SotToRos<std::pair<T, ml::Vector> >::sot_t& src)		\
+  {									\
+    makeHeader(dst.header);						\
+    converter<SotToRos<T>::ros_t, SotToRos<T>::sot_t> (dst.ATTRIBUTE, src); \
+    do { EXTRA } while (0);						\
+  }									\
+  struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
+
+  DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(sot::MatrixHomogeneous, transform,
+				     dst.child_frame_id = "";);
+  DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(specific::Twist, twist, ;);
+
+
+  /// \brief This macro generates a converter for a shared pointer on
+  ///        a ROS type to a dynamic-graph type.
+  ///
+  ///        A converter for the underlying type is required.  I.e. to
+  ///        convert a shared_ptr<T> to T', a converter from T to T'
+  ///        is required.
+# define DG_BRIDGE_MAKE_SHPTR_IMPL(T)					\
+  template <>								\
+  inline void converter							\
+  (SotToRos<T>::sot_t& dst,						\
+   const boost::shared_ptr<SotToRos<T>::ros_t const>& src)		\
+  {									\
+    converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t> (dst, *src);	\
+  }									\
+  struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
+
+  DG_BRIDGE_MAKE_SHPTR_IMPL(double);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Vector);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Matrix);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(sot::MatrixHomogeneous);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Twist);
+
+  /// \brief This macro generates a converter for a stamped type.
+  /// I.e. A data associated with its timestamp.
+  ///
+  /// FIXME: the timestamp is not yet forwarded to the dg signal.
+# define DG_BRIDGE_MAKE_STAMPED_IMPL(T, ATTRIBUTE, EXTRA)		\
+  template <>								\
+  inline void converter							\
+  (SotToRos<std::pair<T, ml::Vector> >::sot_t& dst,			\
+   const SotToRos<std::pair<T, ml::Vector> >::ros_t& src)		\
+  {									\
+    converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t> (dst, src.ATTRIBUTE); \
+    do { EXTRA } while (0);						\
+  }									\
+  struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
+
+  DG_BRIDGE_MAKE_STAMPED_IMPL(sot::MatrixHomogeneous, transform, ;);
+  DG_BRIDGE_MAKE_STAMPED_IMPL(specific::Twist, twist, ;);
+
+  /// \brief This macro generates a converter for a shared pointer on
+  /// a stamped type.  I.e. A data associated with its timestamp.
+  ///
+  /// FIXME: the timestamp is not yet forwarded to the dg signal.
+# define DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(T, ATTRIBUTE, EXTRA)		\
+  template <>								\
+  inline void converter							\
+  (SotToRos<std::pair<T, ml::Vector> >::sot_t& dst,			\
+   const boost::shared_ptr						\
+   <SotToRos<std::pair<T, ml::Vector> >::ros_t const>& src)		\
+  {									\
+    converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t> (dst, src->ATTRIBUTE); \
+    do { EXTRA } while (0);						\
+  }									\
+  struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
+
+  DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(sot::MatrixHomogeneous, transform, ;);
+  DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(specific::Twist, twist, ;);
+
+
+  /// \brief If an impossible/unimplemented conversion is required, fail.
+  ///
+  /// IMPORTANT, READ ME:
+  ///
+  /// If the compiler generates an error in the following function,
+  /// this is /normal/.
+  ///
+  /// This error means that either you try to use an undefined
+  /// conversion.  You can either fix your code or provide the wanted
+  /// conversion by updating this header.
+  template <typename U, typename V>
+  inline void converter (U& dst, V& src)
+  {
+    // This will always fail if instantiated.
+    BOOST_STATIC_ASSERT (sizeof (U) == 0);
+  }
 } // end of namespace dynamicgraph.
 
 #endif //! DYNAMIC_GRAPH_ROS_CONVERTER_HH

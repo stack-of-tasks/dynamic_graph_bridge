@@ -12,6 +12,8 @@
 
 # include "geometry_msgs/Transform.h"
 # include "geometry_msgs/TransformStamped.h"
+# include "geometry_msgs/Twist.h"
+# include "geometry_msgs/TwistStamped.h"
 
 # include <dynamic-graph/signal-time-dependent.h>
 # include <dynamic-graph/signal-ptr.h>
@@ -24,6 +26,16 @@
 namespace dynamicgraph
 {
   namespace ml = maal::boost;
+
+  /// \brief Types dedicated to identify pairs of (dg,ros) data.
+  ///
+  /// They do not contain any data but allow to make the difference
+  /// between different types with the same structure.
+  /// For instance a vector of six elements vs a twist coordinate.
+  namespace specific
+  {
+    class Twist {};
+  } // end of namespace specific.
 
   /// \brief SotToRos trait type.
   ///
@@ -45,6 +57,12 @@ namespace dynamicgraph
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
 
     static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      s.setConstant (0.);
+    }
   };
 
   template <>
@@ -58,6 +76,14 @@ namespace dynamicgraph
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
 
     static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      ml::Matrix m;
+      m.resize(0, 0);
+      s.setConstant (m);
+    }
   };
 
   template <>
@@ -71,6 +97,14 @@ namespace dynamicgraph
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
 
     static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      ml::Vector v;
+      v.resize (0);
+      s.setConstant (v);
+    }
   };
 
   template <>
@@ -84,6 +118,34 @@ namespace dynamicgraph
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
 
     static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      sot::MatrixHomogeneous m;
+      s.setConstant (m);
+    }
+  };
+
+  template <>
+  struct SotToRos<specific::Twist>
+  {
+    typedef ml::Vector sot_t;
+    typedef geometry_msgs::Twist ros_t;
+    typedef geometry_msgs::TwistConstPtr ros_const_ptr_t;
+    typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
+    typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
+    typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      ml::Vector v (6);
+      v.setZero ();
+      s.setConstant (v);
+    }
   };
 
   // Stamped transformation
@@ -98,6 +160,32 @@ namespace dynamicgraph
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
 
     static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      SotToRos<sot_t>::setDefault(s);
+    }
+  };
+
+  // Stamped twist
+  template <>
+  struct SotToRos<std::pair<specific::Twist, ml::Vector> >
+  {
+    typedef ml::Vector sot_t;
+    typedef geometry_msgs::TwistStamped ros_t;
+    typedef geometry_msgs::TwistStampedConstPtr ros_const_ptr_t;
+    typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
+    typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
+    typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      SotToRos<sot_t>::setDefault(s);
+    }
   };
 
   inline std::string

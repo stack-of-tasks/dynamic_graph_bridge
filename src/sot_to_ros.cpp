@@ -7,8 +7,12 @@ namespace dynamicgraph
   const char* SotToRos<ml::Matrix>::signalTypeName = "Matrix";
   const char* SotToRos<ml::Vector>::signalTypeName = "Vector";
   const char* SotToRos<sot::MatrixHomogeneous>::signalTypeName = "MatrixHomo";
+  const char* SotToRos<specific::Twist>::signalTypeName = "Twist";
   const char* SotToRos
   <std::pair<sot::MatrixHomogeneous, ml::Vector> >::signalTypeName
   = "MatrixHomo";
+  const char* SotToRos
+  <std::pair<specific::Twist, ml::Vector> >::signalTypeName
+  = "Twist";
 
 } // end of namespace dynamicgraph.

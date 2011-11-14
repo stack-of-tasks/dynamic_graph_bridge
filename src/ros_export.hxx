@@ -58,7 +58,7 @@ namespace dynamicgraph
 
 	boost::shared_ptr<signal_t> signal_
 	  (new signal_t (0, signalName.str ()));
-	signal_->setConstant (sot_t ());
+	SotToRos<T>::setDefault(*signal_);
 	bindedSignal.first = signal_;
 	rosExport.signalRegistration (*bindedSignal.first);
 
@@ -98,7 +98,7 @@ namespace dynamicgraph
 
 	boost::shared_ptr<signal_t> signal_
 	  (new signal_t (0, signalName.str ()));
-	signal_->setConstant (sot_t ());
+	SotToRos<T>::setDefault(*signal_);
 	bindedSignal.first = signal_;
 	rosExport.signalRegistration (*bindedSignal.first);
 
