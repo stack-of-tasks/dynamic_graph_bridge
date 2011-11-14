@@ -80,7 +80,7 @@ namespace dynamicgraph
     (boost::shared_ptr
      <realtime_tools::RealtimePublisher
      <typename SotToRos<T>::ros_t> > publisher,
-     boost::shared_ptr<typename SotToRos<T>::signal_t> signal,
+     boost::shared_ptr<typename SotToRos<T>::signalIn_t> signal,
      int time);
 
     template <typename T>

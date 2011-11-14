@@ -18,7 +18,7 @@ namespace dynamicgraph
   (boost::shared_ptr
    <realtime_tools::RealtimePublisher
    <typename SotToRos<T>::ros_t> > publisher,
-   boost::shared_ptr<typename SotToRos<T>::signal_t> signal,
+   boost::shared_ptr<typename SotToRos<T>::signalIn_t> signal,
    int time)
   {
     typename SotToRos<T>::ros_t result;
@@ -34,7 +34,7 @@ namespace dynamicgraph
   {
     typedef typename SotToRos<T>::sot_t sot_t;
     typedef typename SotToRos<T>::ros_t ros_t;
-    typedef typename SotToRos<T>::signal_t signal_t;
+    typedef typename SotToRos<T>::signalIn_t signal_t;
 
     // Initialize the bindedSignal object.
     bindedSignal_t bindedSignal;
@@ -47,9 +47,10 @@ namespace dynamicgraph
       (nh_, topic, 1);
 
     // Initialize the signal.
-    boost::shared_ptr<signal_t> signalPtr =
-      boost::make_shared<signal_t>
-      (MAKE_SIGNAL_STRING(name, true, SotToRos<T>::signalTypeName, signal));
+    boost::shared_ptr<signal_t> signalPtr
+      (new signal_t
+       (0,
+	MAKE_SIGNAL_STRING(name, true, SotToRos<T>::signalTypeName, signal)));
     boost::get<0> (bindedSignal) = signalPtr;
     SotToRos<T>::setDefault(*signalPtr);
     signalRegistration (*boost::get<0> (bindedSignal));
