@@ -9,6 +9,8 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/dynamic-graph-bridge</url>
 
+  <rosdep name="boost"/>
+
   <depend package="std_msgs"/>
   <depend package="roscpp"/>
   <depend package="geometry_msgs"/>
