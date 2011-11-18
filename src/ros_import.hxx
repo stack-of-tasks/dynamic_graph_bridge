@@ -12,6 +12,30 @@
 
 namespace dynamicgraph
 {
+  template <>
+  inline void
+  RosImport::sendData
+  <std::pair<sot::MatrixHomogeneous, ml::Vector> >
+  (boost::shared_ptr
+   <realtime_tools::RealtimePublisher
+   <SotToRos
+   <std::pair<sot::MatrixHomogeneous, ml::Vector> >::ros_t> > publisher,
+   boost::shared_ptr
+   <SotToRos
+   <std::pair<sot::MatrixHomogeneous, ml::Vector> >::signalIn_t> signal,
+   int time)
+  {
+    SotToRos
+      <std::pair
+      <sot::MatrixHomogeneous, ml::Vector> >::ros_t result;
+    if (publisher->trylock ())
+      {
+	publisher->msg_.child_frame_id = "/dynamic_graph/world";
+	converter (publisher->msg_, signal->access (time));
+	publisher->unlockAndPublish ();
+      }
+  }
+
   template <typename T>
   void
   RosImport::sendData

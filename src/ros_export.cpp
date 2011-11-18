@@ -78,6 +78,10 @@ namespace dynamicgraph
 	  entity.add<ml::Matrix> (signal, topic);
 	else if (type == "vector")
 	  entity.add<ml::Vector> (signal, topic);
+	else if (type == "vector3")
+	  entity.add<specific::Vector3> (signal, topic);
+	else if (type == "vector3Stamped")
+	  entity.add<std::pair<specific::Vector3, ml::Vector> > (signal, topic);
 	else if (type == "matrixHomo")
 	  entity.add<sot::MatrixHomogeneous> (signal, topic);
 	else if (type == "matrixHomoStamped")

@@ -68,6 +68,22 @@ namespace dynamicgraph
       dst.elementAt (i) =  src.data[i];
   }
 
+  // Vector3
+  SOT_TO_ROS_IMPL(specific::Vector3)
+  {
+    assert (src.size () == 3);
+    dst.x =  src.elementAt (0);
+    dst.y =  src.elementAt (1);
+    dst.z =  src.elementAt (2);
+  }
+
+  ROS_TO_SOT_IMPL(specific::Vector3)
+  {
+    dst.resize (3);
+    dst.elementAt (0) =  src.x;
+    dst.elementAt (1) =  src.y;
+    dst.elementAt (2) =  src.z;
+  }
 
   // Matrix
   SOT_TO_ROS_IMPL(ml::Matrix)
@@ -163,6 +179,7 @@ namespace dynamicgraph
   }									\
   struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
 
+  DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(specific::Vector3, vector, ;);
   DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(sot::MatrixHomogeneous, transform,
 				     dst.child_frame_id = "";);
   DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(specific::Twist, twist, ;);
@@ -186,6 +203,7 @@ namespace dynamicgraph
 
   DG_BRIDGE_MAKE_SHPTR_IMPL(double);
   DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Vector);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Vector3);
   DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Matrix);
   DG_BRIDGE_MAKE_SHPTR_IMPL(sot::MatrixHomogeneous);
   DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Twist);
@@ -205,6 +223,7 @@ namespace dynamicgraph
   }									\
   struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
 
+  DG_BRIDGE_MAKE_STAMPED_IMPL(specific::Vector3, vector, ;);
   DG_BRIDGE_MAKE_STAMPED_IMPL(sot::MatrixHomogeneous, transform, ;);
   DG_BRIDGE_MAKE_STAMPED_IMPL(specific::Twist, twist, ;);
 
@@ -224,6 +243,7 @@ namespace dynamicgraph
   }									\
   struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
 
+  DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(specific::Vector3, vector, ;);
   DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(sot::MatrixHomogeneous, transform, ;);
   DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(specific::Twist, twist, ;);
 

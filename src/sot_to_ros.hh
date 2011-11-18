@@ -14,6 +14,7 @@
 # include "geometry_msgs/TransformStamped.h"
 # include "geometry_msgs/Twist.h"
 # include "geometry_msgs/TwistStamped.h"
+# include "geometry_msgs/Vector3Stamped.h"
 
 # include <dynamic-graph/signal-time-dependent.h>
 # include <dynamic-graph/signal-ptr.h>
@@ -34,6 +35,7 @@ namespace dynamicgraph
   /// For instance a vector of six elements vs a twist coordinate.
   namespace specific
   {
+    class Vector3 {};
     class Twist {};
   } // end of namespace specific.
 
@@ -108,6 +110,27 @@ namespace dynamicgraph
   };
 
   template <>
+  struct SotToRos<specific::Vector3>
+  {
+    typedef ml::Vector sot_t;
+    typedef geometry_msgs::Vector3 ros_t;
+    typedef geometry_msgs::Vector3ConstPtr ros_const_ptr_t;
+    typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
+    typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
+    typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      ml::Vector v;
+      v.resize (0);
+      s.setConstant (v);
+    }
+  };
+
+  template <>
   struct SotToRos<sot::MatrixHomogeneous>
   {
     typedef sot::MatrixHomogeneous sot_t;
@@ -145,6 +168,26 @@ namespace dynamicgraph
       ml::Vector v (6);
       v.setZero ();
       s.setConstant (v);
+    }
+  };
+
+  // Stamped vector3
+  template <>
+  struct SotToRos<std::pair<specific::Vector3, ml::Vector> >
+  {
+    typedef ml::Vector sot_t;
+    typedef geometry_msgs::Vector3Stamped ros_t;
+    typedef geometry_msgs::Vector3StampedConstPtr ros_const_ptr_t;
+    typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
+    typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
+    typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      SotToRos<sot_t>::setDefault(s);
     }
   };
 

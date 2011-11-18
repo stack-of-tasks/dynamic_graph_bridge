@@ -16,6 +16,7 @@
   <depend package="geometry_msgs"/>
   <depend package="sensor_msgs"/>
   <depend package="bullet"/>
+  <depend package="tf"/>
 
   <depend package="realtime_tools"/>
 </package>
