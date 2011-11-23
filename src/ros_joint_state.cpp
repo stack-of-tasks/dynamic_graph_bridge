@@ -6,6 +6,19 @@
 #include "ros_joint_state.hh"
 #include "sot_to_ros.hh"
 
+//FIXME: this is very very wrong but we need to update abstract-robot-dynamics
+// to publish joint names.
+static const char* dof_names[] =
+  {
+    "RLEG_JOINT0", "RLEG_JOINT1", "RLEG_JOINT2", "RLEG_JOINT3", "RLEG_JOINT4", "RLEG_JOINT5",
+    "LLEG_JOINT0", "LLEG_JOINT1", "LLEG_JOINT2", "LLEG_JOINT3", "LLEG_JOINT4", "LLEG_JOINT5",
+    "CHEST_JOINT0", "CHEST_JOINT1",
+    "HEAD_JOINT0", "HEAD_JOINT1",
+    "RARM_JOINT0", "RARM_JOINT1", "RARM_JOINT2", "RARM_JOINT3", "RARM_JOINT4", "RARM_JOINT5", "RARM_JOINT6",
+    "LARM_JOINT0", "LARM_JOINT1", "LARM_JOINT2", "LARM_JOINT3", "LARM_JOINT4", "LARM_JOINT5", "LARM_JOINT6",
+    0
+  };
+
 namespace dynamicgraph
 {
   DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosJointState, "RosJointState");
@@ -52,7 +65,9 @@ namespace dynamicgraph
     if (dt > rate_ && publisher_.trylock ())
       {
 	lastPublicated_ = ros::Time::now ();
-	std::size_t s = state_.access (t).size ();
+
+	// State size without the free floating.
+	std::size_t s = state_.access (t).size () - 6;
 
 	// Update header.
 	++jointState_.header.seq;
@@ -64,20 +79,19 @@ namespace dynamicgraph
 	// Fill names if needed.
 	if (jointState_.name.size () != s)
 	  {
-	    boost::format fmtFreeFlyer ("free-flyer-%s");
-	    boost::format fmtJoint ("joint-%s");
 	    jointState_.name.resize (s);
 	    for (std::size_t i = 0; i < s; ++i)
-	      if (i < 6)
-		jointState_.name[i] = (fmtFreeFlyer % i).str ();
-	      else
-		jointState_.name[i] = (fmtJoint % (i - 6)).str ();
+	      {
+		if (dof_names[i] == 0)
+		  break;
+		jointState_.name[i] = dof_names[i];
+	      }
 	  }
 
 	// Fill position.
 	jointState_.position.resize (s);
 	for (std::size_t i = 0; i < s; ++i)
-	  jointState_.position[i] = state_.access (t) (i);
+	  jointState_.position[i] = state_.access (t) (i + 6);
 
 	publisher_.msg_ = jointState_;
 	publisher_.unlockAndPublish ();
