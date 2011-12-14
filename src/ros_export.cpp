@@ -9,7 +9,7 @@
 
 #include <dynamic-graph/factory.h>
 
-#include "ros_init.hh"
+#include "dynamic_graph_bridge/ros_init.hh"
 #include "ros_export.hh"
 
 namespace dynamicgraph

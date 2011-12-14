@@ -9,6 +9,14 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/dynamic-graph-bridge</url>
 
+  <export>
+    <cpp
+       cflags="-I${prefix}/include"
+       lflags="-L${prefix}/lib -lros_bridge -Wl,-rpath=${prefix}/lib"
+       />
+  </export>
+
+
   <rosdep name="boost"/>
 
   <rosdep name="jrl-mal"/>

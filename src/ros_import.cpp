@@ -13,7 +13,7 @@
 #include <dynamic-graph/factory.h>
 #include <dynamic-graph/command.h>
 
-#include "ros_init.hh"
+#include "dynamic_graph_bridge/ros_init.hh"
 #include "ros_import.hh"
 
 namespace dynamicgraph

@@ -1,7 +1,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "ros_init.hh"
+#include "dynamic_graph_bridge/ros_init.hh"
 
 namespace dynamicgraph
 {

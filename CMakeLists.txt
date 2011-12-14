@@ -18,9 +18,11 @@ pkg_check_modules(JRL_MAL REQUIRED jrl-mal)
 pkg_check_modules(DYNAMIC_GRAPH REQUIRED dynamic-graph)
 pkg_check_modules(SOT_CORE REQUIRED sot-core)
 
+include_directories(include)
+
 rosbuild_add_library(ros_bridge
   src/converter.hh
-  src/ros_init.hh src/ros_init.cpp
+  include/dynamic_graph_bridge/ros_init.hh src/ros_init.cpp
   src/sot_to_ros.hh src/sot_to_ros.cpp
   )
 
