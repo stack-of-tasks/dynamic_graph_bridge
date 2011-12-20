@@ -47,6 +47,11 @@ if __name__ == '__main__':
         rospy.Subscriber('/dynamic_graph/{0}'.format(topic),
                          geometry_msgs.msg.TransformStamped,
                          handleTransform, topic)
+
+    rospy.Subscriber('/plan_left_ankle',
+                     geometry_msgs.msg.TransformStamped,
+                     handleTransform, 'plan_left_ankle')
+
     for topic in topicsVector:
         rospy.Subscriber('/dynamic_graph/{0}'.format(topic),
                          geometry_msgs.msg.Vector3Stamped,
