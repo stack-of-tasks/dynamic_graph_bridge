@@ -20,6 +20,11 @@ pkg_check_modules(SOT_CORE REQUIRED sot-core)
 
 include_directories(include)
 
+file(MAKE_DIRECTORY "${LIBRARY_OUTPUT_PATH}/dynamic_graph/ros/ros_export")
+file(MAKE_DIRECTORY "${LIBRARY_OUTPUT_PATH}/dynamic_graph/ros/ros_import")
+file(MAKE_DIRECTORY
+  "${LIBRARY_OUTPUT_PATH}/dynamic_graph/ros/ros_joint_states")
+
 rosbuild_add_library(ros_bridge
   src/converter.hh
   include/dynamic_graph_bridge/ros_init.hh src/ros_init.cpp
