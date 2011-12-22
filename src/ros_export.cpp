@@ -87,9 +87,9 @@ namespace dynamicgraph
 	else if (type == "matrixHomoStamped")
 	  entity.add<std::pair<sot::MatrixHomogeneous, ml::Vector> >
 	    (signal, topic);
-	else if (type == "Twist")
+	else if (type == "twist")
 	  entity.add<specific::Twist> (signal, topic);
-	else if (type == "TwistStamped")
+	else if (type == "twistStamped")
 	  entity.add<std::pair<specific::Twist, ml::Vector> >
 	    (signal, topic);
 	else
