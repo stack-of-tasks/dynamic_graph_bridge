@@ -10,14 +10,31 @@
 // to publish joint names.
 static const char* dof_names[] =
   {
-    "RLEG_JOINT0", "RLEG_JOINT1", "RLEG_JOINT2", "RLEG_JOINT3", "RLEG_JOINT4", "RLEG_JOINT5",
-    "LLEG_JOINT0", "LLEG_JOINT1", "LLEG_JOINT2", "LLEG_JOINT3", "LLEG_JOINT4", "LLEG_JOINT5",
+    "RLEG_JOINT0", "RLEG_JOINT1", "RLEG_JOINT2",
+    "RLEG_JOINT3", "RLEG_JOINT4", "RLEG_JOINT5",
+    "LLEG_JOINT0", "LLEG_JOINT1", "LLEG_JOINT2",
+    "LLEG_JOINT3", "LLEG_JOINT4", "LLEG_JOINT5",
     "CHEST_JOINT0", "CHEST_JOINT1",
     "HEAD_JOINT0", "HEAD_JOINT1",
-    "RARM_JOINT0", "RARM_JOINT1", "RARM_JOINT2", "RARM_JOINT3", "RARM_JOINT4", "RARM_JOINT5", "RARM_JOINT6",
-    "LARM_JOINT0", "LARM_JOINT1", "LARM_JOINT2", "LARM_JOINT3", "LARM_JOINT4", "LARM_JOINT5", "LARM_JOINT6",
+    "RARM_JOINT0", "RARM_JOINT1", "RARM_JOINT2",
+    "RARM_JOINT3", "RARM_JOINT4", "RARM_JOINT5", "RARM_JOINT6",
+    "LARM_JOINT0", "LARM_JOINT1", "LARM_JOINT2",
+    "LARM_JOINT3", "LARM_JOINT4", "LARM_JOINT5", "LARM_JOINT6",
+    "RHAND_JOINT0", "RHAND_JOINT1",
+    "RHAND_JOINT2", "RHAND_JOINT3", "RHAND_JOINT4",
+    "LHAND_JOINT0", "LHAND_JOINT1",
+    "LHAND_JOINT2", "LHAND_JOINT3", "LHAND_JOINT4",
     0
   };
+
+// Number of dofs in left and right robot hands.
+//
+// This part is very poorly written: currently, dynamic-graph uses a
+// lighter robot model without the hands. This model do not have the
+// dofs corresponding to the robot hand dofs.  Therefore we put them
+// manually to zero to please ROS.  If this is not the case, some
+// packages such as rviz will behave badly.
+static const int handsDofsCount = 10;
 
 namespace dynamicgraph
 {
@@ -77,10 +94,10 @@ namespace dynamicgraph
 	jointState_.header.stamp.nsec = now.nsec;
 
 	// Fill names if needed.
-	if (jointState_.name.size () != s)
+	if (jointState_.name.size () != s + handsDofsCount)
 	  {
-	    jointState_.name.resize (s);
-	    for (std::size_t i = 0; i < s; ++i)
+	    jointState_.name.resize (s + handsDofsCount);
+	    for (std::size_t i = 0; i < s + handsDofsCount; ++i)
 	      {
 		if (dof_names[i] == 0)
 		  break;
@@ -89,9 +106,11 @@ namespace dynamicgraph
 	  }
 
 	// Fill position.
-	jointState_.position.resize (s);
+	jointState_.position.resize (s + handsDofsCount);
 	for (std::size_t i = 0; i < s; ++i)
 	  jointState_.position[i] = state_.access (t) (i + 6);
+	for (std::size_t i = 0; i < handsDofsCount; ++i)
+	  jointState_.position[i + s] = 0.;
 
 	publisher_.msg_ = jointState_;
 	publisher_.unlockAndPublish ();
