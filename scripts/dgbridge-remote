@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+
+import roslib; roslib.load_manifest('dynamic_graph_bridge')
+import rospy
+
+import dynamic_graph_bridge.srv
+
+import sys
+import code
+from code import InteractiveConsole
+import readline
+
+class RosShell(InteractiveConsole):
+    def __init__(self):
+        self.cache = ""
+        InteractiveConsole.__init__(self)
+
+        rospy.loginfo('waiting for service...')
+        rospy.wait_for_service('run_command')
+        self.client = rospy.ServiceProxy(
+            'run_command', dynamic_graph_bridge.srv.RunCommand, True)
+
+
+    def runcode(self, code):
+        source = self.cache[:-1]
+        self.cache = ""
+        if source != "":
+            try:
+                if not self.client:
+                    print("Connection to remote server lost. Reconnecting...")
+                    self.client = rospy.ServiceProxy(
+                        'run_command', dynamic_graph_bridge.srv.RunCommand, True)
+                    return
+                response = self.client(str(source))
+                if response.stdout != "":
+                    print response.stdout[:-1]
+                if response.stderr != "":
+                    print response.stderr[:-1]
+                elif response.result != "None":
+                    print response.result
+            except rospy.ServiceException, e:
+                print("Connection to remote server lost. Reconnecting...")
+                self.client = rospy.ServiceProxy(
+                    'run_command', dynamic_graph_bridge.srv.RunCommand, True)
+
+    def push(self,line):
+        self.cache += line + "\n"
+        return InteractiveConsole.push(self,line)
+
+if __name__ == '__main__':
+    import optparse
+    manifest = roslib.manifest.load_manifest('dynamic_graph_bridge')
+    parser = optparse.OptionParser(
+        usage='\n\t%prog [options]',
+        version='%%prog %s' % manifest.version)
+    (options, args) = parser.parse_args(sys.argv[1:])
+
+    sh = RosShell()
+
+    if args[:]:
+        infile = args[0]
+        source = open(infile).read()
+        if not sh.client:
+            print("Connection to remote server has been lost.")
+            sys.exit(1)
+        response = sh.client(str(source))
+        if response.stdout != "":
+            print response.stdout[:-1]
+            if response.stderr != "":
+                print response.stderr[:-1]
+            elif response.result != "None":
+                print response.result
+    else:
+        sh.interact("Interacting with remote server.")
