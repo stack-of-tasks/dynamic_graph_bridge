@@ -23,6 +23,9 @@ namespace dynamicgraph
 
     explicit Interpreter (ros::NodeHandle& nodeHandle);
 
+    /// \brief Run a command and return result.
+    std::string runCommand (const std::string& command);
+
   protected:
     /// \brief Run a Python command and return result, stderr and stdout.
     bool runCommandCallback (dynamic_graph_bridge::RunCommand::Request& req,
