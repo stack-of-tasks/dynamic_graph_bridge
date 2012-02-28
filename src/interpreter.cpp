@@ -3,7 +3,8 @@
 
 int main ()
 {
-  ros::NodeHandle& nodeHandle = dynamicgraph::rosInit ();
+  // we spin explicitly so we do not need an async spinner here.
+  ros::NodeHandle& nodeHandle = dynamicgraph::rosInit (false);
   dynamicgraph::Interpreter interpreter (nodeHandle);
   ros::spin ();
 }

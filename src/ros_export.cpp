@@ -119,12 +119,9 @@ namespace dynamicgraph
 
   RosExport::RosExport (const std::string& n)
     : dynamicgraph::Entity(n),
-      nh_ (rosInit ()),
-      bindedSignal_ (),
-      spinner_ (1)
+      nh_ (rosInit (true)),
+      bindedSignal_ ()
   {
-    spinner_.start ();
-
     std::string docstring;
     addCommand ("add",
 		new command::rosExport::Add
@@ -141,10 +138,7 @@ namespace dynamicgraph
   }
 
   RosExport::~RosExport ()
-  {
-    spinner_.stop ();
-    nh_.shutdown ();
-  }
+  {}
 
   void RosExport::display (std::ostream& os) const
   {

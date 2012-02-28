@@ -122,7 +122,8 @@ namespace dynamicgraph
 
   RosImport::RosImport (const std::string& n)
     : dynamicgraph::Entity(n),
-      nh_ (rosInit ()),
+      // rosImport do not use callback so do not create a useless spinner.
+      nh_ (rosInit (false)),
       bindedSignal_ (),
       trigger_ (boost::bind (&RosImport::trigger, this, _1, _2),
 		sotNOSIGNAL,

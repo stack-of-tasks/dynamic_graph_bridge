@@ -28,7 +28,7 @@ namespace dynamicgraph
 
     int& trigger (int&, int);
   private:
-    ros::NodeHandle nh_;
+    ros::NodeHandle& nh_;
     signalVectorIn_t state_;
     realtime_tools::RealtimePublisher<sensor_msgs::JointState> publisher_;
     sensor_msgs::JointState jointState_;

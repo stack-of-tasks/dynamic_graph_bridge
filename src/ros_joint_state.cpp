@@ -3,6 +3,7 @@
 
 #include <dynamic-graph/factory.h>
 
+#include "dynamic_graph_bridge/ros_init.hh"
 #include "ros_joint_state.hh"
 #include "sot_to_ros.hh"
 
@@ -40,19 +41,10 @@ namespace dynamicgraph
 {
   DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosJointState, "RosJointState");
 
-  static const char* rosInit()
-  {
-    int argc = 1;
-    char* arg0 = strdup("ros_joint_state");
-    char* argv[] = {arg0, 0};
-    ros::init(argc, argv, "ros_joint_state");
-    free (arg0);
-    return "dynamic_graph";
-  }
-
   RosJointState::RosJointState (const std::string& n)
     : Entity (n),
-      nh_ (rosInit ()),
+      // do not use callbacks, so do not create a useless spinner
+      nh_ (rosInit (false)),
       state_ (0, MAKE_SIGNAL_STRING(name, true, "Vector", "state")),
       publisher_ (nh_, "joint_states", 5),
       jointState_ (),

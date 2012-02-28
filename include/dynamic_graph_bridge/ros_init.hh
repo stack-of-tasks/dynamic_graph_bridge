@@ -4,7 +4,11 @@
 
 namespace dynamicgraph
 {
-  ros::NodeHandle& rosInit();
+  ros::NodeHandle& rosInit (bool createAsyncSpinner);
+
+  /// \brief Return spinner or throw an exception if spinner
+  /// creation has been disabled at startup.
+  ros::AsyncSpinner& spinner ();
 
 } // end of namespace dynamicgraph.
 

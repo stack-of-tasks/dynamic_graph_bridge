@@ -87,7 +87,7 @@ namespace dynamicgraph
     void add (const std::string& signal, const std::string& topic);
 
   private:
-    ros::NodeHandle nh_;
+    ros::NodeHandle& nh_;
     std::map<std::string, bindedSignal_t> bindedSignal_;
     dynamicgraph::SignalTimeDependent<int,int> trigger_;
     ros::Duration rate_;

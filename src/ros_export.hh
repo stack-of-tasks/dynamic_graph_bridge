@@ -99,9 +99,8 @@ namespace dynamicgraph
     template <typename T>
     friend class internal::Add;
   private:
-    ros::NodeHandle nh_;
+    ros::NodeHandle& nh_;
     std::map<std::string, bindedSignal_t> bindedSignal_;
-    ros::AsyncSpinner spinner_;
   };
 } // end of namespace dynamicgraph.
 
