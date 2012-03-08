@@ -77,6 +77,9 @@ target_link_libraries(ros_interpreter
 # Stand alone remote dynamic-graph Python interpreter.
 rosbuild_add_executable(interpreter src/interpreter.cpp)
 target_link_libraries(interpreter ros_interpreter)
+rosbuild_add_compile_flags(interpreter ${SOT_CORE_CFLAGS})
+rosbuild_add_link_flags(interpreter ${JRL_MAL_LDFLAGS}
+  ${DYNAMIC_GRAPH_LDFLAGS} ${DYNAMIC_GRAPH_PYTHON_LDFLAGS} ${SOT_CORE_LDFLAGS})
 
 INSTALL(TARGETS ros_bridge DESTINATION lib)
 INSTALL(TARGETS ros_import DESTINATION lib)
@@ -94,7 +97,7 @@ DYNAMIC_GRAPH_PYTHON_MODULE("ros/ros_import"
   ros_import
   ros/ros_import/wrap
   )
-SET_TARGET_PROPERTIES(dynamic_graph/ros/ros_import/wrap
+SET_TARGET_PROPERTIES(ros/ros_import/wrap
   PROPERTIES
   COMPILE_FLAGS
   ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${SOT_CORE_CFLAGS}
@@ -106,7 +109,7 @@ DYNAMIC_GRAPH_PYTHON_MODULE("ros/ros_export"
   ros_export
   ros/ros_export/wrap
   )
-SET_TARGET_PROPERTIES(dynamic_graph/ros/ros_export/wrap
+SET_TARGET_PROPERTIES(ros/ros_export/wrap
   PROPERTIES
   COMPILE_FLAGS
   ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${SOT_CORE_CFLAGS}
@@ -118,7 +121,7 @@ DYNAMIC_GRAPH_PYTHON_MODULE("ros/ros_joint_state"
   ros_joint_state
   ros/ros_joint_state/wrap
   )
-SET_TARGET_PROPERTIES(dynamic_graph/ros/ros_joint_state/wrap
+SET_TARGET_PROPERTIES(ros/ros_joint_state/wrap
   PROPERTIES
   COMPILE_FLAGS
   ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${SOT_CORE_CFLAGS}
