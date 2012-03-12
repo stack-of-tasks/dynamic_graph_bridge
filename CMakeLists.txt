@@ -44,6 +44,7 @@ rosbuild_add_link_flags(ros_import ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS}
 target_link_libraries(ros_import ros_bridge)
 target_link_libraries(ros_import
   ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES} ${SOT_CORE_LIBRARIES})
+set_target_properties(ros_import PROPERTIES BUILD_WITH_INSTALL_RPATH True)
 
 rosbuild_add_library(ros_export src/ros_export.cpp src/ros_export.hh)
 rosbuild_add_compile_flags(ros_export ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS}
@@ -53,6 +54,7 @@ rosbuild_add_link_flags(ros_export ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS}
 target_link_libraries(ros_export ros_bridge)
 target_link_libraries(ros_export
   ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES} ${SOT_CORE_LIBRARIES})
+set_target_properties(ros_export PROPERTIES BUILD_WITH_INSTALL_RPATH True)
 
 rosbuild_add_library(ros_joint_state
   src/ros_joint_state.cpp src/ros_joint_state)
@@ -64,6 +66,7 @@ rosbuild_add_link_flags(ros_joint_state ${JRL_MAL_LDFLAGS}
 target_link_libraries(ros_joint_state ros_bridge)
 target_link_libraries(ros_joint_state
   ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES} ${SOT_CORE_LIBRARIES})
+set_target_properties(ros_joint_state PROPERTIES BUILD_WITH_INSTALL_RPATH True)
 
 rosbuild_add_library(ros_interpreter
   src/ros_interpreter.cpp)
@@ -76,6 +79,7 @@ target_link_libraries(ros_interpreter ros_bridge)
 target_link_libraries(ros_interpreter
   ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES}
   ${DYNAMIC_GRAPH_PYTHON_LIBRARIES} ${SOT_CORE_LIBRARIES})
+set_target_properties(ros_interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
 
 # Stand alone remote dynamic-graph Python interpreter.
 rosbuild_add_executable(interpreter src/interpreter.cpp)
@@ -83,6 +87,7 @@ target_link_libraries(interpreter ros_interpreter)
 rosbuild_add_compile_flags(interpreter ${SOT_CORE_CFLAGS})
 rosbuild_add_link_flags(interpreter ${JRL_MAL_LDFLAGS}
   ${DYNAMIC_GRAPH_LDFLAGS} ${DYNAMIC_GRAPH_PYTHON_LDFLAGS} ${SOT_CORE_LDFLAGS})
+set_target_properties(interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
 
 INSTALL(TARGETS ros_bridge DESTINATION lib)
 INSTALL(TARGETS ros_import DESTINATION lib)
