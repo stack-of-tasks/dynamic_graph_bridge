@@ -85,8 +85,8 @@ INSTALL(TARGETS ros_bridge DESTINATION lib)
 INSTALL(TARGETS ros_import DESTINATION lib)
 INSTALL(TARGETS ros_export DESTINATION lib)
 INSTALL(TARGETS ros_joint_state DESTINATION lib)
-INSTALL(TARGETS interpreter DESTINATION lib)
-INSTALL(TARGETS ros_interpreter DESTINATION bin)
+INSTALL(TARGETS ros_interpreter DESTINATION lib)
+INSTALL(TARGETS interpreter DESTINATION bin)
 
 INCLUDE(cmake/python.cmake)
 
