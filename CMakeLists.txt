@@ -25,7 +25,7 @@ include_directories(include)
 file(MAKE_DIRECTORY "${LIBRARY_OUTPUT_PATH}/dynamic_graph/ros/ros_export")
 file(MAKE_DIRECTORY "${LIBRARY_OUTPUT_PATH}/dynamic_graph/ros/ros_import")
 file(MAKE_DIRECTORY
-  "${LIBRARY_OUTPUT_PATH}/dynamic_graph/ros/ros_joint_states")
+  "${LIBRARY_OUTPUT_PATH}/dynamic_graph/ros/ros_joint_state")
 
 rosbuild_add_library(ros_bridge
   src/converter.hh
