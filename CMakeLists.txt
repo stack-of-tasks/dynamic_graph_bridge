@@ -32,6 +32,9 @@ rosbuild_add_library(ros_bridge
   include/dynamic_graph_bridge/ros_init.hh src/ros_init.cpp
   src/sot_to_ros.hh src/sot_to_ros.cpp
   )
+# Make sure rpath are preserved during the install as ROS dependencies
+# are not installed.
+set_target_properties(ros_bridge PROPERTIES BUILD_WITH_INSTALL_RPATH True)
 
 rosbuild_add_library(ros_import src/ros_import.cpp src/ros_import.hh)
 rosbuild_add_compile_flags(ros_import ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS}
