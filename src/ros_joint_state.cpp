@@ -35,7 +35,7 @@ static const char* dof_names[] =
 // dofs corresponding to the robot hand dofs.  Therefore we put them
 // manually to zero to please ROS.  If this is not the case, some
 // packages such as rviz will behave badly.
-static const int handsDofsCount = 10;
+static const std::size_t handsDofsCount = 10;
 
 namespace dynamicgraph
 {
