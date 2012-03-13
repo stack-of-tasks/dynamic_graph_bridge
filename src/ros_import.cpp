@@ -53,8 +53,7 @@ namespace dynamicgraph
       {
 	RosImport& entity =
 	  static_cast<RosImport&> (owner ());
-	entity.list ();
-	return Value ();
+	return Value (entity.list ());
       }
 
       Add::Add
@@ -134,16 +133,45 @@ namespace dynamicgraph
     signalRegistration (trigger_);
     trigger_.setNeedUpdateFromAllChildren (true);
 
-    std::string docstring;
+    std::string docstring =
+      "\n"
+      "  Add a signal importing data from a ROS topic\n"
+      "\n"
+      "  Input:\n"
+      "    - type: string among ['double', 'matrix', 'vector', 'vector3',\n"
+      "                          'vector3Stamped', 'matrixHomo', 'matrixHomoStamped',\n"
+      "                          'twist', 'twistStamped'],\n"
+      "    - signal: the signal name in dynamic-graph,\n"
+      "    - topic:  the topic name in ROS.\n"
+      "\n";
     addCommand ("add",
 		new command::rosImport::Add
 		(*this, docstring));
+    docstring =
+      "\n"
+      "  Remove a signal importing data from a ROS topic\n"
+      "\n"
+      "  Input:\n"
+      "    - name of the signal to remove (see method list for the list of signals).\n"
+      "\n";
     addCommand ("rm",
 		new command::rosImport::Rm
 		(*this, docstring));
+    docstring =
+      "\n"
+      "  Remove all signals importing data from a ROS topic\n"
+      "\n"
+      "  No input:\n"
+      "\n";
     addCommand ("clear",
 		new command::rosImport::Clear
 		(*this, docstring));
+    docstring =
+      "\n"
+      "  List signals importing data from a ROS topic\n"
+      "\n"
+      "  No input:\n"
+      "\n";
     addCommand ("list",
 		new command::rosImport::List
 		(*this, docstring));
@@ -163,10 +191,16 @@ namespace dynamicgraph
     bindedSignal_.erase (signal);
   }
 
-  void RosImport::list ()
+  std::string RosImport::list () const
   {
-    std::cout << CLASS_NAME << std::endl;
-  }
+    std::string result("[");
+    for (std::map<std::string, bindedSignal_t>::const_iterator it =
+	   bindedSignal_.begin (); it != bindedSignal_.end (); it++) {
+      result += "'" + it->first + "',";
+    }
+    result += "]";
+    return result;
+ }
 
   void RosImport::clear ()
   {

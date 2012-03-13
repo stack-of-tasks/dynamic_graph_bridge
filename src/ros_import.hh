@@ -69,7 +69,7 @@ namespace dynamicgraph
 
     void add (const std::string& signal, const std::string& topic);
     void rm (const std::string& signal);
-    void list ();
+    std::string list () const;
     void clear ();
 
     int& trigger (int&, int);
