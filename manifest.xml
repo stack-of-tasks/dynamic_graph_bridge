@@ -7,7 +7,7 @@
   <author>Thomas Moulard</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/dynamic-graph-bridge</url>
+  <url>http://ros.org/wiki/dynamic_graph_bridge</url>
 
   <export>
     <cpp
