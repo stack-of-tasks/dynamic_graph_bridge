@@ -1,45 +1,105 @@
+#include <boost/assign.hpp>
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 
+#include <dynamic-graph/command.h>
 #include <dynamic-graph/factory.h>
+#include <dynamic-graph/pool.h>
+#include <sot-dynamic/dynamic.h>
 
 #include "dynamic_graph_bridge/ros_init.hh"
 #include "ros_joint_state.hh"
 #include "sot_to_ros.hh"
 
-//FIXME: this is very very wrong but we need to update abstract-robot-dynamics
-// to publish joint names.
-static const char* dof_names[] =
-  {
-    "RLEG_JOINT0", "RLEG_JOINT1", "RLEG_JOINT2",
-    "RLEG_JOINT3", "RLEG_JOINT4", "RLEG_JOINT5",
-    "LLEG_JOINT0", "LLEG_JOINT1", "LLEG_JOINT2",
-    "LLEG_JOINT3", "LLEG_JOINT4", "LLEG_JOINT5",
-    "CHEST_JOINT0", "CHEST_JOINT1",
-    "HEAD_JOINT0", "HEAD_JOINT1",
-    "RARM_JOINT0", "RARM_JOINT1", "RARM_JOINT2",
-    "RARM_JOINT3", "RARM_JOINT4", "RARM_JOINT5", "RARM_JOINT6",
-    "LARM_JOINT0", "LARM_JOINT1", "LARM_JOINT2",
-    "LARM_JOINT3", "LARM_JOINT4", "LARM_JOINT5", "LARM_JOINT6",
-    "RHAND_JOINT0", "RHAND_JOINT1",
-    "RHAND_JOINT2", "RHAND_JOINT3", "RHAND_JOINT4",
-    "LHAND_JOINT0", "LHAND_JOINT1",
-    "LHAND_JOINT2", "LHAND_JOINT3", "LHAND_JOINT4",
-    0
-  };
-
-// Number of dofs in left and right robot hands.
-//
-// This part is very poorly written: currently, dynamic-graph uses a
-// lighter robot model without the hands. This model do not have the
-// dofs corresponding to the robot hand dofs.  Therefore we put them
-// manually to zero to please ROS.  If this is not the case, some
-// packages such as rviz will behave badly.
-static const std::size_t handsDofsCount = 10;
-
 namespace dynamicgraph
 {
   DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosJointState, "RosJointState");
+
+  namespace command
+  {
+    using ::dynamicgraph::command::Command;
+    using ::dynamicgraph::command::Value;
+
+    class RetrieveJointNames : public Command
+    {
+    public:
+      RetrieveJointNames (RosJointState& entity,
+			  const std::string& docstring);
+      virtual Value doExecute ();
+    };
+
+    RetrieveJointNames::RetrieveJointNames
+    (RosJointState& entity, const std::string& docstring)
+      : Command (entity, boost::assign::list_of (Value::STRING), docstring)
+    {}
+
+    namespace
+    {
+      void
+      buildJointNames (sensor_msgs::JointState& jointState, CjrlJoint* joint)
+      {
+	if (!joint)
+	  return;
+	// Ignore anchors.
+	if (joint->numberDof() != 0)
+	  {
+	    // If we only have one dof, the dof name is the joint name.
+	    if (joint->numberDof() == 1)
+	      {
+		jointState.name[joint->rankInConfiguration()] =
+		  joint->getName();
+	      }
+	    // ...otherwise, the dof name is the joint name on which
+	    // the dof id is appended.
+	    else
+	      for (unsigned i = 0; i < joint->numberDof(); ++i)
+		{
+		  boost::format fmt("%1%_%2%");
+		  fmt % joint->getName();
+		  fmt % i;
+		  jointState.name[joint->rankInConfiguration() + i] =
+		    fmt.str();
+		}
+	  }
+	for (unsigned i = 0; i < joint->countChildJoints (); ++i)
+	  buildJointNames (jointState, joint->childJoint (i));
+      }
+    } // end of anonymous namespace
+
+    Value RetrieveJointNames::doExecute ()
+    {
+      RosJointState& entity = static_cast<RosJointState&> (owner ());
+
+      std::vector<Value> values = getParameterValues ();
+      std::string name = values[0].value ();
+
+      if (!dynamicgraph::PoolStorage::getInstance ()->existEntity (name))
+	{
+	  std::cerr << "invalid entity name" << std::endl;
+	  return Value ();
+	}
+
+      dynamicgraph::sot::Dynamic* dynamic =
+	dynamic_cast<dynamicgraph::sot::Dynamic*>
+	(&dynamicgraph::PoolStorage::getInstance ()->getEntity (name));
+      if (!dynamic)
+	{
+	  std::cerr << "entity is not a Dynamic entity" << std::endl;
+	  return Value ();
+	}
+
+      CjrlHumanoidDynamicRobot* robot = dynamic->m_HDR;
+      if (!robot)
+	{
+	  std::cerr << "no robot in the dynamic entity" << std::endl;
+	  return Value ();
+	}
+
+      entity.jointState ().name.resize (robot->numberDof());
+      buildJointNames (entity.jointState (), robot->rootJoint());
+      return Value ();
+    }
+  } // end of namespace command.
 
   RosJointState::RosJointState (const std::string& n)
     : Entity (n),
@@ -61,7 +121,17 @@ namespace dynamicgraph
     jointState_.header.seq = 0;
     jointState_.header.stamp.sec = 0;
     jointState_.header.stamp.nsec = 0;
-    jointState_.header.frame_id = "odom";
+    jointState_.header.frame_id = "";
+
+    std::string docstring =
+      "\n"
+      "  Retrieve joint names using robot model contained in a Dynamic entity\n"
+      "\n"
+      "  Input:\n"
+      "    - dynamic entity name (i.e. robot.dynamic.name)\n"
+      "\n";
+    addCommand ("retrieveJointNames",
+		new command::RetrieveJointNames (*this, docstring));
   }
 
   RosJointState::~RosJointState ()
@@ -76,7 +146,14 @@ namespace dynamicgraph
 	lastPublicated_ = ros::Time::now ();
 
 	// State size without the free floating.
-	std::size_t s = state_.access (t).size () - 6;
+	std::size_t s = state_.access (t).size ();
+
+	// Safety check: if data are inconsistent, clear
+	// the joint names to avoid sending erroneous data.
+	// This should not happen unless you change
+	// the robot model at run-time.
+	if (s != jointState_.name.size())
+	  jointState_.name.clear();
 
 	// Update header.
 	++jointState_.header.seq;
@@ -85,24 +162,10 @@ namespace dynamicgraph
 	jointState_.header.stamp.sec = now.sec;
 	jointState_.header.stamp.nsec = now.nsec;
 
-	// Fill names if needed.
-	if (jointState_.name.size () != s + handsDofsCount)
-	  {
-	    jointState_.name.resize (s + handsDofsCount);
-	    for (std::size_t i = 0; i < s + handsDofsCount; ++i)
-	      {
-		if (dof_names[i] == 0)
-		  break;
-		jointState_.name[i] = dof_names[i];
-	      }
-	  }
-
 	// Fill position.
-	jointState_.position.resize (s + handsDofsCount);
+	jointState_.position.resize (s);
 	for (std::size_t i = 0; i < s; ++i)
-	  jointState_.position[i] = state_.access (t) (i + 6);
-	for (std::size_t i = 0; i < handsDofsCount; ++i)
-	  jointState_.position[i + s] = 0.;
+	  jointState_.position[i] = state_.access (t) (i);
 
 	publisher_.msg_ = jointState_;
 	publisher_.unlockAndPublish ();

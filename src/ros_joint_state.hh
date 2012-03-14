@@ -27,6 +27,11 @@ namespace dynamicgraph
     virtual ~RosJointState ();
 
     int& trigger (int&, int);
+
+    sensor_msgs::JointState& jointState ()
+    {
+      return jointState_;
+    }
   private:
     ros::NodeHandle& nh_;
     signalVectorIn_t state_;

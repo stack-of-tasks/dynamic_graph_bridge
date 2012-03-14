@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
-include(FindPkgConfig)
+INCLUDE(cmake/base.cmake)
 
 set(ROS_BUILD_TYPE RelWithDebInfo)
 
@@ -15,10 +15,17 @@ rosbuild_gensrv()
 
 rosbuild_add_boost_directories()
 
-pkg_check_modules(JRL_MAL REQUIRED jrl-mal)
-pkg_check_modules(DYNAMIC_GRAPH REQUIRED dynamic-graph)
-pkg_check_modules(DYNAMIC_GRAPH_PYTHON REQUIRED dynamic-graph-python)
-pkg_check_modules(SOT_CORE REQUIRED sot-core)
+SET(PKG_CONFIG_ADDITIONAL_VARIABLES
+  ${PKG_CONFIG_ADDITIONAL_VARIABLES}
+  plugindirname
+  plugindir
+  )
+
+ADD_REQUIRED_DEPENDENCY(jrl-mal)
+ADD_REQUIRED_DEPENDENCY(dynamic-graph)
+ADD_REQUIRED_DEPENDENCY(dynamic-graph-python)
+ADD_REQUIRED_DEPENDENCY(sot-core)
+ADD_REQUIRED_DEPENDENCY(sot-dynamic)
 
 include_directories(include)
 
@@ -36,105 +43,58 @@ rosbuild_add_library(ros_bridge
 # are not installed.
 set_target_properties(ros_bridge PROPERTIES BUILD_WITH_INSTALL_RPATH True)
 
-rosbuild_add_library(ros_import src/ros_import.cpp src/ros_import.hh)
-rosbuild_add_compile_flags(ros_import ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS}
-  ${SOT_CORE_CFLAGS})
-rosbuild_add_link_flags(ros_import ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS}
-  ${SOT_CORE_LDFLAGS})
-target_link_libraries(ros_import ros_bridge)
-target_link_libraries(ros_import
-  ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES} ${SOT_CORE_LIBRARIES})
-set_target_properties(ros_import PROPERTIES BUILD_WITH_INSTALL_RPATH True)
+MACRO(COMPILE_PLUGIN NAME)
+  rosbuild_add_library(${NAME} src/${NAME}.cpp src/${NAME}.hh)
+  PKG_CONFIG_USE_DEPENDENCY(${NAME} jrl-mal)
+  PKG_CONFIG_USE_DEPENDENCY(${NAME} dynamic-graph)
+  PKG_CONFIG_USE_DEPENDENCY(${NAME} sot-core)
+  target_link_libraries(${NAME} ros_bridge)
+  set_target_properties(${NAME} PROPERTIES BUILD_WITH_INSTALL_RPATH True)
+  INSTALL(TARGETS ${NAME} DESTINATION lib)
 
-rosbuild_add_library(ros_export src/ros_export.cpp src/ros_export.hh)
-rosbuild_add_compile_flags(ros_export ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS}
-  ${SOT_CORE_CFLAGS})
-rosbuild_add_link_flags(ros_export ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS}
-  ${SOT_CORE_LDFLAGS})
-target_link_libraries(ros_export ros_bridge)
-target_link_libraries(ros_export
-  ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES} ${SOT_CORE_LIBRARIES})
-set_target_properties(ros_export PROPERTIES BUILD_WITH_INSTALL_RPATH True)
+  DYNAMIC_GRAPH_PYTHON_MODULE("ros/${NAME}"
+    ${NAME}
+    ros/${NAME}/wrap
+    )
 
-rosbuild_add_library(ros_joint_state
-  src/ros_joint_state.cpp src/ros_joint_state)
-rosbuild_add_compile_flags(ros_joint_state
-  ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS}
-  ${SOT_CORE_CFLAGS})
-rosbuild_add_link_flags(ros_joint_state ${JRL_MAL_LDFLAGS}
-  ${DYNAMIC_GRAPH_LDFLAGS} ${SOT_CORE_LDFLAGS})
-target_link_libraries(ros_joint_state ros_bridge)
-target_link_libraries(ros_joint_state
-  ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES} ${SOT_CORE_LIBRARIES})
-set_target_properties(ros_joint_state PROPERTIES BUILD_WITH_INSTALL_RPATH True)
-
-rosbuild_add_library(ros_interpreter
-  src/ros_interpreter.cpp)
-rosbuild_add_compile_flags(ros_interpreter
-  ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${DYNAMIC_GRAPH_PYTHON_CFLAGS}
-  ${SOT_CORE_CFLAGS})
-rosbuild_add_link_flags(ros_interpreter ${JRL_MAL_LDFLAGS}
-  ${DYNAMIC_GRAPH_LDFLAGS} ${DYNAMIC_GRAPH_PYTHON_LDFLAGS} ${SOT_CORE_LDFLAGS})
-target_link_libraries(ros_interpreter ros_bridge)
-target_link_libraries(ros_interpreter
-  ${JRL_MAL_LIBRARIES} ${DYNAMIC_GRAPH_LIBRARIES}
-  ${DYNAMIC_GRAPH_PYTHON_LIBRARIES} ${SOT_CORE_LIBRARIES})
-set_target_properties(ros_interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
-
-# Stand alone remote dynamic-graph Python interpreter.
-rosbuild_add_executable(interpreter src/interpreter.cpp)
-target_link_libraries(interpreter ros_interpreter)
-rosbuild_add_compile_flags(interpreter ${SOT_CORE_CFLAGS})
-rosbuild_add_link_flags(interpreter ${JRL_MAL_LDFLAGS}
-  ${DYNAMIC_GRAPH_LDFLAGS} ${DYNAMIC_GRAPH_PYTHON_LDFLAGS} ${SOT_CORE_LDFLAGS})
-set_target_properties(interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
-
-INSTALL(TARGETS ros_bridge DESTINATION lib)
-INSTALL(TARGETS ros_import DESTINATION lib)
-INSTALL(TARGETS ros_export DESTINATION lib)
-INSTALL(TARGETS ros_joint_state DESTINATION lib)
-INSTALL(TARGETS ros_interpreter DESTINATION lib)
-INSTALL(TARGETS interpreter DESTINATION bin)
+  SET_TARGET_PROPERTIES(ros/${NAME}/wrap
+    PROPERTIES
+    COMPILE_FLAGS
+    ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${SOT_CORE_CFLAGS}
+    LINK_FLAGS
+    ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS} ${SOT_CORE_LDFLAGS}
+    )
+ENDMACRO()
 
 INCLUDE(cmake/python.cmake)
 
 INCLUDE_DIRECTORIES(${DYNAMIC_GRAPH_INCLUDE_DIRS})
 LINK_DIRECTORIES(${DYNAMIC_GRAPH_LIBRARY_DIRS})
 
-DYNAMIC_GRAPH_PYTHON_MODULE("ros/ros_import"
-  ros_import
-  ros/ros_import/wrap
-  )
-SET_TARGET_PROPERTIES(ros/ros_import/wrap
-  PROPERTIES
-  COMPILE_FLAGS
-  ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${SOT_CORE_CFLAGS}
-  LINK_FLAGS
-  ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS} ${SOT_CORE_LDFLAGS}
-  )
+COMPILE_PLUGIN(ros_import)
+COMPILE_PLUGIN(ros_export)
+COMPILE_PLUGIN(ros_export)
 
-DYNAMIC_GRAPH_PYTHON_MODULE("ros/ros_export"
-  ros_export
-  ros/ros_export/wrap
-  )
-SET_TARGET_PROPERTIES(ros/ros_export/wrap
-  PROPERTIES
-  COMPILE_FLAGS
-  ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${SOT_CORE_CFLAGS}
-  LINK_FLAGS
-  ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS} ${SOT_CORE_LDFLAGS}
-  )
+COMPILE_PLUGIN(ros_joint_state)
+target_link_libraries(ros_joint_state "${DYNAMIC_GRAPH_PLUGINDIR}/dynamic.so")
 
-DYNAMIC_GRAPH_PYTHON_MODULE("ros/ros_joint_state"
-  ros_joint_state
-  ros/ros_joint_state/wrap
-  )
-SET_TARGET_PROPERTIES(ros/ros_joint_state/wrap
-  PROPERTIES
-  COMPILE_FLAGS
-  ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${SOT_CORE_CFLAGS}
-  LINK_FLAGS
-  ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS} ${SOT_CORE_LDFLAGS}
-  )
+# ros_interperter library.
+rosbuild_add_library(ros_interpreter src/ros_interpreter.cpp)
+PKG_CONFIG_USE_DEPENDENCY(ros_interpreter jrl-mal)
+PKG_CONFIG_USE_DEPENDENCY(ros_interpreter dynamic-graph)
+PKG_CONFIG_USE_DEPENDENCY(ros_interpreter sot-core)
+target_link_libraries(ros_interpreter ros_bridge)
+set_target_properties(ros_interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
+INSTALL(TARGETS ros_interpreter DESTINATION lib)
+
+# Stand alone remote dynamic-graph Python interpreter.
+rosbuild_add_executable(interpreter src/interpreter.cpp)
+target_link_libraries(interpreter ros_interpreter)
+PKG_CONFIG_USE_DEPENDENCY(interpreter jrl-mal)
+PKG_CONFIG_USE_DEPENDENCY(interpreter dynamic-graph)
+PKG_CONFIG_USE_DEPENDENCY(interpreter sot-core)
+PKG_CONFIG_USE_DEPENDENCY(interpreter sot-dynamic)
+set_target_properties(interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
+INSTALL(TARGETS interpreter DESTINATION bin)
 
 ADD_SUBDIRECTORY(src)

@@ -15,6 +15,7 @@ class Ros(object):
         self.rosImport = RosImport('rosImport{0}'.format(suffix))
         self.rosExport = RosExport('rosExport{0}'.format(suffix))
         self.rosJointState = RosJointState('rosJointState{0}'.format(suffix))
+        self.rosJointState.retrieveJointNames(self.robot.dynamic.name)
 
         plug(self.robot.device.state, self.rosJointState.state)
         self.robot.device.after.addSignal('{0}.trigger'.format(self.rosImport.name))
