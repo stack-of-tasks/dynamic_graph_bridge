@@ -135,7 +135,7 @@ namespace dynamicgraph
 
     std::string docstring =
       "\n"
-      "  Add a signal importing data from a ROS topic\n"
+      "  Add a signal writing data to a ROS topic\n"
       "\n"
       "  Input:\n"
       "    - type: string among ['double', 'matrix', 'vector', 'vector3',\n"
@@ -149,7 +149,7 @@ namespace dynamicgraph
 		(*this, docstring));
     docstring =
       "\n"
-      "  Remove a signal importing data from a ROS topic\n"
+      "  Remove a signal writing data to a ROS topic\n"
       "\n"
       "  Input:\n"
       "    - name of the signal to remove (see method list for the list of signals).\n"
@@ -159,7 +159,7 @@ namespace dynamicgraph
 		(*this, docstring));
     docstring =
       "\n"
-      "  Remove all signals importing data from a ROS topic\n"
+      "  Remove all signals writing data to a ROS topic\n"
       "\n"
       "  No input:\n"
       "\n";
@@ -168,7 +168,7 @@ namespace dynamicgraph
 		(*this, docstring));
     docstring =
       "\n"
-      "  List signals importing data from a ROS topic\n"
+      "  List signals writing data to a ROS topic\n"
       "\n"
       "  No input:\n"
       "\n";
