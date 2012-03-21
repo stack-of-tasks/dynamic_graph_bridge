@@ -71,10 +71,16 @@ namespace dynamicgraph
   // Vector3
   SOT_TO_ROS_IMPL(specific::Vector3)
   {
-    assert (src.size () == 3);
-    dst.x =  src.elementAt (0);
-    dst.y =  src.elementAt (1);
-    dst.z =  src.elementAt (2);
+    if (src.size () > 0)
+      {
+	dst.x =  src.elementAt (0);
+	if (src.size () > 1)
+	  {
+	    dst.y =  src.elementAt (1);
+	    if (src.size () > 2)
+	      dst.z =  src.elementAt (2);
+	  }
+      }
   }
 
   ROS_TO_SOT_IMPL(specific::Vector3)
