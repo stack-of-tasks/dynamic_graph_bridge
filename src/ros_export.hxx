@@ -2,10 +2,14 @@
 # define DYNAMIC_GRAPH_ROS_EXPORT_HXX
 # include <vector>
 # include <boost/bind.hpp>
+# include <boost/date_time/posix_time/posix_time.hpp>
+# include <dynamic-graph/signal-caster.h>
+# include <dynamic-graph/signal-cast-helper.h>
 # include <jrl/mal/boost.hh>
 # include <std_msgs/Float64.h>
 # include "dynamic_graph_bridge/Matrix.h"
 # include "dynamic_graph_bridge/Vector.h"
+# include "ros_time.hh"
 
 namespace ml = ::maal::boost;
 
@@ -26,13 +30,11 @@ namespace dynamicgraph
   template <typename R>
   void
   RosExport::callbackTimestamp
-  (boost::shared_ptr<dynamicgraph::SignalPtr<ml::Vector, int> > signal,
+  (boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal,
    const R& data)
   {
-    ml::Vector time (2);
-    time (0) = data->header.stamp.sec;
-    // Convert nanoseconds into microseconds (i.e. timeval structure).
-    time (1) = data->header.stamp.nsec / 1000.;
+    ptime time =
+      rosTimeToPtime (data->header.stamp);
     signal->setConstant(time);
   }
 
@@ -116,7 +118,7 @@ namespace dynamicgraph
 
 
 	// Timestamp.
-	typedef dynamicgraph::SignalPtr<ml::Vector, int>
+	typedef dynamicgraph::SignalPtr<RosExport::ptime, int>
 	  signalTimestamp_t;
 	std::string signalTimestamp =
 	  (boost::format ("%1%%2%") % signal % "Timestamp").str ();
@@ -131,8 +133,7 @@ namespace dynamicgraph
 	boost::shared_ptr<signalTimestamp_t> signalTimestamp_
 	  (new signalTimestamp_t (0, signalNameTimestamp.str ()));
 
-	ml::Vector zero (2);
-	zero.setZero ();
+	RosExport::ptime zero (rosTimeToPtime (ros::Time (0, 0)));
 	signalTimestamp_->setConstant (zero);
 	bindedSignalTimestamp.first = signalTimestamp_;
 	rosExport.signalRegistration (*bindedSignalTimestamp.first);

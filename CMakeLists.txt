@@ -71,7 +71,7 @@ link_directories(${DYNAMIC_GRAPH_LIBRARY_DIRS})
 
 compile_plugin(ros_import)
 compile_plugin(ros_export)
-compile_plugin(ros_export)
+compile_plugin(ros_time)
 
 compile_plugin(ros_joint_state)
 target_link_libraries(ros_joint_state "${DYNAMIC_GRAPH_PLUGINDIR}/dynamic.so")

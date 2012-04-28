@@ -57,6 +57,7 @@ namespace dynamicgraph
   class RosExport : public dynamicgraph::Entity
   {
     DYNAMIC_GRAPH_ENTITY_DECL();
+    typedef boost::posix_time::ptime ptime;
   public:
     typedef std::pair<boost::shared_ptr<dynamicgraph::SignalBase<int> >,
 		      boost::shared_ptr<ros::Subscriber> >
@@ -93,7 +94,7 @@ namespace dynamicgraph
 
     template <typename R>
     void callbackTimestamp
-    (boost::shared_ptr<dynamicgraph::SignalPtr<ml::Vector, int> > signal,
+    (boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal,
      const R& data);
 
     template <typename T>

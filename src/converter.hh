@@ -4,6 +4,8 @@
 # include "sot_to_ros.hh"
 
 # include <boost/static_assert.hpp>
+# include <boost/date_time/date.hpp>
+# include <boost/date_time/posix_time/posix_time.hpp>
 
 # include <ros/time.h>
 # include <std_msgs/Header.h>
@@ -269,6 +271,30 @@ namespace dynamicgraph
   {
     // This will always fail if instantiated.
     BOOST_STATIC_ASSERT (sizeof (U) == 0);
+  }
+
+  typedef boost::posix_time::ptime ptime;
+  typedef boost::posix_time::seconds seconds;
+  typedef boost::posix_time::microseconds microseconds;
+  typedef boost::posix_time::time_duration time_duration;
+  typedef boost::gregorian::date date;
+
+  boost::posix_time::ptime rosTimeToPtime (const ros::Time& rosTime)
+  {
+    ptime time (date(1970,1,1),	seconds (rosTime.sec) +
+		microseconds (rosTime.nsec/1000));
+    return time;
+  }
+
+  ros::Time pTimeToRostime (const boost::posix_time::ptime& time)
+  {
+    static ptime timeStart(date(1970,1,1));
+    time_duration diff = time - timeStart;
+
+    uint32_t sec = diff.ticks ()/time_duration::rep_type::res_adjust ();
+    uint32_t nsec = diff.fractional_seconds();
+
+    return ros::Time (sec, nsec);
   }
 } // end of namespace dynamicgraph.
 
