@@ -31,7 +31,7 @@ namespace dynamicgraph
 	ros::init(argc, argv, "dynamic_graph_bridge");
 	free (arg0);
 
-	ros.nodeHandle = boost::make_shared<ros::NodeHandle> ("dynamic_graph");
+	ros.nodeHandle = boost::make_shared<ros::NodeHandle> ("");
       }
     if (!ros.spinner && createAsyncSpinner)
       {
