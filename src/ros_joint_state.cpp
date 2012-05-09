@@ -106,7 +106,7 @@ namespace dynamicgraph
       // do not use callbacks, so do not create a useless spinner
       nh_ (rosInit (false)),
       state_ (0, MAKE_SIGNAL_STRING(name, true, "Vector", "state")),
-      publisher_ (nh_, "joint_states", 5),
+      publisher_ (nh_, "dynamic_graph/joint_states", 5),
       jointState_ (),
       trigger_ (boost::bind (&RosJointState::trigger, this, _1, _2),
 		sotNOSIGNAL,
