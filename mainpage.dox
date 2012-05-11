@@ -2,12 +2,8 @@
 \mainpage
 \htmlinclude manifest.html
 
-\b dynamic_graph is ... 
-
-<!-- 
-Provide an overview of your package.
--->
-
+\b dynamic_graph_bridge provides communication tools for
+ROS/dynamic-graph interoperation.
 
 \section codeapi Code API
 
