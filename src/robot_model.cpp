@@ -90,7 +90,7 @@ namespace dynamicgraph
   RosRobotModel::loadUrdf (const std::string& filename)
   {
     jrl::dynamics::urdf::Parser parser;
-    robot_ = parser.parse(filename, "base_footprint_joint");
+    robot_ = parser.parse(filename);
     buildSignals ();
   }
 
@@ -106,7 +106,7 @@ namespace dynamicgraph
     if (robotDescription.empty ())
       throw std::runtime_error
 	("No model available as ROS parameter. Fail.");
-    robot_ = parser.parseStream (robotDescription, "base_footprint_joint");
+    robot_ = parser.parseStream (robotDescription);
     buildSignals ();
   }
 
