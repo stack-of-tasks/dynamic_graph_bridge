@@ -4,6 +4,7 @@
 
 #include <ros/ros.h>
 
+#include <dynamic-graph/command-getter.h>
 #include <dynamic-graph/factory.h>
 #include <dynamic-graph/null-ptr.hh>
 #include <jrl/dynamics/urdf/parser.hh>
@@ -14,6 +15,17 @@
 namespace dynamicgraph
 {
   namespace dg = dynamicgraph;
+  using ::dynamicgraph::command::Getter;
+
+  namespace
+  {
+    void convert (ml::Vector& dst, const vector3d& src)
+    {
+      dst(0) = src[0];
+      dst(1) = src[1];
+      dst(2) = src[2];
+    }
+  } // end of anonymous namespace.
 
   namespace command
   {
@@ -55,15 +67,37 @@ namespace dynamicgraph
       robot_ (0),
       lastComputation_ (std::numeric_limits<int>::min()),
       q_ (dynamicgraph::nullptr,
-	  "RosRobotModel(" + name + ")::input(vector)::q"),
+	  "RosRobotModel(" + name + ")::input(vector)::position"),
       dq_ (dynamicgraph::nullptr,
-	   "RosRobotModel(" + name + ")::input(vector)::dq"),
+	   "RosRobotModel(" + name + ")::input(vector)::velocity"),
       ddq_ (dynamicgraph::nullptr,
-	    "RosRobotModel(" + name + ")::input(vector)::ddq")
+	    "RosRobotModel(" + name + ")::input(vector)::acceleration"),
+      zmp_ (boost::bind (&RosRobotModel::computeZmp, this, _1, _2),
+	    0,
+	    "RosRobotModel(" + name + ")::output(vector)::zmp"),
+      com_ (boost::bind (&RosRobotModel::computeCom, this, _1, _2),
+	    0,
+	    "RosRobotModel(" + name + ")::output(vector)::com"),
+      jcom_ (boost::bind (&RosRobotModel::computeJCom, this, _1, _2),
+	     0,
+	     "RosRobotModel(" + name + ")::output(vector)::Jcom")
   {
     signalRegistration(q_);
     signalRegistration(dq_);
     signalRegistration(ddq_);
+    signalRegistration(zmp_);
+    signalRegistration(com_);
+    signalRegistration(jcom_);
+
+    zmp_.addDependency (q_);
+    zmp_.addDependency (dq_);
+    zmp_.addDependency (ddq_);
+    com_.addDependency (q_);
+    com_.addDependency (dq_);
+    com_.addDependency (ddq_);
+    jcom_.addDependency (q_);
+    jcom_.addDependency (dq_);
+    jcom_.addDependency (ddq_);
 
     std::string docstring;
 
@@ -81,6 +115,17 @@ namespace dynamicgraph
       "  Load the robot model from an URDF file.\n"
       "\n";
     addCommand ("loadUrdf", new command::LoadUrdf (*this, docstring));
+
+    docstring = "    \n"
+      "    Get the dimension of the robot configuration.\n"
+      "    \n"
+      "      Return:\n"
+      "        an unsigned int: the dimension.\n"
+      "    \n";
+    addCommand ("getDimension",
+		new Getter<RosRobotModel, unsigned>
+		(*this,
+		 &RosRobotModel::getDimension, docstring));
   }
 
   RosRobotModel::~RosRobotModel ()
@@ -99,7 +144,7 @@ namespace dynamicgraph
   {
     jrl::dynamics::urdf::Parser parser;
 
-    ros::NodeHandle& nh = rosInit (false);
+    rosInit (false);
     std::string robotDescription;
     ros::param::param<std::string>
       ("robot_description", robotDescription, "");
@@ -180,6 +225,44 @@ namespace dynamicgraph
       throw std::runtime_error ("failed to update current acceleration");
     robot_->computeForwardKinematics();
     lastComputation_ = t;
+  }
+
+  ml::Vector&
+  RosRobotModel::computeZmp (ml::Vector& zmp, int t)
+  {
+    zmp.resize(3);
+    if (!robot_)
+      throw std::runtime_error ("no robot");
+    update (t);
+    convert (zmp, robot_->zeroMomentumPoint());
+    return zmp;
+  }
+
+  ml::Vector&
+  RosRobotModel::computeCom (ml::Vector& com, int t)
+  {
+    com.resize(3);
+    if (!robot_)
+      throw std::runtime_error ("no robot");
+    update (t);
+    convert (com, robot_->positionCenterOfMass());
+    return com;
+  }
+
+  ml::Matrix&
+  RosRobotModel::computeJCom (ml::Matrix& jcom, int t)
+  {
+    jcom.resize(3, getDimension ());
+    if (!robot_)
+      throw std::runtime_error ("no robot");
+    update (t);
+    CjrlJoint* rootJoint = robot_->rootJoint();
+    if (!rootJoint)
+      throw std::runtime_error ("no root joint");
+    matrixNxP jacobian;
+    robot_->getJacobianCenterOfMass (*rootJoint, jacobian);
+    jcom.initFromMotherLib (jacobian);
+    return jcom;
   }
 
   DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosRobotModel, "RosRobotModel");

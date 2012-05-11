@@ -83,6 +83,18 @@ namespace dynamicgraph
     ///
     /// \param t current time
     void update (int t);
+
+    unsigned getDimension () const
+    {
+      if (!robot_)
+	throw std::runtime_error ("no robot loaded");
+      return robot_->numberDof();
+    }
+
+    ml::Vector& computeZmp (ml::Vector& zmp, int time);
+    ml::Vector& computeCom (ml::Vector& com, int time);
+    ml::Matrix& computeJCom (ml::Matrix& jcom, int time);
+
   private:
     CjrlHumanoidDynamicRobot* robot_;
     std::list< ::dynamicgraph::SignalBase<int>* > genericSignalRefs_;
@@ -96,6 +108,13 @@ namespace dynamicgraph
     dynamicgraph::SignalPtr<ml::Vector,int> dq_;
     /// \brief Robot current acceleration.
     dynamicgraph::SignalPtr<ml::Vector,int> ddq_;
+
+    /// \brief Zero Momentum Point
+    dynamicgraph::SignalTimeDependent<ml::Vector,int> zmp_;
+    /// \brief Center of mass
+    dynamicgraph::SignalTimeDependent<ml::Vector,int> com_;
+    /// \brief Center of mass jacobian
+    dynamicgraph::SignalTimeDependent<ml::Matrix,int> jcom_;
   };
 } // end of namespace dynamicgraph.
 
