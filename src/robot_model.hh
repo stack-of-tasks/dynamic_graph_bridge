@@ -95,6 +95,9 @@ namespace dynamicgraph
     ml::Vector& computeCom (ml::Vector& com, int time);
     ml::Matrix& computeJCom (ml::Matrix& jcom, int time);
 
+    ml::Vector& computeLowerJointLimits (ml::Vector&, int time);
+    ml::Vector& computeUpperJointLimits (ml::Vector&, int time);
+
   private:
     CjrlHumanoidDynamicRobot* robot_;
     std::list< ::dynamicgraph::SignalBase<int>* > genericSignalRefs_;
@@ -115,6 +118,11 @@ namespace dynamicgraph
     dynamicgraph::SignalTimeDependent<ml::Vector,int> com_;
     /// \brief Center of mass jacobian
     dynamicgraph::SignalTimeDependent<ml::Matrix,int> jcom_;
+
+    /// \brief Lower joints limits
+    dynamicgraph::SignalTimeDependent<ml::Vector,int> lowerJointLimits_;
+    /// \brief Upper joints limits
+    dynamicgraph::SignalTimeDependent<ml::Vector,int> upperJointLimits_;
   };
 } // end of namespace dynamicgraph.
 

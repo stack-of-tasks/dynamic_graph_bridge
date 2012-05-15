@@ -80,7 +80,17 @@ namespace dynamicgraph
 	    "RosRobotModel(" + name + ")::output(vector)::com"),
       jcom_ (boost::bind (&RosRobotModel::computeJCom, this, _1, _2),
 	     0,
-	     "RosRobotModel(" + name + ")::output(vector)::Jcom")
+	     "RosRobotModel(" + name + ")::output(vector)::Jcom"),
+      lowerJointLimits_
+      (boost::bind
+       (&RosRobotModel::computeLowerJointLimits, this, _1, _2),
+       0,
+       "RosRobotModel(" + name + ")::output(vector)::lowerJl"),
+      upperJointLimits_
+      (boost::bind
+       (&RosRobotModel::computeUpperJointLimits, this, _1, _2),
+       0,
+       "RosRobotModel(" + name + ")::output(vector)::upperJl")
   {
     signalRegistration(q_);
     signalRegistration(dq_);
@@ -88,6 +98,8 @@ namespace dynamicgraph
     signalRegistration(zmp_);
     signalRegistration(com_);
     signalRegistration(jcom_);
+    signalRegistration(lowerJointLimits_);
+    signalRegistration(upperJointLimits_);
 
     zmp_.addDependency (q_);
     zmp_.addDependency (dq_);
@@ -263,6 +275,34 @@ namespace dynamicgraph
     robot_->getJacobianCenterOfMass (*rootJoint, jacobian);
     jcom.initFromMotherLib (jacobian);
     return jcom;
+  }
+
+  ml::Vector&
+  RosRobotModel::computeLowerJointLimits (ml::Vector& lowerJointLimits, int t)
+  {
+    if (!robot_)
+      throw std::runtime_error ("no robot");
+
+    const unsigned int& ndofs = robot_->numberDof ();
+    lowerJointLimits.resize (ndofs);
+
+    for (unsigned int i = 0; i< ndofs; ++i)
+      lowerJointLimits (i) = robot_->lowerBoundDof (i);
+    return lowerJointLimits;
+  }
+
+  ml::Vector&
+  RosRobotModel::computeUpperJointLimits (ml::Vector& upperJointLimits, int t)
+  {
+    if (!robot_)
+      throw std::runtime_error ("no robot");
+
+    const unsigned int& ndofs = robot_->numberDof ();
+    upperJointLimits.resize (ndofs);
+
+    for (unsigned int i = 0; i< ndofs; ++i)
+      upperJointLimits (i) = robot_->upperBoundDof (i);
+    return upperJointLimits;
   }
 
   DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosRobotModel, "RosRobotModel");
