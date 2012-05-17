@@ -119,6 +119,11 @@ namespace dynamicgraph
     } // end of errorEstimator.
   } // end of namespace command.
 
+  const std::string RosImport::docstring_
+  ("Import ROS topics as dynamic-graph signals.\n"
+   "\n"
+   "  Use command \"add\" to import a new ROS topic.\n");
+
   RosImport::RosImport (const std::string& n)
     : dynamicgraph::Entity(n),
       // rosImport do not use callback so do not create a useless spinner.
@@ -221,6 +226,11 @@ namespace dynamicgraph
 	boost::get<1>(it->second) (t);
       }
     return dummy;
+  }
+
+  std::string RosImport::getDocString () const
+  {
+    return docstring_;
   }
 
 } // end of namespace dynamicgraph.

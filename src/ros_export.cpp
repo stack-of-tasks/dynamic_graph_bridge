@@ -116,6 +116,11 @@ namespace dynamicgraph
     } // end of errorEstimator.
   } // end of namespace command.
 
+  const std::string RosExport::docstring_
+  ("Export dynamic-graph signals as ROS topics.\n"
+   "\n"
+   "  Use command \"add\" to export a new signal.\n");
+
   RosExport::RosExport (const std::string& n)
     : dynamicgraph::Entity(n),
       nh_ (rosInit (true)),
@@ -194,4 +199,8 @@ namespace dynamicgraph
     bindedSignal_.clear ();
   }
 
+  std::string RosExport::getDocString () const
+  {
+    return docstring_;
+  }
 } // end of namespace dynamicgraph.

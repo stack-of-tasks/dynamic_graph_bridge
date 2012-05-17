@@ -66,6 +66,7 @@ namespace dynamicgraph
     RosExport (const std::string& n);
     virtual ~RosExport ();
 
+    virtual std::string getDocString () const;
     void display (std::ostream& os) const;
 
     void add (const std::string& signal, const std::string& topic);
@@ -100,6 +101,7 @@ namespace dynamicgraph
     template <typename T>
     friend class internal::Add;
   private:
+    static const std::string docstring_;
     ros::NodeHandle& nh_;
     std::map<std::string, bindedSignal_t> bindedSignal_;
   };

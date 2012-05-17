@@ -16,6 +16,12 @@ namespace dynamicgraph {
 
   using namespace boost::posix_time;
 
+  const std::string RosTime::docstring_
+  ("Export ROS time into dynamic-graph.\n"
+   "\n"
+   "  Signal \"time\" provides time as given by ros::time as\n"
+   "  boost::posix_time::ptime type.\n");
+
   RosTime::RosTime (const std::string& name) :
     Entity (name),
     now_ ("RosTime("+name+")::output(boost::posix_time::ptime)::time")
@@ -32,4 +38,8 @@ namespace dynamicgraph {
     return time;
   }
 
+  std::string RosTime::getDocString () const
+  {
+    return docstring_;
+  }
 } // namespace dynamicgraph

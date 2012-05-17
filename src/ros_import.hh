@@ -65,6 +65,7 @@ namespace dynamicgraph
     RosImport (const std::string& n);
     virtual ~RosImport ();
 
+    virtual std::string getDocString () const;
     void display (std::ostream& os) const;
 
     void add (const std::string& signal, const std::string& topic);
@@ -87,6 +88,7 @@ namespace dynamicgraph
     void add (const std::string& signal, const std::string& topic);
 
   private:
+    static const std::string docstring_;
     ros::NodeHandle& nh_;
     std::map<std::string, bindedSignal_t> bindedSignal_;
     dynamicgraph::SignalTimeDependent<int,int> trigger_;
