@@ -97,3 +97,10 @@ set_target_properties(interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
 install(TARGETS interpreter DESTINATION bin)
 
 add_subdirectory(src)
+
+# Print warning.
+MESSAGE(STATUS "=====================================================")
+MESSAGE(STATUS "WARNING: this package has an 'install' target.")
+MESSAGE(STATUS "Always run 'make install' in the package directory to")
+MESSAGE(STATUS "properly install the Python modules and entities.")
+MESSAGE(STATUS "=====================================================")
