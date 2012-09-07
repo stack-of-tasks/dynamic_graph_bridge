@@ -31,5 +31,15 @@ namespace dynamicgraph
   {
     return interpreter_.python(command);
   }
+
+  void Interpreter::runCommand
+  (const std::string & command, 
+   std::string &result,
+   std::string &out, 
+   std::string &err)
+  {
+    interpreter_.python(command, result, out, err);
+  }
+
 } // end of namespace dynamicgraph.
 

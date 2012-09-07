@@ -2,7 +2,6 @@
 # define DYNAMIC_GRAPH_BRIDGE_INTERPRETER_HH
 # include <ros/ros.h>
 # include <dynamic_graph_bridge/RunCommand.h>
-
 # include <dynamic-graph/python/interpreter.hh>
 
 namespace dynamicgraph
@@ -24,8 +23,12 @@ namespace dynamicgraph
     explicit Interpreter (ros::NodeHandle& nodeHandle);
 
     /// \brief Run a command and return result.
-    std::string runCommand (const std::string& command);
-
+    std::string runCommand (const std::string& command) __attribute__ ((deprecated));
+    /// \brief Method to start python interpreter and deal with messages.
+    /// \param Command string to execute, result, stdout, stderr strings.
+    void runCommand(const std::string & command, std::string &result,
+		    std::string &out, std::string &err);
+    
   protected:
     /// \brief Run a Python command and return result, stderr and stdout.
     bool runCommandCallback (dynamic_graph_bridge::RunCommand::Request& req,
