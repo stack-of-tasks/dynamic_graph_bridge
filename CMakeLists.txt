@@ -54,13 +54,9 @@ macro(compile_plugin NAME)
     ros/${NAME}/wrap
     )
 
-  set_target_properties(ros/${NAME}/wrap
-    PROPERTIES
-    COMPILE_FLAGS
-    ${JRL_MAL_CFLAGS} ${DYNAMIC_GRAPH_CFLAGS} ${SOT_CORE_CFLAGS}
-    LINK_FLAGS
-    ${JRL_MAL_LDFLAGS} ${DYNAMIC_GRAPH_LDFLAGS} ${SOT_CORE_LDFLAGS}
-    )
+  PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap jrl-mal)
+  PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph)
+  PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap sot-core)
 endmacro()
 
 include(cmake/python.cmake)
