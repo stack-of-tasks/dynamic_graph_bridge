@@ -18,10 +18,11 @@ namespace dynamicgraph
 
     boost::shared_ptr<ros::NodeHandle> nodeHandle;
     boost::shared_ptr<ros::AsyncSpinner> spinner;
+    boost::shared_ptr<ros::MultiThreadedSpinner> mtSpinner;
   };
   GlobalRos ros;
 
-  ros::NodeHandle& rosInit (bool createAsyncSpinner)
+  ros::NodeHandle& rosInit (bool createAsyncSpinner, bool createMultiThreadedSpinner)
   {
     if (!ros.nodeHandle)
       {
@@ -35,8 +36,15 @@ namespace dynamicgraph
       }
     if (!ros.spinner && createAsyncSpinner)
       {
-	ros.spinner = boost::make_shared<ros::AsyncSpinner> (1);
+	ros.spinner = boost::make_shared<ros::AsyncSpinner> (4);
 	ros.spinner->start ();
+      }
+    else 
+      {
+	if (!ros.mtSpinner && createMultiThreadedSpinner)
+	  {
+	    ros.mtSpinner = boost::make_shared<ros::MultiThreadedSpinner>(4);
+	  }
       }
     return *ros.nodeHandle;
   }
@@ -47,4 +55,12 @@ namespace dynamicgraph
       throw std::runtime_error ("spinner has not been created");
     return *ros.spinner;
   }
+
+  ros::MultiThreadedSpinner& mtSpinner ()
+  {
+    if (!ros.mtSpinner)
+      throw std::runtime_error ("spinner has not been created");
+    return *ros.mtSpinner;
+  }
+
 } // end of namespace dynamicgraph.
