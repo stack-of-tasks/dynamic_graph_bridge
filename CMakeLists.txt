@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 include(cmake/base.cmake)
+include(cmake/GNUInstallDirs.cmake)
 
 set(ROS_BUILD_TYPE RelWithDebInfo)
 
@@ -80,7 +81,7 @@ pkg_config_use_dependency(ros_interpreter dynamic-graph)
 pkg_config_use_dependency(ros_interpreter sot-core)
 target_link_libraries(ros_interpreter ros_bridge)
 set_target_properties(ros_interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
-install(TARGETS ros_interpreter DESTINATION lib)
+install(TARGETS ros_interpreter DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Stand alone remote dynamic-graph Python interpreter.
 rosbuild_add_executable(interpreter src/interpreter.cpp)
@@ -89,8 +90,8 @@ pkg_config_use_dependency(interpreter jrl-mal)
 pkg_config_use_dependency(interpreter dynamic-graph)
 pkg_config_use_dependency(interpreter sot-core)
 pkg_config_use_dependency(interpreter sot-dynamic)
-set_target_properties(interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
-install(TARGETS interpreter DESTINATION bin)
+# set_target_properties(interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
+#install(TARGETS interpreter DESTINATION bin)
 
 add_subdirectory(src)
 
