@@ -26,6 +26,7 @@
   <rosdep name="sot-dynamic"/>
 
   <depend package="std_msgs"/>
+  <depend package="std_srvs"/>
   <depend package="roscpp"/>
   <depend package="geometry_msgs"/>
   <depend package="sensor_msgs"/>

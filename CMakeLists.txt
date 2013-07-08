@@ -93,6 +93,10 @@ pkg_config_use_dependency(interpreter sot-dynamic)
 # set_target_properties(interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
 #install(TARGETS interpreter DESTINATION bin)
 
+# Stand alone embedded intepreter with a robot controller.
+rosbuild_add_executable(geometric_simu src/geometric_simu.cpp src/sot_loader.cpp)
+pkg_config_use_dependency(interpreter sot-core)
+
 add_subdirectory(src)
 
 # Print warning.
