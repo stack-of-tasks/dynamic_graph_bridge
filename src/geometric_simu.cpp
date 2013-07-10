@@ -17,31 +17,51 @@
  * with dynamic_graph_bridge.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <iostream>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/condition.hpp>
 
 #include "sot_loader.hh"
 
-bool SotLoader::start_dg(std_srvs::Empty::Request& request, 
-                         std_srvs::Empty::Response& response)
+boost::condition_variable cond;
+boost::mutex mut;
+
+void workThread(SotLoader *aSotLoader)
 {
-  for(unsigned int i=0;i<500;i++)
+  {
+    boost::lock_guard<boost::mutex> lock(mut);
+  }
+  while(aSotLoader->isDynamicGraphStopped())
     {
-      oneIteration();
+      usleep(5000);
+    }  
+  while(!aSotLoader->isDynamicGraphStopped())
+    {
+      aSotLoader->oneIteration();
+      usleep(5000);
     }
+  cond.notify_all();
+  ros::waitForShutdown();
 }
 
 
 int main(int argc, char *argv[])
 {
+  
+  ros::init(argc, argv, "sot_ros_encapsulator");
+
   SotLoader aSotLoader;
   if (aSotLoader.parseOptions(argc,argv)<0)
     return -1;
   
-  ros::init(argc, argv, "start_dynamic_graph");
   ros::NodeHandle n;
-  
   ros::ServiceServer service = n.advertiseService("start_dynamic_graph", 
                                                   &SotLoader::start_dg,
                                                   &aSotLoader);
   ROS_INFO("Ready to start dynamic graph.");
+
+  boost::thread thr(workThread,&aSotLoader);
+
+  boost::unique_lock<boost::mutex> lock(mut);
+  cond.wait(lock);
   ros::spin();
 }

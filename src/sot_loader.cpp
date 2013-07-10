@@ -30,7 +30,8 @@ using namespace dynamicgraph::sot;
 namespace po = boost::program_options;
 
 SotLoader::SotLoader():
-sensorsIn_ (),
+  dynamic_graph_stopped_(true),
+  sensorsIn_ (),
   controlValues_ (),
   angleEncoder_ (),
   angleControl_ (),
@@ -40,7 +41,48 @@ sensorsIn_ (),
   accelerometer_ (3),
   gyrometer_ (3)
 {
+  readSotVectorStateParam();
+  initPublication();
 }
+
+int SotLoader::initPublication()
+{
+  ros::NodeHandle n;
+
+
+  // Prepare message to be published
+  joint_pub_ = n.advertise<sensor_msgs::JointState>("joint_states", 1);
+
+  return 0;
+}
+
+int SotLoader::readSotVectorStateParam()
+{
+  ros::NodeHandle n;
+
+  if (!ros::param::has("/sot/state_vector_map"))
+    {
+      std::cerr<< " Read Sot Vector State Param " << std::endl;
+      return 1;
+    }
+
+  n.getParam("/sot/state_vector_map", stateVectorMap_);
+  ROS_ASSERT(stateVectorMap_.getType() == XmlRpc::XmlRpcValue::TypeArray);
+  nbOfJoints_ = stateVectorMap_.size();
+
+  // Prepare joint_state according to robot description.
+  joint_state_.name.resize(nbOfJoints_);
+  joint_state_.position.resize(nbOfJoints_);
+
+  for (int32_t i = 0; i < stateVectorMap_.size(); ++i) 
+   {
+     joint_state_.name[i]= static_cast<string>(stateVectorMap_[i]);
+   }
+  angleEncoder_.resize(nbOfJoints_);
+  
+  return 0;
+}
+
 
 int SotLoader::parseOptions(int argc, char *argv[])
 { 
@@ -74,7 +116,7 @@ void SotLoader::Initialization()
   
   // Load the SotRobotBipedController library.
   void * SotRobotControllerLibrary = dlopen( dynamicLibraryName_.c_str(),
-                                             RTLD_LAZY | RTLD_LOCAL );
+                                             RTLD_LAZY | RTLD_GLOBAL );
   if (!SotRobotControllerLibrary) {
     std::cerr << "Cannot load library: " << dlerror() << '\n';
     return ;
@@ -95,8 +137,6 @@ void SotLoader::Initialization()
   
   // Create robot-controller
   sotController_ = createSot();
-  //    std::string s="libsot-hrp2-14-controller.so";
-  //  sotController_->Initialization(dynamicLibraryName_);
   cout <<"Went out from Initialization." << endl;
 }
 
@@ -110,28 +150,33 @@ SotLoader::fillSensors(map<string,dgs::SensorValues> & sensorsIn)
     angleEncoder_[i] = angleControl_[i];
   sensorsIn["joints"].setValues(angleEncoder_);
   
-  
 }
 
 void 
 SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
 {
-  //static unsigned int nbit=0;
+
   
   // Update joint values.
   angleControl_ = controlValues["joints"].getValues();
+
+  // Check if the size if coherent with the robot description.
+  if (angleControl_.size()!=(unsigned int)nbOfJoints_)
+    {
+      std::cerr << " angleControl_ and nbOfJoints are different !"
+                << std::endl;
+      exit(-1);
+    }
+
+  // Publish the data.
+  joint_state_.header.stamp = ros::Time::now();  
+  for(int i=0;i<nbOfJoints_;i++)
+    {
+      joint_state_.position[i] = angleControl_[i];
+    }
   
-  /*
-    if (nbit%100==0)
-    std::cout << "Size of angles: " << angleControl_.size() 
-    << " Size of mc->angle: " << mc->angle.length() 
-    << std::endl;
-  */
-  /* 
-     if (nbit%100==0)
-     std::cout << std::endl;
-     nbit++;
-  */
+  joint_pub_.publish(joint_state_);  
+
   
 }
 
@@ -146,7 +191,6 @@ void SotLoader::setup()
 void SotLoader::oneIteration()
 {
   fillSensors(sensorsIn_);
-  
   try 
     {
       sotController_->nominalSetSensors(sensorsIn_);
@@ -155,5 +199,20 @@ void SotLoader::oneIteration()
   catch(std::exception &e) { throw e;} 
   
   readControl(controlValues_);
+}
+
+
+bool SotLoader::start_dg(std_srvs::Empty::Request& request, 
+                         std_srvs::Empty::Response& response)
+{
+  dynamic_graph_stopped_=false;    
+  return true;
+}
+
+bool SotLoader::stop_dg(std_srvs::Empty::Request& request, 
+                         std_srvs::Empty::Response& response)
+{
+  dynamic_graph_stopped_ = true;
+  return true;
 }
 

@@ -22,16 +22,21 @@
 
 // System includes
 #include <iostream>
+#include <cassert>
 
 // STL includes
 #include <map>
 
 // Boost includes
 #include <boost/program_options.hpp>
+#include <boost/foreach.hpp>
+#include <boost/format.hpp>
 
 // ROS includes
 #include "ros/ros.h"
 #include "std_srvs/Empty.h"
+#include <sensor_msgs/JointState.h>
+
 // Sot Framework includes 
 #include <sot/core/debug.hh>
 #include <sot/core/abstract-sot-external-interface.hh>
@@ -39,12 +44,13 @@
 namespace po = boost::program_options;
 namespace dgs = dynamicgraph::sot;
 
-//typedef std::vector<double> SensorValues;
-//typedef std::vector<double> ControlValues;
 
 class SotLoader {
 
 protected:
+
+  // Dynamic graph is stopped.
+  bool dynamic_graph_stopped_;
 
   /// \brief the sot-hrp2 controller
   dgs::AbstractSotExternalInterface * sotController_;
@@ -71,19 +77,62 @@ protected:
   /// Angular velocity read by gyrometers
   std::vector <double> gyrometer_;
 
+  /// URDF string description of the robot.
+  std::string robot_desc_string_;
+
+  XmlRpc::XmlRpcValue stateVectorMap_;
+
+  // Joint state publication.
+  ros::Publisher joint_pub_;
+  
+  // Joint state to be published.
+  sensor_msgs::JointState joint_state_;
+
+  // Number of DOFs according to KDL.
+  int nbOfJoints_;
+
+
 public:
   SotLoader();
   ~SotLoader() {};
 
+  // \brief Read user input to extract the path of the SoT dynamic library.
   int parseOptions(int argc, char *argv[]);
-  
+
+  // \brief Load the SoT
   void Initialization();
+
+  // \brief Compute one iteration of control.
+  // Basically calls fillSensors, the SoT and the readControl.
   void oneIteration();
 
-  void fillSensors(std::map<std::string, dgs::SensorValues> & sensorsIn);
-  void readControl(std::map<std::string, dgs::ControlValues> & controlValues);
+  // \brief Fill the sensors value for the SoT.
+  void fillSensors(std::map<std::string, 
+                   dgs::SensorValues> & sensorsIn);
+
+  // \brief Read the control computed by the SoT framework.
+  void readControl(std::map<std::string, 
+                   dgs::ControlValues> & controlValues);
+
+  // \brief Prepare the SoT framework.
   void setup();
+
+  // \brief Callback function when starting dynamic graph.
   bool start_dg(std_srvs::Empty::Request& request, 
                 std_srvs::Empty::Response& response);
+
+  // \brief Callback function when stopping dynamic graph.
+  bool stop_dg(std_srvs::Empty::Request& request, 
+                std_srvs::Empty::Response& response);
+
+  // \brief Read the state vector description based upon the robot links.
+  int readSotVectorStateParam();
+
+  // \brief Init publication of joint states.
+  int initPublication();
+
+  // \brief Get Status of dg.
+  bool isDynamicGraphStopped()
+  { return dynamic_graph_stopped_; }
 };
 
