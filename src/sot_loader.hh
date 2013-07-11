@@ -62,6 +62,7 @@ protected:
   std::map <std::string,dgs::SensorValues> sensorsIn_;
   /// Map of control values
   std::map<std::string,dgs::ControlValues> controlValues_;
+
   /// Angular values read by encoders
   std::vector <double> angleEncoder_;
   /// Angular values sent to motors
@@ -79,8 +80,15 @@ protected:
 
   /// URDF string description of the robot.
   std::string robot_desc_string_;
-
+  
+  /// \brief Map between SoT state vector and some joint_state_links
   XmlRpc::XmlRpcValue stateVectorMap_;
+
+  /// \brief List of parallel joints from the state vector.
+  std::vector<int> parallel_joints_to_state_vector_;
+
+  /// \brief Coefficient between parallel joints and the state vector.
+  std::vector<double> coefficient_parallel_joints_;
 
   // Joint state publication.
   ros::Publisher joint_pub_;
@@ -90,6 +98,7 @@ protected:
 
   // Number of DOFs according to KDL.
   int nbOfJoints_;
+  int nbOfParallelJoints_;
 
 
 public:

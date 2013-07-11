@@ -58,6 +58,8 @@ int SotLoader::initPublication()
 
 int SotLoader::readSotVectorStateParam()
 {
+  std::map<std::string,int> from_state_name_to_state_vector;
+  std::map<std::string,std::string> from_parallel_name_to_state_vector_name;
   ros::NodeHandle n;
 
   if (!ros::param::has("/sot/state_vector_map"))
@@ -70,14 +72,61 @@ int SotLoader::readSotVectorStateParam()
   ROS_ASSERT(stateVectorMap_.getType() == XmlRpc::XmlRpcValue::TypeArray);
   nbOfJoints_ = stateVectorMap_.size();
 
-  // Prepare joint_state according to robot description.
-  joint_state_.name.resize(nbOfJoints_);
-  joint_state_.position.resize(nbOfJoints_);
+  if (ros::param::has("/sot/joint_state_parallel"))
+    {
+      XmlRpc::XmlRpcValue joint_state_parallel;
+      n.getParam("/sot/joint_state_parallel", joint_state_parallel);
+      ROS_ASSERT(joint_state_parallel.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+      std::cout << "Type of joint_state_parallel:" << joint_state_parallel.getType() << std::endl;
 
+      for(XmlRpc::XmlRpcValue::iterator it = joint_state_parallel.begin(); 
+          it!= joint_state_parallel.end(); it++) 
+        {
+          XmlRpc::XmlRpcValue local_value=it->second;
+          std::string final_expression, map_expression = static_cast<string>(local_value); 
+          double final_coefficient = 1.0;
+          // deal with sign 
+          if (map_expression[0]=='-')
+            {
+              final_expression = map_expression.substr(1,map_expression.size()-1);
+              final_coefficient = -1.0;
+            }
+          else 
+            final_expression = map_expression;
+
+          std::cout <<it->first.c_str() << ": " << final_coefficient << std::endl;
+          from_parallel_name_to_state_vector_name[it->first.c_str()] = final_expression;
+          coefficient_parallel_joints_.push_back(final_coefficient);
+
+        }
+      nbOfParallelJoints_ = from_parallel_name_to_state_vector_name.size();
+    }
+
+  // Prepare joint_state according to robot description.
+  joint_state_.name.resize(nbOfJoints_+nbOfParallelJoints_);
+  joint_state_.position.resize(nbOfJoints_+nbOfParallelJoints_);
+
+  // Fill in the name of the joints from the state vector.
+  // and build local map from state name to state vector
   for (int32_t i = 0; i < stateVectorMap_.size(); ++i) 
    {
      joint_state_.name[i]= static_cast<string>(stateVectorMap_[i]);
+
+     from_state_name_to_state_vector[joint_state_.name[i]] = i;
    }
+
+  // Fill in the name of the joints from the parallel joint vector.
+  // and build map from parallel name to state vector
+  int i=0;
+  parallel_joints_to_state_vector_.resize(nbOfParallelJoints_);
+  for (std::map<std::string,std::string>::iterator  it = from_parallel_name_to_state_vector_name.begin();
+       it != from_parallel_name_to_state_vector_name.end();
+       it++,i++)
+    {
+      joint_state_.name[i+nbOfJoints_]=it->first.c_str();
+      parallel_joints_to_state_vector_[i] = from_state_name_to_state_vector[it->second];
+    }
+
   angleEncoder_.resize(nbOfJoints_);
   
   return 0;
@@ -174,7 +223,12 @@ SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
     {
       joint_state_.position[i] = angleControl_[i];
     }
-  
+  for(unsigned int i=0;i<parallel_joints_to_state_vector_.size();i++)
+    {
+      joint_state_.position[i+nbOfJoints_] = 
+        coefficient_parallel_joints_[i]*parallel_joints_to_state_vector_[i];
+    }
+
   joint_pub_.publish(joint_state_);  
 
   
