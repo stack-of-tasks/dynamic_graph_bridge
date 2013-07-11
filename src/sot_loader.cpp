@@ -226,7 +226,7 @@ SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
   for(unsigned int i=0;i<parallel_joints_to_state_vector_.size();i++)
     {
       joint_state_.position[i+nbOfJoints_] = 
-        coefficient_parallel_joints_[i]*parallel_joints_to_state_vector_[i];
+        coefficient_parallel_joints_[i]*angleControl_[parallel_joints_to_state_vector_[i]];
     }
 
   joint_pub_.publish(joint_state_);  
