@@ -28,7 +28,10 @@ namespace dynamicgraph
     /// \param Command string to execute, result, stdout, stderr strings.
     void runCommand(const std::string & command, std::string &result,
 		    std::string &out, std::string &err);
-    
+
+    /// Initialize service run_command
+    void startRosService ();
+
   protected:
     /// \brief Run a Python command and return result, stderr and stdout.
     bool runCommandCallback (dynamic_graph_bridge::RunCommand::Request& req,

@@ -112,8 +112,14 @@ namespace dynamicgraph
 		sotNOSIGNAL,
 		MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
       rate_ (ROS_JOINT_STATE_PUBLISHER_RATE),
-      lastPublicated_ (ros::Time::now () - rate_ - rate_)
+      lastPublicated_ ()
   {
+    try {
+      lastPublicated_ = ros::Time::now ();
+    } catch (const std::exception& exc) {
+      throw std::runtime_error ("Failed to call ros::Time::now ():" +
+				std::string (exc.what ()));
+    }
     signalRegistration (state_ << trigger_);
     trigger_.setNeedUpdateFromAllChildren (true);
 

@@ -9,9 +9,12 @@ namespace dynamicgraph
       nodeHandle_ (nodeHandle),
       runCommandSrv_ ()
   {
+  }
+
+  void Interpreter::startRosService ()
+  {
     runCommandCallback_t runCommandCb =
       boost::bind (&Interpreter::runCommandCallback, this, _1, _2);
-
     runCommandSrv_ =
       nodeHandle_.advertiseService ("run_command", runCommandCb);
   }
