@@ -98,6 +98,7 @@ pkg_config_use_dependency(interpreter sot-dynamic)
 
 # Stand alone embedded intepreter with a robot controller.
 rosbuild_add_executable(geometric_simu src/geometric_simu.cpp src/sot_loader.cpp)
+rosbuild_link_boost(geometric_simu program_options)
 
 add_subdirectory(src)
 
