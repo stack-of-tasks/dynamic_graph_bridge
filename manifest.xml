@@ -20,10 +20,12 @@
 
   <rosdep name="boost"/>
 
+  <!-- Disable non-standard dependencies for now
   <rosdep name="jrl-mal"/>
   <rosdep name="dynamic-graph"/>
   <rosdep name="sot-core"/>
   <rosdep name="sot-dynamic"/>
+  -->
 
   <depend package="std_msgs"/>
   <depend package="std_srvs"/>
