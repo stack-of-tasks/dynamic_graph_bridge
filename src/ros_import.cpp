@@ -9,6 +9,7 @@
 
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/UInt32.h>
 
 #include <dynamic-graph/factory.h>
 #include <dynamic-graph/command.h>
@@ -77,6 +78,8 @@ namespace dynamicgraph
 
 	if (type == "double")
 	  entity.add<double> (signal, topic);
+	else if (type == "unsigned")
+	  entity.add<unsigned int> (signal, topic);
 	else if (type == "matrix")
 	  entity.add<ml::Matrix> (signal, topic);
 	else if (type == "vector")
