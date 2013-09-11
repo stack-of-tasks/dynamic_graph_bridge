@@ -55,6 +55,17 @@ namespace dynamicgraph
     dst = src.data;
   }
 
+  // Unsigned
+  SOT_TO_ROS_IMPL(unsigned int)
+  {
+    dst.data = src;
+  }
+
+  ROS_TO_SOT_IMPL(unsigned int)
+  {
+    dst = src.data;
+  }
+
   // Vector
   SOT_TO_ROS_IMPL(ml::Vector)
   {
@@ -210,6 +221,7 @@ namespace dynamicgraph
   struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
 
   DG_BRIDGE_MAKE_SHPTR_IMPL(double);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(unsigned int);
   DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Vector);
   DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Vector3);
   DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Matrix);
