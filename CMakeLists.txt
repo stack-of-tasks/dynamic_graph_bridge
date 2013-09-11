@@ -26,6 +26,8 @@ set(PKG_CONFIG_ADDITIONAL_VARIABLES
   plugindir
   )
 
+add_required_dependency(bullet)
+
 add_required_dependency(jrl-mal)
 add_required_dependency(dynamic-graph)
 add_required_dependency(dynamic-graph-python)
@@ -39,6 +41,7 @@ rosbuild_add_library(ros_bridge
   include/dynamic_graph_bridge/ros_init.hh src/ros_init.cpp
   src/sot_to_ros.hh src/sot_to_ros.cpp
   )
+pkg_config_use_dependency(ros_bridge bullet)
 # Make sure rpath are preserved during the install as ROS dependencies
 # are not installed.
 set_target_properties(ros_bridge PROPERTIES BUILD_WITH_INSTALL_RPATH True)
