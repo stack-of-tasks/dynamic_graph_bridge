@@ -23,7 +23,9 @@ set(PKG_CONFIG_ADDITIONAL_VARIABLES
   plugindir
   )
 
-add_required_dependency(bullet)
+#set(CMAKE_MODULE_PATH "/opt/ros/groovy/stacks:"${CMAKE_MODULE_PATH})
+
+#add_required_dependency(bullet)
 
 add_required_dependency(jrl-mal)
 add_required_dependency(dynamic-graph)
@@ -38,7 +40,7 @@ rosbuild_add_library(ros_bridge
   include/dynamic_graph_bridge/ros_init.hh src/ros_init.cpp
   src/sot_to_ros.hh src/sot_to_ros.cpp
   )
-pkg_config_use_dependency(ros_bridge bullet)
+#pkg_config_use_dependency(ros_bridge bullet)
 # Make sure rpath are preserved during the install as ROS dependencies
 # are not installed.
 set_target_properties(ros_bridge PROPERTIES BUILD_WITH_INSTALL_RPATH True)
@@ -75,6 +77,9 @@ compile_plugin(ros_time)
 
 compile_plugin(ros_joint_state)
 target_link_libraries(ros_joint_state "${DYNAMIC_GRAPH_PLUGINDIR}/dynamic.so")
+
+compile_plugin(ros_waist_pose)
+target_link_libraries(ros_waist_pose "${DYNAMIC_GRAPH_PLUGINDIR}/dynamic.so")
 
 compile_plugin(robot_model)
 
