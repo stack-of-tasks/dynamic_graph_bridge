@@ -50,6 +50,18 @@ class RosShell(InteractiveConsole):
                     self.cache = source
                     self.runcode(code, False)
 
+    def runsource(self, source, filename = '<input>', symbol = 'single'):
+        try:
+            c = code.compile_command(source, filename, symbol)
+            if c:
+                return InteractiveConsole.runcode(self, c)
+            else:
+                return True
+        except SyntaxError, OverflowError:
+            self.showsyntaxerror()
+            self.cache = ""
+            return False
+
     def push(self,line):
         self.cache += line + "\n"
         return InteractiveConsole.push(self,line)
