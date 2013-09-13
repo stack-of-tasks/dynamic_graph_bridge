@@ -42,7 +42,8 @@ namespace dynamicgraph
     waistPose_.header.seq = 0;
     waistPose_.header.stamp.sec = 0;
     waistPose_.header.stamp.nsec = 0;
-    waistPose_.header.frame_id = "";
+    waistPose_.header.frame_id = "odom";
+    waistPose_.child_frame_id = "base_link";
   }
 
   RosWaistPose::~RosWaistPose ()
@@ -52,7 +53,7 @@ namespace dynamicgraph
   RosWaistPose::trigger (int& dummy, int t)
   {
     ros::Duration dt = ros::Time::now () - lastPublicated_;
-    if (dt > rate_ /*&& publisher_.trylock ()*/)
+    if (dt > rate_ && publisher_.trylock ())
       {
 	lastPublicated_ = ros::Time::now ();
 
