@@ -54,7 +54,7 @@ class RosShell(InteractiveConsole):
         try:
             c = code.compile_command(source, filename, symbol)
             if c:
-                return InteractiveConsole.runcode(self, c)
+                return self.runcode(c)
             else:
                 return True
         except SyntaxError, OverflowError:
