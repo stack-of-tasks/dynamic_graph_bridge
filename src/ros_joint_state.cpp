@@ -112,7 +112,9 @@ namespace dynamicgraph
 		sotNOSIGNAL,
 		MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
       rate_ (ROS_JOINT_STATE_PUBLISHER_RATE),
-      lastPublicated_ ()
+      lastPublicated_ (),
+      broadcaster_ (),
+      transform_ ()
   {
     try {
       lastPublicated_ = ros::Time::now ();
@@ -128,6 +130,8 @@ namespace dynamicgraph
     jointState_.header.stamp.sec = 0;
     jointState_.header.stamp.nsec = 0;
     jointState_.header.frame_id = "";
+    transform_.header.frame_id = "odom";
+    transform_.child_frame_id = "base_link";
 
     std::string docstring =
       "\n"
@@ -167,12 +171,25 @@ namespace dynamicgraph
 	ros::Time now = ros::Time::now ();
 	jointState_.header.stamp.sec = now.sec;
 	jointState_.header.stamp.nsec = now.nsec;
+	transform_.header.stamp.sec = now.sec;
+	transform_.header.stamp.nsec = now.nsec;
 
 	// Fill position.
 	jointState_.position.resize (s);
 	for (std::size_t i = 0; i < s; ++i)
 	  jointState_.position[i] = state_.access (t) (i);
 
+	// Fill tf
+        transform_.transform.translation.x = state_.access(t)(0);
+        transform_.transform.translation.y = state_.access(t)(1);
+        transform_.transform.translation.z = state_.access(t)(2);
+        transform_.transform.rotation = tf::createQuaternionMsgFromRollPitchYaw(
+			state_.access(t)(3),
+			state_.access(t)(4),
+			state_.access(t)(5));
+
+        //send the joint state and transform
+	broadcaster_.sendTransform(transform_);
 	publisher_.msg_ = jointState_;
 	publisher_.unlockAndPublish ();
       }

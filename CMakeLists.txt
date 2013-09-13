@@ -78,9 +78,6 @@ compile_plugin(ros_time)
 compile_plugin(ros_joint_state)
 target_link_libraries(ros_joint_state "${DYNAMIC_GRAPH_PLUGINDIR}/dynamic.so")
 
-compile_plugin(ros_waist_pose)
-target_link_libraries(ros_waist_pose "${DYNAMIC_GRAPH_PLUGINDIR}/dynamic.so")
-
 compile_plugin(robot_model)
 
 # ros_interperter library.

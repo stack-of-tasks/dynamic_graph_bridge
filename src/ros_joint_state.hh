@@ -7,6 +7,7 @@
 # include <ros/ros.h>
 # include <realtime_tools/realtime_publisher.h>
 # include <sensor_msgs/JointState.h>
+# include <tf/transform_broadcaster.h>
 
 # include "converter.hh"
 # include "sot_to_ros.hh"
@@ -40,6 +41,8 @@ namespace dynamicgraph
     dynamicgraph::SignalTimeDependent<int,int> trigger_;
     ros::Duration rate_;
     ros::Time lastPublicated_;
+    tf::TransformBroadcaster broadcaster_;
+    geometry_msgs::TransformStamped transform_;
   };
 } // end of namespace dynamicgraph.
 
