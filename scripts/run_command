@@ -21,7 +21,7 @@ class RosShell(InteractiveConsole):
             'run_command', dynamic_graph_bridge.srv.RunCommand, True)
 
 
-    def runcode(self, code):
+    def runcode(self, code, retry = True):
         source = self.cache[:-1]
         self.cache = ""
         if source != "":
@@ -30,7 +30,10 @@ class RosShell(InteractiveConsole):
                     print("Connection to remote server lost. Reconnecting...")
                     self.client = rospy.ServiceProxy(
                         'run_command', dynamic_graph_bridge.srv.RunCommand, True)
-                    return
+                    if retry:
+                        print("Retrying previous command...")
+                        self.cache = source
+                        return self.runcode(code, False)
                 response = self.client(str(source))
                 if response.stdout != "":
                     print response.stdout[:-1]
@@ -42,6 +45,10 @@ class RosShell(InteractiveConsole):
                 print("Connection to remote server lost. Reconnecting...")
                 self.client = rospy.ServiceProxy(
                     'run_command', dynamic_graph_bridge.srv.RunCommand, True)
+                if retry:
+                    print("Retrying previous command...")
+                    self.cache = source
+                    self.runcode(code, False)
 
     def push(self,line):
         self.cache += line + "\n"
