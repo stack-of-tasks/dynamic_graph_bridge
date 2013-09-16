@@ -67,6 +67,7 @@ namespace dynamicgraph
     }
   };
 
+  template <>
   struct SotToRos<unsigned int>
   {
     typedef unsigned int sot_t;
