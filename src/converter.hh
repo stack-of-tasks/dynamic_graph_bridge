@@ -67,18 +67,18 @@ namespace dynamicgraph
   }
 
   // Vector
-  SOT_TO_ROS_IMPL(ml::Vector)
+  SOT_TO_ROS_IMPL(dynamicgraph::Vector)
   {
     dst.data.resize (src.size ());
-    for (unsigned i = 0; i < src.size (); ++i)
-      dst.data[i] =  src.elementAt (i);
+    for (int i = 0; i < src.size (); ++i)
+      dst.data[i] =  src(i);
   }
 
-  ROS_TO_SOT_IMPL(ml::Vector)
+  ROS_TO_SOT_IMPL(dynamicgraph::Vector)
   {
     dst.resize (src.data.size ());
     for (unsigned i = 0; i < src.data.size (); ++i)
-      dst.elementAt (i) =  src.data[i];
+      dst(i) =  src.data[i];
   }
 
   // Vector3
@@ -86,12 +86,12 @@ namespace dynamicgraph
   {
     if (src.size () > 0)
       {
-	dst.x =  src.elementAt (0);
+	dst.x =  src(0);
 	if (src.size () > 1)
 	  {
-	    dst.y =  src.elementAt (1);
+	    dst.y =  src(1);
 	    if (src.size () > 2)
-	      dst.z =  src.elementAt (2);
+	      dst.z =  src(2);
 	  }
       }
   }
@@ -99,25 +99,25 @@ namespace dynamicgraph
   ROS_TO_SOT_IMPL(specific::Vector3)
   {
     dst.resize (3);
-    dst.elementAt (0) =  src.x;
-    dst.elementAt (1) =  src.y;
-    dst.elementAt (2) =  src.z;
+    dst(0) =  src.x;
+    dst(1) =  src.y;
+    dst(2) =  src.z;
   }
 
   // Matrix
-  SOT_TO_ROS_IMPL(ml::Matrix)
+  SOT_TO_ROS_IMPL(dynamicgraph::Matrix)
   {
-    dst.width = src.nbRows ();
-    dst.data.resize (src.nbCols () * src.nbRows ());
-    for (unsigned i = 0; i < src.nbCols () * src.nbRows (); ++i)
-      dst.data[i] =  src.elementAt (i);
+    dst.width = src.rows ();
+    dst.data.resize (src.cols () * src.rows ());
+    for (int i = 0; i < src.cols () * src.rows (); ++i)
+      dst.data[i] =  src(i);
   }
 
-  ROS_TO_SOT_IMPL(ml::Matrix)
+  ROS_TO_SOT_IMPL(dynamicgraph::Matrix)
   {
     dst.resize (src.width, src.data.size () / src.width);
     for (unsigned i = 0; i < src.data.size (); ++i)
-      dst.elementAt (i) =  src.data[i];
+      dst(i) =  src.data[i];
   }
 
   // Homogeneous matrix.
@@ -189,8 +189,8 @@ namespace dynamicgraph
 # define DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(T, ATTRIBUTE, EXTRA)	\
   template <>								\
   inline void converter							\
-  (SotToRos<std::pair<T, ml::Vector> >::ros_t& dst,			\
-   const SotToRos<std::pair<T, ml::Vector> >::sot_t& src)		\
+  (SotToRos<std::pair<T, dynamicgraph::Vector> >::ros_t& dst,			\
+   const SotToRos<std::pair<T, dynamicgraph::Vector> >::sot_t& src)		\
   {									\
     makeHeader(dst.header);						\
     converter<SotToRos<T>::ros_t, SotToRos<T>::sot_t> (dst.ATTRIBUTE, src); \
@@ -222,9 +222,9 @@ namespace dynamicgraph
 
   DG_BRIDGE_MAKE_SHPTR_IMPL(double);
   DG_BRIDGE_MAKE_SHPTR_IMPL(unsigned int);
-  DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Vector);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(dynamicgraph::Vector);
   DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Vector3);
-  DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Matrix);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(dynamicgraph::Matrix);
   DG_BRIDGE_MAKE_SHPTR_IMPL(sot::MatrixHomogeneous);
   DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Twist);
 
@@ -235,8 +235,8 @@ namespace dynamicgraph
 # define DG_BRIDGE_MAKE_STAMPED_IMPL(T, ATTRIBUTE, EXTRA)		\
   template <>								\
   inline void converter							\
-  (SotToRos<std::pair<T, ml::Vector> >::sot_t& dst,			\
-   const SotToRos<std::pair<T, ml::Vector> >::ros_t& src)		\
+  (SotToRos<std::pair<T, dynamicgraph::Vector> >::sot_t& dst,			\
+   const SotToRos<std::pair<T, dynamicgraph::Vector> >::ros_t& src)		\
   {									\
     converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t> (dst, src.ATTRIBUTE); \
     do { EXTRA } while (0);						\
@@ -254,9 +254,9 @@ namespace dynamicgraph
 # define DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(T, ATTRIBUTE, EXTRA)		\
   template <>								\
   inline void converter							\
-  (SotToRos<std::pair<T, ml::Vector> >::sot_t& dst,			\
+  (SotToRos<std::pair<T, dynamicgraph::Vector> >::sot_t& dst,			\
    const boost::shared_ptr						\
-   <SotToRos<std::pair<T, ml::Vector> >::ros_t const>& src)		\
+   <SotToRos<std::pair<T, dynamicgraph::Vector> >::ros_t const>& src)		\
   {									\
     converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t> (dst, src->ATTRIBUTE); \
     do { EXTRA } while (0);						\

@@ -5,7 +5,6 @@
 
 # include <boost/format.hpp>
 
-# include <jrl/mal/boost.hh>
 # include <std_msgs/Float64.h>
 # include <std_msgs/UInt32.h>
 # include "dynamic_graph_bridge/Matrix.h"
@@ -19,6 +18,7 @@
 
 # include <dynamic-graph/signal-time-dependent.h>
 # include <dynamic-graph/signal-ptr.h>
+# include <dynamic-graph/linear-algebra.h>
 # include <sot/core/matrix-homogeneous.hh>
 
 # define MAKE_SIGNAL_STRING(NAME, IS_INPUT, OUTPUT_TYPE, SIGNAL_NAME)	\
@@ -27,7 +27,6 @@
 
 namespace dynamicgraph
 {
-  namespace ml = maal::boost;
 
   /// \brief Types dedicated to identify pairs of (dg,ros) data.
   ///
@@ -88,9 +87,9 @@ namespace dynamicgraph
   };
 
   template <>
-  struct SotToRos<ml::Matrix>
+  struct SotToRos<dynamicgraph::Matrix>
   {
-    typedef ml::Matrix sot_t;
+    typedef dynamicgraph::Matrix sot_t;
     typedef dynamic_graph_bridge::Matrix ros_t;
     typedef dynamic_graph_bridge::MatrixConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
@@ -102,16 +101,16 @@ namespace dynamicgraph
     template <typename S>
     static void setDefault(S& s)
     {
-      ml::Matrix m;
+      dynamicgraph::Matrix m;
       m.resize(0, 0);
       s.setConstant (m);
     }
   };
 
   template <>
-  struct SotToRos<ml::Vector>
+  struct SotToRos<dynamicgraph::Vector>
   {
-    typedef ml::Vector sot_t;
+    typedef dynamicgraph::Vector sot_t;
     typedef dynamic_graph_bridge::Vector ros_t;
     typedef dynamic_graph_bridge::VectorConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
@@ -123,7 +122,7 @@ namespace dynamicgraph
     template <typename S>
     static void setDefault(S& s)
     {
-      ml::Vector v;
+      dynamicgraph::Vector v;
       v.resize (0);
       s.setConstant (v);
     }
@@ -132,7 +131,7 @@ namespace dynamicgraph
   template <>
   struct SotToRos<specific::Vector3>
   {
-    typedef ml::Vector sot_t;
+    typedef dynamicgraph::Vector sot_t;
     typedef geometry_msgs::Vector3 ros_t;
     typedef geometry_msgs::Vector3ConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
@@ -144,7 +143,7 @@ namespace dynamicgraph
     template <typename S>
     static void setDefault(S& s)
     {
-      ml::Vector v;
+      dynamicgraph::Vector v;
       v.resize (0);
       s.setConstant (v);
     }
@@ -173,7 +172,7 @@ namespace dynamicgraph
   template <>
   struct SotToRos<specific::Twist>
   {
-    typedef ml::Vector sot_t;
+    typedef dynamicgraph::Vector sot_t;
     typedef geometry_msgs::Twist ros_t;
     typedef geometry_msgs::TwistConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
@@ -185,7 +184,7 @@ namespace dynamicgraph
     template <typename S>
     static void setDefault(S& s)
     {
-      ml::Vector v (6);
+      dynamicgraph::Vector v (6);
       v.setZero ();
       s.setConstant (v);
     }
@@ -193,9 +192,9 @@ namespace dynamicgraph
 
   // Stamped vector3
   template <>
-  struct SotToRos<std::pair<specific::Vector3, ml::Vector> >
+  struct SotToRos<std::pair<specific::Vector3, dynamicgraph::Vector> >
   {
-    typedef ml::Vector sot_t;
+    typedef dynamicgraph::Vector sot_t;
     typedef geometry_msgs::Vector3Stamped ros_t;
     typedef geometry_msgs::Vector3StampedConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
@@ -213,7 +212,7 @@ namespace dynamicgraph
 
   // Stamped transformation
   template <>
-  struct SotToRos<std::pair<sot::MatrixHomogeneous, ml::Vector> >
+  struct SotToRos<std::pair<sot::MatrixHomogeneous, dynamicgraph::Vector> >
   {
     typedef sot::MatrixHomogeneous sot_t;
     typedef geometry_msgs::TransformStamped ros_t;
@@ -233,9 +232,9 @@ namespace dynamicgraph
 
   // Stamped twist
   template <>
-  struct SotToRos<std::pair<specific::Twist, ml::Vector> >
+  struct SotToRos<std::pair<specific::Twist, dynamicgraph::Vector> >
   {
-    typedef ml::Vector sot_t;
+    typedef dynamicgraph::Vector sot_t;
     typedef geometry_msgs::TwistStamped ros_t;
     typedef geometry_msgs::TwistStampedConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;

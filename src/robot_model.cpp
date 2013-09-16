@@ -19,7 +19,7 @@ namespace dynamicgraph
 
   namespace
   {
-    void convert (ml::Vector& dst, const vector3d& src)
+    void convert (dynamicgraph::Vector& dst, const vector3d& src)
     {
       dst(0) = src[0];
       dst(1) = src[1];
@@ -201,19 +201,19 @@ namespace dynamicgraph
 				      int t)
   {
     update (t);
-    for(unsigned i = 0; i < position.nbRows(); ++i)
-      for(unsigned j = 0; j < position.nbCols(); ++j)
-	position.elementAt(i,j) =
-	  joint->currentTransformation().m[i * position.nbCols() + j];
+    for(int i = 0; i < position.rows(); ++i)
+      for(int j = 0; j < position.cols(); ++j)
+	position(i,j) =
+	  joint->currentTransformation().m[i * position.cols() + j];
     return position;
   }
 
   namespace
   {
-    vectorN convertVector (const ml::Vector& v)
+    vectorN convertVector (const dynamicgraph::Vector& v)
     {
       vectorN res (v.size());
-      for (unsigned i = 0; i < v.size(); ++i)
+      for (int i = 0; i < v.size(); ++i)
 	res[i] = v(i);
       return res;
     }
@@ -239,8 +239,8 @@ namespace dynamicgraph
     lastComputation_ = t;
   }
 
-  ml::Vector&
-  RosRobotModel::computeZmp (ml::Vector& zmp, int t)
+  dynamicgraph::Vector&
+  RosRobotModel::computeZmp (dynamicgraph::Vector& zmp, int t)
   {
     zmp.resize(3);
     if (!robot_)
@@ -250,8 +250,8 @@ namespace dynamicgraph
     return zmp;
   }
 
-  ml::Vector&
-  RosRobotModel::computeCom (ml::Vector& com, int t)
+  dynamicgraph::Vector&
+  RosRobotModel::computeCom (dynamicgraph::Vector& com, int t)
   {
     com.resize(3);
     if (!robot_)
@@ -261,8 +261,8 @@ namespace dynamicgraph
     return com;
   }
 
-  ml::Matrix&
-  RosRobotModel::computeJCom (ml::Matrix& jcom, int t)
+  dynamicgraph::Matrix&
+  RosRobotModel::computeJCom (dynamicgraph::Matrix& jcom, int t)
   {
     jcom.resize(3, getDimension ());
     if (!robot_)
@@ -273,12 +273,12 @@ namespace dynamicgraph
       throw std::runtime_error ("no root joint");
     matrixNxP jacobian;
     robot_->getJacobianCenterOfMass (*rootJoint, jacobian);
-    jcom.initFromMotherLib (jacobian);
+    jcom =jacobian;
     return jcom;
   }
 
-  ml::Vector&
-  RosRobotModel::computeLowerJointLimits (ml::Vector& lowerJointLimits, int t)
+  dynamicgraph::Vector&
+  RosRobotModel::computeLowerJointLimits (dynamicgraph::Vector& lowerJointLimits, int t)
   {
     if (!robot_)
       throw std::runtime_error ("no robot");
@@ -291,8 +291,8 @@ namespace dynamicgraph
     return lowerJointLimits;
   }
 
-  ml::Vector&
-  RosRobotModel::computeUpperJointLimits (ml::Vector& upperJointLimits, int t)
+  dynamicgraph::Vector&
+  RosRobotModel::computeUpperJointLimits (dynamicgraph::Vector& upperJointLimits, int t)
   {
     if (!robot_)
       throw std::runtime_error ("no robot");

@@ -3,10 +3,7 @@
 # include <list>
 # include <string>
 
-# include <jrl/mal/boost.hh>
 # include "jrl/mal/matrixabstractlayer.hh"
-
-namespace ml = maal::boost;
 
 # include <jrl/dynamics/dynamicsfactory.hh>
 
@@ -91,12 +88,12 @@ namespace dynamicgraph
       return robot_->numberDof();
     }
 
-    ml::Vector& computeZmp (ml::Vector& zmp, int time);
-    ml::Vector& computeCom (ml::Vector& com, int time);
-    ml::Matrix& computeJCom (ml::Matrix& jcom, int time);
+    dynamicgraph::Vector& computeZmp (dynamicgraph::Vector& zmp, int time);
+    dynamicgraph::Vector& computeCom (dynamicgraph::Vector& com, int time);
+    dynamicgraph::Matrix& computeJCom (dynamicgraph::Matrix& jcom, int time);
 
-    ml::Vector& computeLowerJointLimits (ml::Vector&, int time);
-    ml::Vector& computeUpperJointLimits (ml::Vector&, int time);
+    dynamicgraph::Vector& computeLowerJointLimits (dynamicgraph::Vector&, int time);
+    dynamicgraph::Vector& computeUpperJointLimits (dynamicgraph::Vector&, int time);
 
   private:
     CjrlHumanoidDynamicRobot* robot_;
@@ -106,23 +103,23 @@ namespace dynamicgraph
     int lastComputation_;
 
     /// \brief Robot current configuration.
-    dynamicgraph::SignalPtr<ml::Vector,int> q_;
+    dynamicgraph::SignalPtr<dynamicgraph::Vector,int> q_;
     /// \brief Robot current velocity.
-    dynamicgraph::SignalPtr<ml::Vector,int> dq_;
+    dynamicgraph::SignalPtr<dynamicgraph::Vector,int> dq_;
     /// \brief Robot current acceleration.
-    dynamicgraph::SignalPtr<ml::Vector,int> ddq_;
+    dynamicgraph::SignalPtr<dynamicgraph::Vector,int> ddq_;
 
     /// \brief Zero Momentum Point
-    dynamicgraph::SignalTimeDependent<ml::Vector,int> zmp_;
+    dynamicgraph::SignalTimeDependent<dynamicgraph::Vector,int> zmp_;
     /// \brief Center of mass
-    dynamicgraph::SignalTimeDependent<ml::Vector,int> com_;
+    dynamicgraph::SignalTimeDependent<dynamicgraph::Vector,int> com_;
     /// \brief Center of mass jacobian
-    dynamicgraph::SignalTimeDependent<ml::Matrix,int> jcom_;
+    dynamicgraph::SignalTimeDependent<dynamicgraph::Matrix,int> jcom_;
 
     /// \brief Lower joints limits
-    dynamicgraph::SignalTimeDependent<ml::Vector,int> lowerJointLimits_;
+    dynamicgraph::SignalTimeDependent<dynamicgraph::Vector,int> lowerJointLimits_;
     /// \brief Upper joints limits
-    dynamicgraph::SignalTimeDependent<ml::Vector,int> upperJointLimits_;
+    dynamicgraph::SignalTimeDependent<dynamicgraph::Vector,int> upperJointLimits_;
   };
 } // end of namespace dynamicgraph.
 
