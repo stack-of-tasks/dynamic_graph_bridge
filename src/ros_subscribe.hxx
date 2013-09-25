@@ -1,5 +1,5 @@
-#ifndef DYNAMIC_GRAPH_ROS_EXPORT_HXX
-# define DYNAMIC_GRAPH_ROS_EXPORT_HXX
+#ifndef DYNAMIC_GRAPH_ROS_SUBSCRIBE_HXX
+# define DYNAMIC_GRAPH_ROS_SUBSCRIBE_HXX
 # include <vector>
 # include <boost/bind.hpp>
 # include <boost/date_time/posix_time/posix_time.hpp>
@@ -17,7 +17,7 @@ namespace dynamicgraph
 {
   template <typename R, typename S>
   void
-  RosExport::callback
+  RosSubscribe::callback
   (boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal,
    const R& data)
   {
@@ -29,7 +29,7 @@ namespace dynamicgraph
 
   template <typename R>
   void
-  RosExport::callbackTimestamp
+  RosSubscribe::callbackTimestamp
   (boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal,
    const R& data)
   {
@@ -43,7 +43,7 @@ namespace dynamicgraph
     template <typename T>
     struct Add
     {
-      void operator () (RosExport& rosExport,
+      void operator () (RosSubscribe& RosSubscribe,
 			const std::string& signal,
 			const std::string& topic)
       {
@@ -52,36 +52,36 @@ namespace dynamicgraph
 	typedef typename SotToRos<T>::signalIn_t signal_t;
 
 	// Initialize the bindedSignal object.
-	RosExport::bindedSignal_t bindedSignal;
+	RosSubscribe::bindedSignal_t bindedSignal;
 
 	// Initialize the signal.
-	boost::format signalName ("RosExport(%1%)::%2%");
-	signalName % rosExport.getName () % signal;
+	boost::format signalName ("RosSubscribe(%1%)::%2%");
+	signalName % RosSubscribe.getName () % signal;
 
 	boost::shared_ptr<signal_t> signal_
 	  (new signal_t (0, signalName.str ()));
 	SotToRos<T>::setDefault(*signal_);
 	bindedSignal.first = signal_;
-	rosExport.signalRegistration (*bindedSignal.first);
+	RosSubscribe.signalRegistration (*bindedSignal.first);
 
 	// Initialize the subscriber.
 	typedef boost::function<void (const ros_const_ptr_t& data)> callback_t;
 	callback_t callback = boost::bind
-	  (&RosExport::callback<ros_const_ptr_t, sot_t>,
-	   &rosExport, signal_, _1);
+	  (&RosSubscribe::callback<ros_const_ptr_t, sot_t>,
+	   &RosSubscribe, signal_, _1);
 
 	bindedSignal.second =
 	  boost::make_shared<ros::Subscriber>
-	  (rosExport.nh ().subscribe (topic, 1, callback));
+	  (RosSubscribe.nh ().subscribe (topic, 1, callback));
 
-	rosExport.bindedSignal ()[signal] = bindedSignal;
+	RosSubscribe.bindedSignal ()[signal] = bindedSignal;
       }
     };
 
     template <typename T>
     struct Add<std::pair<T, ml::Vector> >
     {
-      void operator () (RosExport& rosExport,
+      void operator () (RosSubscribe& RosSubscribe,
 			const std::string& signal,
 			const std::string& topic)
       {
@@ -92,72 +92,72 @@ namespace dynamicgraph
 	typedef typename SotToRos<type_t>::signalIn_t signal_t;
 
 	// Initialize the bindedSignal object.
-	RosExport::bindedSignal_t bindedSignal;
+	RosSubscribe::bindedSignal_t bindedSignal;
 
 	// Initialize the signal.
-	boost::format signalName ("RosExport(%1%)::%2%");
-	signalName % rosExport.getName () % signal;
+	boost::format signalName ("RosSubscribe(%1%)::%2%");
+	signalName % RosSubscribe.getName () % signal;
 
 	boost::shared_ptr<signal_t> signal_
 	  (new signal_t (0, signalName.str ()));
 	SotToRos<T>::setDefault(*signal_);
 	bindedSignal.first = signal_;
-	rosExport.signalRegistration (*bindedSignal.first);
+	RosSubscribe.signalRegistration (*bindedSignal.first);
 
 	// Initialize the publisher.
 	typedef boost::function<void (const ros_const_ptr_t& data)> callback_t;
 	callback_t callback = boost::bind
-	  (&RosExport::callback<ros_const_ptr_t, sot_t>,
-	   &rosExport, signal_, _1);
+	  (&RosSubscribe::callback<ros_const_ptr_t, sot_t>,
+	   &RosSubscribe, signal_, _1);
 
 	bindedSignal.second =
 	  boost::make_shared<ros::Subscriber>
-	  (rosExport.nh ().subscribe (topic, 1, callback));
+	  (RosSubscribe.nh ().subscribe (topic, 1, callback));
 
-	rosExport.bindedSignal ()[signal] = bindedSignal;
+	RosSubscribe.bindedSignal ()[signal] = bindedSignal;
 
 
 	// Timestamp.
-	typedef dynamicgraph::SignalPtr<RosExport::ptime, int>
+	typedef dynamicgraph::SignalPtr<RosSubscribe::ptime, int>
 	  signalTimestamp_t;
 	std::string signalTimestamp =
 	  (boost::format ("%1%%2%") % signal % "Timestamp").str ();
 
 	// Initialize the bindedSignal object.
-	RosExport::bindedSignal_t bindedSignalTimestamp;
+	RosSubscribe::bindedSignal_t bindedSignalTimestamp;
 
 	// Initialize the signal.
-	boost::format signalNameTimestamp ("RosExport(%1%)::%2%");
-	signalNameTimestamp % rosExport.name % signalTimestamp;
+	boost::format signalNameTimestamp ("RosSubscribe(%1%)::%2%");
+	signalNameTimestamp % RosSubscribe.name % signalTimestamp;
 
 	boost::shared_ptr<signalTimestamp_t> signalTimestamp_
 	  (new signalTimestamp_t (0, signalNameTimestamp.str ()));
 
-	RosExport::ptime zero (rosTimeToPtime (ros::Time (0, 0)));
+	RosSubscribe::ptime zero (rosTimeToPtime (ros::Time (0, 0)));
 	signalTimestamp_->setConstant (zero);
 	bindedSignalTimestamp.first = signalTimestamp_;
-	rosExport.signalRegistration (*bindedSignalTimestamp.first);
+	RosSubscribe.signalRegistration (*bindedSignalTimestamp.first);
 
 	// Initialize the publisher.
 	typedef boost::function<void (const ros_const_ptr_t& data)> callback_t;
 	callback_t callbackTimestamp = boost::bind
-	  (&RosExport::callbackTimestamp<ros_const_ptr_t>,
-	   &rosExport, signalTimestamp_, _1);
+	  (&RosSubscribe::callbackTimestamp<ros_const_ptr_t>,
+	   &RosSubscribe, signalTimestamp_, _1);
 
 	bindedSignalTimestamp.second =
 	  boost::make_shared<ros::Subscriber>
-	  (rosExport.nh ().subscribe (topic, 1, callbackTimestamp));
+	  (RosSubscribe.nh ().subscribe (topic, 1, callbackTimestamp));
 
-	rosExport.bindedSignal ()[signalTimestamp] = bindedSignalTimestamp;
+	RosSubscribe.bindedSignal ()[signalTimestamp] = bindedSignalTimestamp;
       }
     };
   } // end of namespace internal.
 
   template <typename T>
-  void RosExport::add (const std::string& signal, const std::string& topic)
+  void RosSubscribe::add (const std::string& signal, const std::string& topic)
   {
     internal::Add<T> () (*this, signal, topic);
   }
 } // end of namespace dynamicgraph.
 
-#endif //! DYNAMIC_GRAPH_ROS_EXPORT_HXX
+#endif //! DYNAMIC_GRAPH_ROS_SUBSCRIBE_HXX

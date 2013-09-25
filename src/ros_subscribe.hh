@@ -1,5 +1,5 @@
-#ifndef DYNAMIC_GRAPH_ROS_EXPORT_HH
-# define DYNAMIC_GRAPH_ROS_EXPORT_HH
+#ifndef DYNAMIC_GRAPH_ROS_SUBSCRIBE_HH
+# define DYNAMIC_GRAPH_ROS_SUBSCRIBE_HH
 # include <iostream>
 # include <map>
 
@@ -18,30 +18,30 @@
 
 namespace dynamicgraph
 {
-  class RosExport;
+  class RosSubscribe;
 
   namespace command
   {
-    namespace rosExport
+    namespace rosSubscribe
     {
       using ::dynamicgraph::command::Command;
       using ::dynamicgraph::command::Value;
 
-# define ROS_EXPORT_MAKE_COMMAND(CMD)			\
+# define ROS_SUBSCRIBE_MAKE_COMMAND(CMD)			\
       class CMD : public Command			\
       {							\
       public:						\
-	CMD (RosExport& entity,				\
+	CMD (RosSubscribe& entity,				\
 	     const std::string& docstring);		\
 	virtual Value doExecute ();			\
       }
 
-      ROS_EXPORT_MAKE_COMMAND(Add);
-      ROS_EXPORT_MAKE_COMMAND(Clear);
-      ROS_EXPORT_MAKE_COMMAND(List);
-      ROS_EXPORT_MAKE_COMMAND(Rm);
+      ROS_SUBSCRIBE_MAKE_COMMAND(Add);
+      ROS_SUBSCRIBE_MAKE_COMMAND(Clear);
+      ROS_SUBSCRIBE_MAKE_COMMAND(List);
+      ROS_SUBSCRIBE_MAKE_COMMAND(Rm);
 
-#undef ROS_EXPORT_MAKE_COMMAND
+#undef ROS_SUBSCRIBE_MAKE_COMMAND
 
     } // end of namespace errorEstimator.
   } // end of namespace command.
@@ -54,7 +54,7 @@ namespace dynamicgraph
   } // end of internal namespace.
 
   /// \brief Publish ROS information in the dynamic-graph.
-  class RosExport : public dynamicgraph::Entity
+  class RosSubscribe : public dynamicgraph::Entity
   {
     DYNAMIC_GRAPH_ENTITY_DECL();
     typedef boost::posix_time::ptime ptime;
@@ -63,8 +63,8 @@ namespace dynamicgraph
 		      boost::shared_ptr<ros::Subscriber> >
       bindedSignal_t;
 
-    RosExport (const std::string& n);
-    virtual ~RosExport ();
+    RosSubscribe (const std::string& n);
+    virtual ~RosSubscribe ();
 
     virtual std::string getDocString () const;
     void display (std::ostream& os) const;
@@ -107,5 +107,5 @@ namespace dynamicgraph
   };
 } // end of namespace dynamicgraph.
 
-# include "ros_export.hxx"
-#endif //! DYNAMIC_GRAPH_ROS_EXPORT_HH
+# include "ros_subscribe.hxx"
+#endif //! DYNAMIC_GRAPH_ROS_SUBSCRIBE_HH

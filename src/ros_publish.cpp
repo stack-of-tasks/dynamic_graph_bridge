@@ -1,5 +1,8 @@
+#include <stdexcept>
+
 #include <boost/assign.hpp>
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
@@ -9,20 +12,21 @@
 #include <std_msgs/UInt32.h>
 
 #include <dynamic-graph/factory.h>
+#include <dynamic-graph/command.h>
 
 #include "dynamic_graph_bridge/ros_init.hh"
-#include "ros_export.hh"
+#include "ros_publish.hh"
 
 namespace dynamicgraph
 {
-  DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosExport, "RosExport");
+  DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosPublish, "RosPublish");
 
   namespace command
   {
-    namespace rosExport
+    namespace rosPublish
     {
       Clear::Clear
-      (RosExport& entity, const std::string& docstring)
+      (RosPublish& entity, const std::string& docstring)
 	: Command
 	  (entity,
 	   std::vector<Value::Type> (),
@@ -31,15 +35,15 @@ namespace dynamicgraph
 
       Value Clear::doExecute ()
       {
-	RosExport& entity =
-	  static_cast<RosExport&> (owner ());
+	RosPublish& entity =
+	  static_cast<RosPublish&> (owner ());
 
 	entity.clear ();
 	return Value ();
       }
 
       List::List
-      (RosExport& entity, const std::string& docstring)
+      (RosPublish& entity, const std::string& docstring)
 	: Command
 	  (entity,
 	   std::vector<Value::Type> (),
@@ -48,13 +52,13 @@ namespace dynamicgraph
 
       Value List::doExecute ()
       {
-	RosExport& entity =
-	  static_cast<RosExport&> (owner ());
+	RosPublish& entity =
+	  static_cast<RosPublish&> (owner ());
 	return Value (entity.list ());
       }
 
       Add::Add
-      (RosExport& entity, const std::string& docstring)
+      (RosPublish& entity, const std::string& docstring)
 	: Command
 	  (entity,
 	   boost::assign::list_of
@@ -64,8 +68,8 @@ namespace dynamicgraph
 
       Value Add::doExecute ()
       {
-	RosExport& entity =
-	  static_cast<RosExport&> (owner ());
+	RosPublish& entity =
+	  static_cast<RosPublish&> (owner ());
 	std::vector<Value> values = getParameterValues ();
 
 	const std::string& type = values[0].value ();
@@ -92,15 +96,14 @@ namespace dynamicgraph
 	else if (type == "twist")
 	  entity.add<specific::Twist> (signal, topic);
 	else if (type == "twistStamped")
-	  entity.add<std::pair<specific::Twist, ml::Vector> >
-	    (signal, topic);
+	  entity.add<std::pair<specific::Twist, ml::Vector> > (signal, topic);
 	else
 	  throw std::runtime_error("bad type");
 	return Value ();
       }
 
       Rm::Rm
-      (RosExport& entity, const std::string& docstring)
+      (RosPublish& entity, const std::string& docstring)
 	: Command
 	  (entity,
 	   boost::assign::list_of (Value::STRING),
@@ -109,8 +112,8 @@ namespace dynamicgraph
 
       Value Rm::doExecute ()
       {
-	RosExport& entity =
-	  static_cast<RosExport&> (owner ());
+	RosPublish& entity =
+	  static_cast<RosPublish&> (owner ());
 	std::vector<Value> values = getParameterValues ();
 	const std::string& signal = values[0].value ();
 	entity.rm (signal);
@@ -119,19 +122,34 @@ namespace dynamicgraph
     } // end of errorEstimator.
   } // end of namespace command.
 
-  const std::string RosExport::docstring_
-  ("Export dynamic-graph signals as ROS topics.\n"
+  const std::string RosPublish::docstring_
+  ("Publish dynamic-graph signals as ROS topics.\n"
    "\n"
-   "  Use command \"add\" to export a new signal.\n");
+   "  Use command \"add\" to publish a new ROS topic.\n");
 
-  RosExport::RosExport (const std::string& n)
+  RosPublish::RosPublish (const std::string& n)
     : dynamicgraph::Entity(n),
-      nh_ (rosInit (true)),
-      bindedSignal_ ()
+      // RosPublish do not use callback so do not create a useless spinner.
+      nh_ (rosInit (false)),
+      bindedSignal_ (),
+      trigger_ (boost::bind (&RosPublish::trigger, this, _1, _2),
+		sotNOSIGNAL,
+		MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
+      rate_ (ROS_JOINT_STATE_PUBLISHER_RATE),
+      lastPublicated_ ()
   {
+    try {
+      lastPublicated_ = ros::Time::now ();
+    } catch (const std::exception& exc) {
+      throw std::runtime_error ("Failed to call ros::Time::now ():" +
+				std::string (exc.what ()));
+    }
+    signalRegistration (trigger_);
+    trigger_.setNeedUpdateFromAllChildren (true);
+
     std::string docstring =
       "\n"
-      "  Add a signal reading data from a ROS topic\n"
+      "  Add a signal writing data to a ROS topic\n"
       "\n"
       "  Input:\n"
       "    - type: string among ['double', 'matrix', 'vector', 'vector3',\n"
@@ -141,52 +159,53 @@ namespace dynamicgraph
       "    - topic:  the topic name in ROS.\n"
       "\n";
     addCommand ("add",
-		new command::rosExport::Add
+		new command::rosPublish::Add
 		(*this, docstring));
     docstring =
       "\n"
-      "  Remove a signal reading data from a ROS topic\n"
+      "  Remove a signal writing data to a ROS topic\n"
       "\n"
       "  Input:\n"
       "    - name of the signal to remove (see method list for the list of signals).\n"
       "\n";
     addCommand ("rm",
-		new command::rosExport::Rm
+		new command::rosPublish::Rm
 		(*this, docstring));
     docstring =
       "\n"
-      "  Remove all signals reading data from a ROS topic\n"
+      "  Remove all signals writing data to a ROS topic\n"
       "\n"
       "  No input:\n"
       "\n";
     addCommand ("clear",
-		new command::rosExport::Clear
+		new command::rosPublish::Clear
 		(*this, docstring));
     docstring =
       "\n"
-      "  List signals reading data from a ROS topic\n"
+      "  List signals writing data to a ROS topic\n"
       "\n"
       "  No input:\n"
       "\n";
     addCommand ("list",
-		new command::rosExport::List
+		new command::rosPublish::List
 		(*this, docstring));
   }
 
-  RosExport::~RosExport ()
-  {}
+  RosPublish::~RosPublish ()
+  {
+  }
 
-  void RosExport::display (std::ostream& os) const
+  void RosPublish::display (std::ostream& os) const
   {
     os << CLASS_NAME << std::endl;
   }
 
-  void RosExport::rm (const std::string& signal)
+  void RosPublish::rm (const std::string& signal)
   {
     bindedSignal_.erase (signal);
   }
 
-  std::string RosExport::list ()
+  std::string RosPublish::list () const
   {
     std::string result("[");
     for (std::map<std::string, bindedSignal_t>::const_iterator it =
@@ -195,15 +214,32 @@ namespace dynamicgraph
     }
     result += "]";
     return result;
-  }
+ }
 
-  void RosExport::clear ()
+  void RosPublish::clear ()
   {
     bindedSignal_.clear ();
   }
 
-  std::string RosExport::getDocString () const
+  int& RosPublish::trigger (int& dummy, int t)
+  {
+    typedef std::map<std::string, bindedSignal_t>::iterator iterator_t;
+
+    ros::Duration dt = ros::Time::now () - lastPublicated_;
+    if (dt < rate_)
+      return dummy;
+
+    for (iterator_t it = bindedSignal_.begin ();
+	 it != bindedSignal_.end (); ++it)
+      {
+	boost::get<1>(it->second) (t);
+      }
+    return dummy;
+  }
+
+  std::string RosPublish::getDocString () const
   {
     return docstring_;
   }
+
 } // end of namespace dynamicgraph.
