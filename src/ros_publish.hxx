@@ -1,5 +1,5 @@
-#ifndef DYNAMIC_GRAPH_ROS_IMPORT_HXX
-# define DYNAMIC_GRAPH_ROS_IMPORT_HXX
+#ifndef DYNAMIC_GRAPH_ROS_PUBLISH_HXX
+# define DYNAMIC_GRAPH_ROS_PUBLISH_HXX
 # include <vector>
 # include <std_msgs/Float64.h>
 
@@ -14,7 +14,7 @@ namespace dynamicgraph
 {
   template <>
   inline void
-  RosImport::sendData
+  RosPublish::sendData
   <std::pair<sot::MatrixHomogeneous, ml::Vector> >
   (boost::shared_ptr
    <realtime_tools::RealtimePublisher
@@ -38,7 +38,7 @@ namespace dynamicgraph
 
   template <typename T>
   void
-  RosImport::sendData
+  RosPublish::sendData
   (boost::shared_ptr
    <realtime_tools::RealtimePublisher
    <typename SotToRos<T>::ros_t> > publisher,
@@ -54,7 +54,7 @@ namespace dynamicgraph
   }
 
   template <typename T>
-  void RosImport::add (const std::string& signal, const std::string& topic)
+  void RosPublish::add (const std::string& signal, const std::string& topic)
   {
     typedef typename SotToRos<T>::sot_t sot_t;
     typedef typename SotToRos<T>::ros_t ros_t;
@@ -81,7 +81,7 @@ namespace dynamicgraph
 
     // Initialize the callback.
     callback_t callback = boost::bind
-      (&RosImport::sendData<T>,
+      (&RosPublish::sendData<T>,
        this,
        pubPtr,
        signalPtr,
@@ -93,4 +93,4 @@ namespace dynamicgraph
 
 } // end of namespace dynamicgraph.
 
-#endif //! DYNAMIC_GRAPH_ROS_IMPORT_HXX
+#endif //! DYNAMIC_GRAPH_ROS_PUBLISH_HXX

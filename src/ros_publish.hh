@@ -1,5 +1,5 @@
-#ifndef DYNAMIC_GRAPH_ROS_IMPORT_HH
-# define DYNAMIC_GRAPH_ROS_IMPORT_HH
+#ifndef DYNAMIC_GRAPH_ROS_PUBLISH_HH
+# define DYNAMIC_GRAPH_ROS_PUBLISH_HH
 # include <iostream>
 # include <map>
 
@@ -19,37 +19,37 @@
 
 namespace dynamicgraph
 {
-  class RosImport;
+  class RosPublish;
 
   namespace command
   {
-    namespace rosImport
+    namespace rosPublish
     {
       using ::dynamicgraph::command::Command;
       using ::dynamicgraph::command::Value;
 
-# define ROS_IMPORT_MAKE_COMMAND(CMD)			\
+# define ROS_PUBLISH_MAKE_COMMAND(CMD)			\
       class CMD : public Command			\
       {							\
       public:						\
-	CMD (RosImport& entity,				\
+	CMD (RosPublish& entity,				\
 	     const std::string& docstring);		\
 	virtual Value doExecute ();			\
       }
 
-      ROS_IMPORT_MAKE_COMMAND(Add);
-      ROS_IMPORT_MAKE_COMMAND(Clear);
-      ROS_IMPORT_MAKE_COMMAND(List);
-      ROS_IMPORT_MAKE_COMMAND(Rm);
+      ROS_PUBLISH_MAKE_COMMAND(Add);
+      ROS_PUBLISH_MAKE_COMMAND(Clear);
+      ROS_PUBLISH_MAKE_COMMAND(List);
+      ROS_PUBLISH_MAKE_COMMAND(Rm);
 
-#undef ROS_IMPORT_MAKE_COMMAND
+#undef ROS_PUBLISH_MAKE_COMMAND
 
     } // end of namespace errorEstimator.
   } // end of namespace command.
 
 
   /// \brief Publish dynamic-graph information into ROS.
-  class RosImport : public dynamicgraph::Entity
+  class RosPublish : public dynamicgraph::Entity
   {
     DYNAMIC_GRAPH_ENTITY_DECL();
   public:
@@ -62,8 +62,8 @@ namespace dynamicgraph
 
     static const double ROS_JOINT_STATE_PUBLISHER_RATE = 1. / 100.;
 
-    RosImport (const std::string& n);
-    virtual ~RosImport ();
+    RosPublish (const std::string& n);
+    virtual ~RosPublish ();
 
     virtual std::string getDocString () const;
     void display (std::ostream& os) const;
@@ -97,5 +97,5 @@ namespace dynamicgraph
   };
 } // end of namespace dynamicgraph.
 
-# include "ros_import.hxx"
-#endif //! DYNAMIC_GRAPH_ROS_IMPORT_HH
+# include "ros_publish.hxx"
+#endif //! DYNAMIC_GRAPH_ROS_PUBLISH_HH
