@@ -16,9 +16,12 @@
 # include "geometry_msgs/TwistStamped.h"
 # include "geometry_msgs/Vector3Stamped.h"
 
+# include "trajectory_msgs/JointTrajectory.h"
+
 # include <dynamic-graph/signal-time-dependent.h>
 # include <dynamic-graph/signal-ptr.h>
 # include <sot/core/matrix-homogeneous.hh>
+# include <sot/core/trajectory.hh>
 
 # define MAKE_SIGNAL_STRING(NAME, IS_INPUT, OUTPUT_TYPE, SIGNAL_NAME)	\
   makeSignalString (typeid (*this).name (), NAME,			\
@@ -150,12 +153,13 @@ namespace dynamicgraph
     }
   };
 
+  
   template <>
-  struct SotToRos<specific::Twist>
+  struct SotToRos<sot::Trajectory>
   {
-    typedef ml::Vector sot_t;
-    typedef geometry_msgs::Twist ros_t;
-    typedef geometry_msgs::TwistConstPtr ros_const_ptr_t;
+    typedef sot::Trajectory sot_t;
+    typedef trajectory_msgs::JointTrajectory ros_t;
+    typedef trajectory_msgs::JointTrajectoryConstPtr ros_const_ptr_t;
     typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
     typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
     typedef boost::function<sot_t& (sot_t&, int)> callback_t;
@@ -165,9 +169,6 @@ namespace dynamicgraph
     template <typename S>
     static void setDefault(S& s)
     {
-      ml::Vector v (6);
-      v.setZero ();
-      s.setConstant (v);
     }
   };
 
@@ -208,6 +209,26 @@ namespace dynamicgraph
     static void setDefault(S& s)
     {
       SotToRos<sot_t>::setDefault(s);
+    }
+  };
+
+  template <>
+  struct SotToRos<specific::Twist>
+  {
+    typedef ml::Vector sot_t;
+    typedef geometry_msgs::Twist ros_t;
+    typedef geometry_msgs::TwistConstPtr ros_const_ptr_t;
+    typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
+    typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
+    typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+    
+    static const char* signalTypeName;
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      ml::Vector v (6);
+      v.setZero ();
+      s.setConstant (v);
     }
   };
 

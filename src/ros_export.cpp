@@ -86,6 +86,9 @@ namespace dynamicgraph
 	else if (type == "matrixHomoStamped")
 	  entity.add<std::pair<sot::MatrixHomogeneous, ml::Vector> >
 	    (signal, topic);
+        else if (type== "trajectory")
+          entity.add<sot::Trajectory >
+	    (signal, topic);
 	else if (type == "twist")
 	  entity.add<specific::Twist> (signal, topic);
 	else if (type == "twistStamped")
@@ -133,7 +136,7 @@ namespace dynamicgraph
       "  Input:\n"
       "    - type: string among ['double', 'matrix', 'vector', 'vector3',\n"
       "                          'vector3Stamped', 'matrixHomo', 'matrixHomoStamped',\n"
-      "                          'twist', 'twistStamped'],\n"
+      "                          'trajectory','twist', 'twistStamped'],\n"
       "    - signal: the signal name in dynamic-graph,\n"
       "    - topic:  the topic name in ROS.\n"
       "\n";
