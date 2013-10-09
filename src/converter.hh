@@ -171,6 +171,44 @@ namespace dynamicgraph
     dst (5) = src.angular.z;
   }
 
+  // Trajectory
+  template <>
+  void converter(dynamicgraph::sot::Trajectory &dst, 
+                 const trajectory_msgs::JointTrajectory &src)
+  {
+    std::size_t nbPoints = src.points.size();
+    dst.joint_names_.resize(src.joint_names.size());
+    for(std::size_t idName = 0;idName<src.joint_names.size();++idName)
+      dst.joint_names_[idName] = src.joint_names[idName];
+
+    dst.points_.resize(nbPoints);
+    for(std::size_t idPt = 0;idPt<nbPoints;++idPt)
+      {
+        dst.points_[idPt].transfer(src.points[idPt].positions,0);
+        dst.points_[idPt].transfer(src.points[idPt].velocities,1);
+        dst.points_[idPt].transfer(src.points[idPt].accelerations,2);
+      }
+  };
+
+  template <>
+  void converter(trajectory_msgs::JointTrajectory &dst, 
+                 const dynamicgraph::sot::Trajectory &src)
+  {
+    std::size_t nbPoints = src.points_.size();
+    dst.joint_names.resize(src.joint_names_.size());
+    for(std::size_t idName = 0;idName<src.joint_names_.size();++idName)
+      dst.joint_names[idName] = src.joint_names_[idName];
+
+
+    dst.points.resize(nbPoints);
+    for(std::size_t idPt = 0;idPt<nbPoints;++idPt)
+      {
+        dst.points[idPt].positions = src.points_[idPt].positions_;
+        dst.points[idPt].velocities = src.points_[idPt].velocities_;
+        dst.points[idPt].accelerations = src.points_[idPt].accelerations_;
+      }
+  };
+  
 
   /// \brief This macro generates a converter for a stamped type from
   /// dynamic-graph to ROS.  I.e. A data associated with its
@@ -215,6 +253,7 @@ namespace dynamicgraph
   DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Matrix);
   DG_BRIDGE_MAKE_SHPTR_IMPL(sot::MatrixHomogeneous);
   DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Twist);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(sot::Trajectory);
 
   /// \brief This macro generates a converter for a stamped type.
   /// I.e. A data associated with its timestamp.

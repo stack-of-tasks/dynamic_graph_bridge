@@ -29,6 +29,7 @@
   <depend package="std_srvs"/>
   <depend package="roscpp"/>
   <depend package="geometry_msgs"/>
+  <depend package="trajectory_msgs"/>
   <depend package="sensor_msgs"/>
   <depend package="bullet"/>
   <depend package="tf"/>
