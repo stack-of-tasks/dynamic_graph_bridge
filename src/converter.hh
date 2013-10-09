@@ -176,17 +176,17 @@ namespace dynamicgraph
   void converter(dynamicgraph::sot::Trajectory &dst, 
                  const trajectory_msgs::JointTrajectory &src)
   {
-    unsigned int nbPoints = src.points.size();
+    std::size_t nbPoints = src.points.size();
     dst.joint_names_.resize(src.joint_names.size());
-    for(unsigned int idName=0;idName<src.joint_names.size();idName++)
+    for(std::size_t idName = 0;idName<src.joint_names.size();++idName)
       dst.joint_names_[idName] = src.joint_names[idName];
 
     dst.points_.resize(nbPoints);
-    for(unsigned int idPt=0;idPt<nbPoints;idPt++)
+    for(std::size_t idPt = 0;idPt<nbPoints;++idPt)
       {
-        dst.points_[idPt].transfert(src.points[idPt].positions,0);
-        dst.points_[idPt].transfert(src.points[idPt].velocities,1);
-        dst.points_[idPt].transfert(src.points[idPt].accelerations,2);
+        dst.points_[idPt].transfer(src.points[idPt].positions,0);
+        dst.points_[idPt].transfer(src.points[idPt].velocities,1);
+        dst.points_[idPt].transfer(src.points[idPt].accelerations,2);
       }
   };
 
@@ -194,14 +194,14 @@ namespace dynamicgraph
   void converter(trajectory_msgs::JointTrajectory &dst, 
                  const dynamicgraph::sot::Trajectory &src)
   {
-    unsigned int nbPoints = src.points_.size();
+    std::size_t nbPoints = src.points_.size();
     dst.joint_names.resize(src.joint_names_.size());
-    for(unsigned int idName=0;idName<src.joint_names_.size();idName++)
+    for(std::size_t idName = 0;idName<src.joint_names_.size();++idName)
       dst.joint_names[idName] = src.joint_names_[idName];
 
 
     dst.points.resize(nbPoints);
-    for(unsigned int idPt=0;idPt<nbPoints;idPt++)
+    for(std::size_t idPt = 0;idPt<nbPoints;++idPt)
       {
         dst.points[idPt].positions = src.points_[idPt].positions_;
         dst.points[idPt].velocities = src.points_[idPt].velocities_;
