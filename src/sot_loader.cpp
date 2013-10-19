@@ -201,6 +201,15 @@ SotLoader::fillSensors(map<string,dgs::SensorValues> & sensorsIn)
   
 }
 
+class angleControlException: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return " angleControl_ and nbOfJoints are different !";
+  }
+} angleControlException;
+
+
 void 
 SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
 {
@@ -212,11 +221,12 @@ SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
   // Check if the size if coherent with the robot description.
   if (angleControl_.size()!=(unsigned int)nbOfJoints_)
     {
-      std::cerr << " angleControl_ and nbOfJoints are different !"
-                << std::endl;
-      exit(-1);
+      std::cerr << "angleControl_.size():" << angleControl_.size()
+                << std::endl
+                << "nbOfJoints:" << nbOfJoints_ << std::endl;
+      throw angleControlException;
     }
-
+  
   // Publish the data.
   joint_state_.header.stamp = ros::Time::now();  
   for(int i=0;i<nbOfJoints_;i++)
