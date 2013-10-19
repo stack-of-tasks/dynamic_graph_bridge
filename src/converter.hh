@@ -176,11 +176,19 @@ namespace dynamicgraph
   void converter(dynamicgraph::sot::Trajectory &dst, 
                  const trajectory_msgs::JointTrajectory &src)
   {
+    // Header
+    dst.header_.seq_ = src.header.seq;
+    dst.header_.stamp_.secs_ = src.header.stamp.sec;
+    dst.header_.stamp_.nsecs_ = src.header.stamp.nsec;
+    dst.header_.frame_id_ = src.header.frame_id;
+
+    // Array of waypoints
     std::size_t nbPoints = src.points.size();
     dst.joint_names_.resize(src.joint_names.size());
     for(std::size_t idName = 0;idName<src.joint_names.size();++idName)
       dst.joint_names_[idName] = src.joint_names[idName];
 
+    // Position, Velocity, Acceleration
     dst.points_.resize(nbPoints);
     for(std::size_t idPt = 0;idPt<nbPoints;++idPt)
       {
@@ -194,12 +202,19 @@ namespace dynamicgraph
   void converter(trajectory_msgs::JointTrajectory &dst, 
                  const dynamicgraph::sot::Trajectory &src)
   {
+    // Header
+    dst.header.seq = src.header_.seq_;
+    dst.header.stamp.sec = src.header_.stamp_.secs_;
+    dst.header.stamp.nsec = src.header_.stamp_.nsecs_;
+    dst.header.frame_id = src.header_.frame_id_;
+
+    // Array of waypoints
     std::size_t nbPoints = src.points_.size();
     dst.joint_names.resize(src.joint_names_.size());
     for(std::size_t idName = 0;idName<src.joint_names_.size();++idName)
       dst.joint_names[idName] = src.joint_names_[idName];
 
-
+    // Position, Velocity, Acceleration
     dst.points.resize(nbPoints);
     for(std::size_t idPt = 0;idPt<nbPoints;++idPt)
       {
