@@ -1,31 +1,28 @@
-#include <stdexcept>
-
 #include <boost/assign.hpp>
 #include <boost/bind.hpp>
-#include <boost/foreach.hpp>
 #include <boost/format.hpp>
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
 
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
+#include <std_msgs/UInt32.h>
 
 #include <dynamic-graph/factory.h>
-#include <dynamic-graph/command.h>
 
 #include "dynamic_graph_bridge/ros_init.hh"
-#include "ros_import.hh"
+#include "ros_subscribe.hh"
 
 namespace dynamicgraph
 {
-  DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosImport, "RosImport");
+  DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosSubscribe, "RosSubscribe");
 
   namespace command
   {
-    namespace rosImport
+    namespace rosSubscribe
     {
       Clear::Clear
-      (RosImport& entity, const std::string& docstring)
+      (RosSubscribe& entity, const std::string& docstring)
 	: Command
 	  (entity,
 	   std::vector<Value::Type> (),
@@ -34,15 +31,15 @@ namespace dynamicgraph
 
       Value Clear::doExecute ()
       {
-	RosImport& entity =
-	  static_cast<RosImport&> (owner ());
+	RosSubscribe& entity =
+	  static_cast<RosSubscribe&> (owner ());
 
 	entity.clear ();
 	return Value ();
       }
 
       List::List
-      (RosImport& entity, const std::string& docstring)
+      (RosSubscribe& entity, const std::string& docstring)
 	: Command
 	  (entity,
 	   std::vector<Value::Type> (),
@@ -51,13 +48,13 @@ namespace dynamicgraph
 
       Value List::doExecute ()
       {
-	RosImport& entity =
-	  static_cast<RosImport&> (owner ());
+	RosSubscribe& entity =
+	  static_cast<RosSubscribe&> (owner ());
 	return Value (entity.list ());
       }
 
       Add::Add
-      (RosImport& entity, const std::string& docstring)
+      (RosSubscribe& entity, const std::string& docstring)
 	: Command
 	  (entity,
 	   boost::assign::list_of
@@ -67,8 +64,8 @@ namespace dynamicgraph
 
       Value Add::doExecute ()
       {
-	RosImport& entity =
-	  static_cast<RosImport&> (owner ());
+	RosSubscribe& entity =
+	  static_cast<RosSubscribe&> (owner ());
 	std::vector<Value> values = getParameterValues ();
 
 	const std::string& type = values[0].value ();
@@ -77,6 +74,8 @@ namespace dynamicgraph
 
 	if (type == "double")
 	  entity.add<double> (signal, topic);
+	else if (type == "unsigned")
+	  entity.add<unsigned int> (signal, topic);
 	else if (type == "matrix")
 	  entity.add<ml::Matrix> (signal, topic);
 	else if (type == "vector")
@@ -93,14 +92,15 @@ namespace dynamicgraph
 	else if (type == "twist")
 	  entity.add<specific::Twist> (signal, topic);
 	else if (type == "twistStamped")
-	  entity.add<std::pair<specific::Twist, ml::Vector> > (signal, topic);
+	  entity.add<std::pair<specific::Twist, ml::Vector> >
+	    (signal, topic);
 	else
 	  throw std::runtime_error("bad type");
 	return Value ();
       }
 
       Rm::Rm
-      (RosImport& entity, const std::string& docstring)
+      (RosSubscribe& entity, const std::string& docstring)
 	: Command
 	  (entity,
 	   boost::assign::list_of (Value::STRING),
@@ -109,8 +109,8 @@ namespace dynamicgraph
 
       Value Rm::doExecute ()
       {
-	RosImport& entity =
-	  static_cast<RosImport&> (owner ());
+	RosSubscribe& entity =
+	  static_cast<RosSubscribe&> (owner ());
 	std::vector<Value> values = getParameterValues ();
 	const std::string& signal = values[0].value ();
 	entity.rm (signal);
@@ -119,34 +119,19 @@ namespace dynamicgraph
     } // end of errorEstimator.
   } // end of namespace command.
 
-  const std::string RosImport::docstring_
-  ("Import ROS topics as dynamic-graph signals.\n"
+  const std::string RosSubscribe::docstring_
+  ("Subscribe to a ROS topics and convert it into a dynamic-graph signals.\n"
    "\n"
-   "  Use command \"add\" to import a new ROS topic.\n");
+   "  Use command \"add\" to subscribe to a new signal.\n");
 
-  RosImport::RosImport (const std::string& n)
+  RosSubscribe::RosSubscribe (const std::string& n)
     : dynamicgraph::Entity(n),
-      // rosImport do not use callback so do not create a useless spinner.
-      nh_ (rosInit (false)),
-      bindedSignal_ (),
-      trigger_ (boost::bind (&RosImport::trigger, this, _1, _2),
-		sotNOSIGNAL,
-		MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
-      rate_ (ROS_JOINT_STATE_PUBLISHER_RATE),
-      lastPublicated_ ()
+      nh_ (rosInit (true)),
+      bindedSignal_ ()
   {
-    try {
-      lastPublicated_ = ros::Time::now ();
-    } catch (const std::exception& exc) {
-      throw std::runtime_error ("Failed to call ros::Time::now ():" +
-				std::string (exc.what ()));
-    }
-    signalRegistration (trigger_);
-    trigger_.setNeedUpdateFromAllChildren (true);
-
     std::string docstring =
       "\n"
-      "  Add a signal writing data to a ROS topic\n"
+      "  Add a signal reading data from a ROS topic\n"
       "\n"
       "  Input:\n"
       "    - type: string among ['double', 'matrix', 'vector', 'vector3',\n"
@@ -156,53 +141,52 @@ namespace dynamicgraph
       "    - topic:  the topic name in ROS.\n"
       "\n";
     addCommand ("add",
-		new command::rosImport::Add
+		new command::rosSubscribe::Add
 		(*this, docstring));
     docstring =
       "\n"
-      "  Remove a signal writing data to a ROS topic\n"
+      "  Remove a signal reading data from a ROS topic\n"
       "\n"
       "  Input:\n"
       "    - name of the signal to remove (see method list for the list of signals).\n"
       "\n";
     addCommand ("rm",
-		new command::rosImport::Rm
+		new command::rosSubscribe::Rm
 		(*this, docstring));
     docstring =
       "\n"
-      "  Remove all signals writing data to a ROS topic\n"
+      "  Remove all signals reading data from a ROS topic\n"
       "\n"
       "  No input:\n"
       "\n";
     addCommand ("clear",
-		new command::rosImport::Clear
+		new command::rosSubscribe::Clear
 		(*this, docstring));
     docstring =
       "\n"
-      "  List signals writing data to a ROS topic\n"
+      "  List signals reading data from a ROS topic\n"
       "\n"
       "  No input:\n"
       "\n";
     addCommand ("list",
-		new command::rosImport::List
+		new command::rosSubscribe::List
 		(*this, docstring));
   }
 
-  RosImport::~RosImport ()
-  {
-  }
+  RosSubscribe::~RosSubscribe ()
+  {}
 
-  void RosImport::display (std::ostream& os) const
+  void RosSubscribe::display (std::ostream& os) const
   {
     os << CLASS_NAME << std::endl;
   }
 
-  void RosImport::rm (const std::string& signal)
+  void RosSubscribe::rm (const std::string& signal)
   {
     bindedSignal_.erase (signal);
   }
 
-  std::string RosImport::list () const
+  std::string RosSubscribe::list ()
   {
     std::string result("[");
     for (std::map<std::string, bindedSignal_t>::const_iterator it =
@@ -211,32 +195,15 @@ namespace dynamicgraph
     }
     result += "]";
     return result;
- }
+  }
 
-  void RosImport::clear ()
+  void RosSubscribe::clear ()
   {
     bindedSignal_.clear ();
   }
 
-  int& RosImport::trigger (int& dummy, int t)
-  {
-    typedef std::map<std::string, bindedSignal_t>::iterator iterator_t;
-
-    ros::Duration dt = ros::Time::now () - lastPublicated_;
-    if (dt < rate_)
-      return dummy;
-
-    for (iterator_t it = bindedSignal_.begin ();
-	 it != bindedSignal_.end (); ++it)
-      {
-	boost::get<1>(it->second) (t);
-      }
-    return dummy;
-  }
-
-  std::string RosImport::getDocString () const
+  std::string RosSubscribe::getDocString () const
   {
     return docstring_;
   }
-
 } // end of namespace dynamicgraph.

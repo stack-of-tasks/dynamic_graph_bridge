@@ -69,8 +69,8 @@ include(cmake/python.cmake)
 include_directories(${DYNAMIC_GRAPH_include_DIRS})
 link_directories(${DYNAMIC_GRAPH_LIBRARY_DIRS})
 
-compile_plugin(ros_import)
-compile_plugin(ros_export)
+compile_plugin(ros_publish)
+compile_plugin(ros_subscribe)
 compile_plugin(ros_time)
 
 compile_plugin(ros_joint_state)
