@@ -37,11 +37,11 @@ namespace dynamicgraph
     ros::NodeHandle& nh_;
     signalVectorIn_t state_;
     realtime_tools::RealtimePublisher<sensor_msgs::JointState> publisher_;
+    realtime_tools::RealtimePublisher<geometry_msgs::TransformStamped> tfpublisher_;
     sensor_msgs::JointState jointState_;
     dynamicgraph::SignalTimeDependent<int,int> trigger_;
     ros::Duration rate_;
     ros::Time lastPublicated_;
-    tf::TransformBroadcaster broadcaster_;
     geometry_msgs::TransformStamped transform_;
   };
 } // end of namespace dynamicgraph.

@@ -113,7 +113,7 @@ namespace dynamicgraph
 		MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
       rate_ (ROS_JOINT_STATE_PUBLISHER_RATE),
       lastPublicated_ (),
-      broadcaster_ (),
+      tfpublisher_ (nh_, "dynamic_graph/robot_pose", 5),
       transform_ ()
   {
     try {
@@ -132,6 +132,12 @@ namespace dynamicgraph
     jointState_.header.frame_id = "";
     transform_.header.frame_id = "odom";
     transform_.child_frame_id = "base_link";
+    std::string base_link_name;
+    if (nh_.getParam("robot_base_link", base_link_name))
+        transform_.child_frame_id = base_link_name;
+    std::string ref_frame_name;
+    if (nh_.getParam("ref_frame", ref_frame_name))
+        transform_.header.frame_id = ref_frame_name;
 
     std::string docstring =
       "\n"
@@ -150,49 +156,51 @@ namespace dynamicgraph
   int&
   RosJointState::trigger (int& dummy, int t)
   {
-    ros::Duration dt = ros::Time::now () - lastPublicated_;
-    if (dt > rate_ && publisher_.trylock ())
+      ros::Duration dt = ros::Time::now () - lastPublicated_;
+      if (dt > rate_ && publisher_.trylock() && tfpublisher_.trylock())
       {
-	lastPublicated_ = ros::Time::now ();
+          lastPublicated_ = ros::Time::now ();
 
-	// State size without the free floating.
-	std::size_t s = state_.access (t).size ();
+          // State size without the free floating.
+          std::size_t s = state_.access (t).size ();
 
-	// Safety check: if data are inconsistent, clear
-	// the joint names to avoid sending erroneous data.
-	// This should not happen unless you change
-	// the robot model at run-time.
-	if (s != jointState_.name.size())
-	  jointState_.name.clear();
+          // Safety check: if data are inconsistent, clear
+          // the joint names to avoid sending erroneous data.
+          // This should not happen unless you change
+          // the robot model at run-time.
+          if (s != jointState_.name.size())
+              jointState_.name.clear();
 
-	// Update header.
-	++jointState_.header.seq;
+          // Update header.
+          ++jointState_.header.seq;
 
-	ros::Time now = ros::Time::now ();
-	jointState_.header.stamp.sec = now.sec;
-	jointState_.header.stamp.nsec = now.nsec;
-	transform_.header.stamp.sec = now.sec;
-	transform_.header.stamp.nsec = now.nsec;
+          ros::Time now = ros::Time::now ();
+          jointState_.header.stamp.sec = now.sec;
+          jointState_.header.stamp.nsec = now.nsec;
+          transform_.header.stamp.sec = now.sec;
+          transform_.header.stamp.nsec = now.nsec;
 
-	// Fill position.
-	jointState_.position.resize (s);
-	for (std::size_t i = 0; i < s; ++i)
-	  jointState_.position[i] = state_.access (t) (i);
+          // Fill position.
+          jointState_.position.resize (s);
+          for (std::size_t i = 0; i < s; ++i)
+              jointState_.position[i] = state_.access (t) (i);
 
-	// Fill tf
-        transform_.transform.translation.x = state_.access(t)(0);
-        transform_.transform.translation.y = state_.access(t)(1);
-        transform_.transform.translation.z = state_.access(t)(2);
-        transform_.transform.rotation = tf::createQuaternionMsgFromRollPitchYaw(
-			state_.access(t)(3),
-			state_.access(t)(4),
-			state_.access(t)(5));
+          // Fill tf
+          transform_.transform.translation.x = state_.access(t)(0);
+          transform_.transform.translation.y = state_.access(t)(1);
+          transform_.transform.translation.z = state_.access(t)(2);
+          transform_.transform.rotation = tf::createQuaternionMsgFromRollPitchYaw(
+                      state_.access(t)(3),
+                      state_.access(t)(4),
+                      state_.access(t)(5)
+                  );
 
-        //send the joint state and transform
-	broadcaster_.sendTransform(transform_);
-	publisher_.msg_ = jointState_;
-	publisher_.unlockAndPublish ();
+          //send the joint state and transform
+          tfpublisher_.msg_ = transform_;
+          tfpublisher_.unlockAndPublish();
+          publisher_.msg_ = jointState_;
+          publisher_.unlockAndPublish ();
       }
-    return dummy;
+      return dummy;
   }
 } // end of namespace dynamicgraph.
