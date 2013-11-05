@@ -14,6 +14,7 @@
 namespace dynamicgraph
 {
   DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosJointState, "RosJointState");
+  const double RosJointState::ROS_JOINT_STATE_PUBLISHER_RATE = 0.01;
 
   namespace command
   {

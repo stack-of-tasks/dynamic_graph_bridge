@@ -60,7 +60,7 @@ namespace dynamicgraph
       callback_t>
     bindedSignal_t;
 
-    static const double ROS_JOINT_STATE_PUBLISHER_RATE = 1. / 100.;
+    static const double ROS_JOINT_STATE_PUBLISHER_RATE;
 
     RosPublish (const std::string& n);
     virtual ~RosPublish ();
