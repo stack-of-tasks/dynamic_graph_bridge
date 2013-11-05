@@ -4,6 +4,7 @@ namespace dynamicgraph
 {
 
   const char* SotToRos<double>::signalTypeName = "Double";
+  const char* SotToRos<unsigned int>::signalTypeName = "Unsigned";
   const char* SotToRos<ml::Matrix>::signalTypeName = "Matrix";
   const char* SotToRos<ml::Vector>::signalTypeName = "Vector";
   const char* SotToRos<specific::Vector3>::signalTypeName = "Vector3";
