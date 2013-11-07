@@ -71,6 +71,7 @@ add_required_dependency(dynamic-graph)
 add_required_dependency(dynamic-graph-python)
 add_required_dependency(sot-core)
 add_required_dependency(sot-dynamic)
+add_required_dependency(jrl-dynamics-urdf)
 
 add_library(ros_bridge
   src/converter.hh
@@ -92,6 +93,7 @@ macro(compile_plugin NAME)
   pkg_config_use_dependency(${NAME} jrl-mal)
   pkg_config_use_dependency(${NAME} dynamic-graph)
   pkg_config_use_dependency(${NAME} sot-core)
+  pkg_config_use_dependency(${NAME} jrl-dynamics-urdf)
   add_dependencies(${NAME} ros_bridge)
   target_link_libraries(${NAME} ros_bridge)
   set_target_properties(${NAME} PROPERTIES BUILD_WITH_INSTALL_RPATH True)
