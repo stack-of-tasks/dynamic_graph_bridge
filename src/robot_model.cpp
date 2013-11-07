@@ -60,6 +60,7 @@ void RosRobotModel::loadUrdf (const std::string& filename)
     for (;it!=specialJoints_.end();++it) {
         parser.specifyREPName(it->first, it->second);
     }
+    rosInit (false);
 
     m_HDR = parser.parse(filename);
 
