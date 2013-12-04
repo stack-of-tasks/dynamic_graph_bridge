@@ -153,5 +153,12 @@ target_link_libraries(geometric_simu  ${Boost_LIBRARIES})
 
 add_subdirectory(src)
 
+#install ros executables
+install(PROGRAMS
+  ${CMAKE_SOURCE_DIR}/scripts/robot_pose_publisher
+  ${CMAKE_SOURCE_DIR}/scripts/run_command
+  ${CMAKE_SOURCE_DIR}/scripts/tf_publisher
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  )
 SETUP_PROJECT_FINALIZE()
 
