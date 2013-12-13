@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.4.6)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 include(cmake/base.cmake)
+if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+  set(CMAKE_INSTALL_LIBDIR lib)
+endif()
 include(cmake/GNUInstallDirs.cmake)
 
 set(ROS_BUILD_TYPE RelWithDebInfo)
