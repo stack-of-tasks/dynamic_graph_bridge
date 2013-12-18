@@ -19,7 +19,9 @@ class RosShell(InteractiveConsole):
         rospy.wait_for_service('run_command')
         self.client = rospy.ServiceProxy(
             'run_command', dynamic_graph_bridge_msgs.srv.RunCommand, True)
-
+        rospy.wait_for_service('run_script')
+        self.scriptClient = rospy.ServiceProxy(
+            'run_script', dynamic_graph_bridge_msgs.srv.RunPythonFile, True)
 
     def runcode(self, code, retry = True):
         source = self.cache[:-1]
@@ -69,6 +71,8 @@ class RosShell(InteractiveConsole):
 if __name__ == '__main__':
     import optparse
     manifest = roslib.manifest.load_manifest('dynamic_graph_bridge')
+    rospy.init_node('run_command', argv=sys.argv)
+    sys.argv = rospy.myargv(argv=None)
     parser = optparse.OptionParser(
         usage='\n\t%prog [options]',
         version='%%prog %s' % manifest.version)
@@ -82,12 +86,8 @@ if __name__ == '__main__':
         if not sh.client:
             print("Connection to remote server has been lost.")
             sys.exit(1)
-        response = sh.client(str(source))
-        if response.stdout != "":
-            print response.stdout[:-1]
-            if response.stderr != "":
-                print response.stderr[:-1]
-            elif response.result != "None":
-                print response.result
+        response = sh.scriptClient(infile)
+        if not response:
+            print("Error while file parsing ")
     else:
         sh.interact("Interacting with remote server.")
