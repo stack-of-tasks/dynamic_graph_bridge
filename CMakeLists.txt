@@ -78,9 +78,9 @@ add_library(ros_bridge
   include/dynamic_graph_bridge/ros_init.hh src/ros_init.cpp
   src/sot_to_ros.hh src/sot_to_ros.cpp
   )
-
 pkg_config_use_dependency(ros_bridge jrl-mal)
 pkg_config_use_dependency(ros_bridge bullet)
+install(TARGETS ros_bridge DESTINATION lib)
 
 # Make sure rpath are preserved during the install as ROS dependencies
 # are not installed.
