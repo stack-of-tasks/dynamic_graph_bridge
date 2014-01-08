@@ -11,8 +11,8 @@ set(ROS_BUILD_TYPE RelWithDebInfo)
 
 rosbuild_init()
 
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_INSTALL_RPATH "${LIBRARY_OUTPUT_PATH}")
 
 rosbuild_genmsg()
@@ -26,11 +26,14 @@ set(PKG_CONFIG_ADDITIONAL_VARIABLES
   plugindir
   )
 
+add_required_dependency(bullet)
+
 add_required_dependency(jrl-mal)
 add_required_dependency(dynamic-graph)
 add_required_dependency(dynamic-graph-python)
 add_required_dependency(sot-core)
 add_required_dependency(sot-dynamic)
+add_required_dependency(jrl-dynamics-urdf)
 
 include_directories(include)
 
@@ -39,6 +42,10 @@ rosbuild_add_library(ros_bridge
   include/dynamic_graph_bridge/ros_init.hh src/ros_init.cpp
   src/sot_to_ros.hh src/sot_to_ros.cpp
   )
+pkg_config_use_dependency(ros_bridge jrl-mal)
+pkg_config_use_dependency(ros_bridge bullet)
+install(TARGETS ros_bridge DESTINATION lib)
+
 # Make sure rpath are preserved during the install as ROS dependencies
 # are not installed.
 set_target_properties(ros_bridge PROPERTIES BUILD_WITH_INSTALL_RPATH True)
@@ -49,6 +56,7 @@ macro(compile_plugin NAME)
   pkg_config_use_dependency(${NAME} jrl-mal)
   pkg_config_use_dependency(${NAME} dynamic-graph)
   pkg_config_use_dependency(${NAME} sot-core)
+  pkg_config_use_dependency(${NAME} jrl-dynamics-urdf)
   add_dependencies(${NAME} ros_bridge)
   target_link_libraries(${NAME} ros_bridge)
   set_target_properties(${NAME} PROPERTIES BUILD_WITH_INSTALL_RPATH True)

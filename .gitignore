@@ -6,3 +6,4 @@ src/dynamic_graph_bridge/
 bin/
 build/
 srv_gen/
+*~
