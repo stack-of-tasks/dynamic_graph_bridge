@@ -5,6 +5,7 @@
 
 # include <boost/shared_ptr.hpp>
 # include <boost/tuple/tuple.hpp>
+# include <boost/interprocess/sync/interprocess_mutex.hpp>
 
 # include <dynamic-graph/entity.h>
 # include <dynamic-graph/signal-time-dependent.h>
@@ -94,6 +95,7 @@ namespace dynamicgraph
     dynamicgraph::SignalTimeDependent<int,int> trigger_;
     ros::Duration rate_;
     ros::Time lastPublicated_;
+    boost::interprocess::interprocess_mutex mutex_;
   };
 } // end of namespace dynamicgraph.
 
