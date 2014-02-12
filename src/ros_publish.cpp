@@ -204,7 +204,14 @@ namespace dynamicgraph
 
   void RosPublish::rm (const std::string& signal)
   {
+    if(bindedSignal_.find(signal) == bindedSignal_.end())
+      return;
+
+    //lock the mutex to avoid deleting the signal during a call to trigger
+    while(! mutex_.try_lock() ){}
     bindedSignal_.erase (signal);
+    signalDeregistration(signal);
+    mutex_.unlock();
   }
 
   std::string RosPublish::list () const
@@ -231,11 +238,13 @@ namespace dynamicgraph
     if (dt < rate_)
       return dummy;
 
+    while(! mutex_.try_lock() ){}
     for (iterator_t it = bindedSignal_.begin ();
 	 it != bindedSignal_.end (); ++it)
       {
 	boost::get<1>(it->second) (t);
       }
+    mutex_.unlock();
     return dummy;
   }
 
