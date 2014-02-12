@@ -27,16 +27,16 @@ namespace dynamicgraph
 
   bool
   Interpreter::runCommandCallback
-  (dynamic_graph_bridge::RunCommand::Request& req,
-   dynamic_graph_bridge::RunCommand::Response& res)
+  (dynamic_graph_bridge_msgs::RunCommand::Request& req,
+   dynamic_graph_bridge_msgs::RunCommand::Response& res)
   {
     interpreter_.python(req.input, res.result, res.stdout, res.stderr);
     return true;
   }
 
   bool
-  Interpreter::runPythonFileCallback (dynamic_graph_bridge::RunPythonFile::Request& req,
-                                      dynamic_graph_bridge::RunPythonFile::Response& res)
+  Interpreter::runPythonFileCallback (dynamic_graph_bridge_msgs::RunPythonFile::Request& req,
+                                      dynamic_graph_bridge_msgs::RunPythonFile::Response& res)
   {
     interpreter_.runPythonFile(req.input);
     res.result = "File parsed"; // FIX: It is just an echo, is there a way to have a feedback?

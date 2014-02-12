@@ -1,8 +1,8 @@
 #ifndef DYNAMIC_GRAPH_BRIDGE_INTERPRETER_HH
 # define DYNAMIC_GRAPH_BRIDGE_INTERPRETER_HH
 # include <ros/ros.h>
-# include <dynamic_graph_bridge/RunCommand.h>
-# include <dynamic_graph_bridge/RunPythonFile.h>
+# include <dynamic_graph_bridge_msgs/RunCommand.h>
+# include <dynamic_graph_bridge_msgs/RunPythonFile.h>
 # include <dynamic-graph/python/interpreter.hh>
 
 namespace dynamicgraph
@@ -17,13 +17,13 @@ namespace dynamicgraph
   {
   public:
     typedef boost::function<
-    bool (dynamic_graph_bridge::RunCommand::Request&,
-    	  dynamic_graph_bridge::RunCommand::Response&)>
+    bool (dynamic_graph_bridge_msgs::RunCommand::Request&,
+    	  dynamic_graph_bridge_msgs::RunCommand::Response&)>
     runCommandCallback_t;
 
     typedef boost::function<
-    bool (dynamic_graph_bridge::RunPythonFile::Request&,
-          dynamic_graph_bridge::RunPythonFile::Response&)>
+    bool (dynamic_graph_bridge_msgs::RunPythonFile::Request&,
+          dynamic_graph_bridge_msgs::RunPythonFile::Response&)>
     runPythonFileCallback_t;
 
     explicit Interpreter (ros::NodeHandle& nodeHandle);
@@ -44,12 +44,12 @@ namespace dynamicgraph
 
   protected:
     /// \brief Run a Python command and return result, stderr and stdout.
-    bool runCommandCallback (dynamic_graph_bridge::RunCommand::Request& req,
-			     dynamic_graph_bridge::RunCommand::Response& res);
+    bool runCommandCallback (dynamic_graph_bridge_msgs::RunCommand::Request& req,
+			     dynamic_graph_bridge_msgs::RunCommand::Response& res);
 
     /// \brief Run a Python file.
-    bool runPythonFileCallback (dynamic_graph_bridge::RunPythonFile::Request& req,
-                                dynamic_graph_bridge::RunPythonFile::Response& res);
+    bool runPythonFileCallback (dynamic_graph_bridge_msgs::RunPythonFile::Request& req,
+                                dynamic_graph_bridge_msgs::RunPythonFile::Response& res);
 
   private:
     python::Interpreter interpreter_;
