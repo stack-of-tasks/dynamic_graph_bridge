@@ -7,8 +7,8 @@
 # include <dynamic-graph/signal-cast-helper.h>
 # include <jrl/mal/boost.hh>
 # include <std_msgs/Float64.h>
-# include "dynamic_graph_bridge/Matrix.h"
-# include "dynamic_graph_bridge/Vector.h"
+# include "dynamic_graph_bridge_msgs/Matrix.h"
+# include "dynamic_graph_bridge_msgs/Vector.h"
 # include "ros_time.hh"
 
 namespace ml = ::maal::boost;

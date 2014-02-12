@@ -21,8 +21,8 @@ namespace dynamicgraph
 
   bool
   Interpreter::runCommandCallback
-  (dynamic_graph_bridge::RunCommand::Request& req,
-   dynamic_graph_bridge::RunCommand::Response& res)
+  (dynamic_graph_bridge_msgs::RunCommand::Request& req,
+   dynamic_graph_bridge_msgs::RunCommand::Response& res)
   {
     interpreter_.python(req.input, res.result, res.stdout, res.stderr);
     return true;
