@@ -107,6 +107,8 @@ namespace dynamicgraph
       // do not use callbacks, so do not create a useless spinner
       nh_ (rosInit (false)),
       state_ (0, MAKE_SIGNAL_STRING(name, true, "Vector", "state")),
+      velocity_ (0, MAKE_SIGNAL_STRING(name, true, "Vector", "velocity")),
+      effort_ (0, MAKE_SIGNAL_STRING(name, true, "Vector", "effort")),
       publisher_ (nh_, "dynamic_graph/joint_states", 5),
       jointState_ (),
       trigger_ (boost::bind (&RosJointState::trigger, this, _1, _2),
@@ -121,7 +123,7 @@ namespace dynamicgraph
       throw std::runtime_error ("Failed to call ros::Time::now ():" +
 				std::string (exc.what ()));
     }
-    signalRegistration (state_ << trigger_);
+    signalRegistration (state_ << velocity_ << effort_ << trigger_);
     trigger_.setNeedUpdateFromAllChildren (true);
 
     // Fill header.
@@ -173,6 +175,22 @@ namespace dynamicgraph
 	jointState_.position.resize (s);
 	for (std::size_t i = 0; i < s; ++i)
 	  jointState_.position[i] = state_.access (t) (i);
+
+	// Copy the velocity if available
+	if (velocity_.isPlugged() && velocity_.access (t).size () == s)
+	  {
+	    jointState_.velocity.resize(s);
+	    for (std::size_t i = 0; i < s; ++i)
+	      jointState_.velocity[i] = velocity_.access (t)(i);
+	  }
+
+	// Copy the effort if available
+	if (effort_.isPlugged() && effort_.access (t).size () == s)
+	  {
+	    jointState_.effort.resize(s);
+	    for (std::size_t i = 0; i < s; ++i)
+	      jointState_.effort[i] = effort_.access (t)(i);
+	  }
 
 	publisher_.msg_ = jointState_;
 	publisher_.unlockAndPublish ();

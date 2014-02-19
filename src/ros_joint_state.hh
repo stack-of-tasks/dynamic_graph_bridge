@@ -35,6 +35,8 @@ namespace dynamicgraph
   private:
     ros::NodeHandle& nh_;
     signalVectorIn_t state_;
+    signalVectorIn_t velocity_;
+    signalVectorIn_t effort_;
     realtime_tools::RealtimePublisher<sensor_msgs::JointState> publisher_;
     sensor_msgs::JointState jointState_;
     dynamicgraph::SignalTimeDependent<int,int> trigger_;
