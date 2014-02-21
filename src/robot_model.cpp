@@ -47,6 +47,12 @@ RosRobotModel::RosRobotModel(const std::string& name)
             "  Maps a link name in the URDF parser to actual robot link name.\n"
             "\n";
     addCommand ("addJointMapping", command::makeCommandVoid2(*this,&RosRobotModel::addJointMapping,docstring));
+
+    docstring =
+            "\n"
+            "  Convert a joint into a fixed joint. Reduce the computation.\n"
+            "\n";
+    addCommand ("ignoreJoint", command::makeCommandVoid1(*this,&RosRobotModel::ignoreJoint,docstring));
 }
 
 RosRobotModel::~RosRobotModel()
@@ -60,6 +66,10 @@ void RosRobotModel::loadUrdf (const std::string& filename)
     for (;it!=specialJoints_.end();++it) {
         parser.specifyREPName(it->first, it->second);
     }
+
+    for (std::set<std::string>::const_iterator it=ignoredJoints_.begin(); it!=ignoredJoints_.end(); ++it)
+      parser.ignoreJoint(*it);
+
     rosInit (false);
 
     m_HDR = parser.parse(filename);
@@ -82,6 +92,9 @@ void RosRobotModel::loadFromParameterServer()
     for (;it!=specialJoints_.end();++it) {
         parser.specifyREPName(it->first, it->second);
     }
+
+    for (std::set<std::string>::const_iterator it=ignoredJoints_.begin(); it!=ignoredJoints_.end(); ++it)
+      parser.ignoreJoint(*it);
 
     rosInit (false);
     std::string robotDescription;
@@ -165,6 +178,12 @@ void
 RosRobotModel::addJointMapping(const std::string &link, const std::string &repName)
 {
     specialJoints_[link] = repName;
+}
+
+void
+RosRobotModel::ignoreJoint(const std::string &link)
+{
+    ignoredJoints_.insert(link);
 }
 
 DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosRobotModel, "RosRobotModel");

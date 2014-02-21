@@ -2,6 +2,7 @@
 # define DYNAMIC_GRAPH_BRIDGE_ROBOT_MODEL_HH
 
 # include <string>
+# include <set>
 
 #include <sot-dynamic/dynamic.h>
 #include <dynamic-graph/linear-algebra.h>
@@ -31,6 +32,8 @@ namespace dynamicgraph
 
     void addJointMapping(const std::string& link, const std::string& repName);
 
+    void ignoreJoint(const std::string &link);
+
   protected:
 
     unsigned getDimension () const
@@ -50,6 +53,9 @@ namespace dynamicgraph
 
     /// \brief Special joints map for the parser
     std::map<std::string, std::string> specialJoints_;
+
+    /// \brief Ignored joints for the parser: they will be converted into fixed joint.
+    std::set<std::string> ignoredJoints_;
   };
 } // end of namespace dynamicgraph.
 
