@@ -35,8 +35,5 @@
   <depend package="tf"/>
 
   <depend package="realtime_tools"/>
-
-  <depend package="jrl_dynamics_urdf"/>
-
   <depend package="dynamic_graph_bridge_msgs"/>
 </package>

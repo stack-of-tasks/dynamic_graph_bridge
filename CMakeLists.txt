@@ -78,7 +78,8 @@ install(TARGETS ros_bridge DESTINATION lib)
 
 # Make sure rpath are preserved during the install as ROS dependencies
 # are not installed.
-set_target_properties(ros_bridge PROPERTIES BUILD_WITH_INSTALL_RPATH True)
+set_target_properties(ros_bridge PROPERTIES BUILD_WITH_INSTALL_RPATH True
+                      LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 macro(compile_plugin NAME)
   message(lib path ${LIBRARY_OUTPUT_PATH})
@@ -128,7 +129,8 @@ rospack_use_dependency(ros_interpreter dynamic_graph_bridge_msgs)
 
 add_dependencies(ros_interpreter ros_bridge)
 target_link_libraries(ros_interpreter ros_bridge)
-set_target_properties(ros_interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
+set_target_properties(ros_interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True
+                      LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 message(cmakeinstalllibdir ${CMAKE_INSTALL_LIBDIR} )
 install(TARGETS ros_interpreter DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
