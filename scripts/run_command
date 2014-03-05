@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-import roslib; roslib.load_manifest('dynamic_graph_bridge')
+import roslib; roslib.load_manifest('dynamic_graph_bridge'); roslib.load_manifest('dynamic_graph_bridge_msgs');
+
 import rospy
 
-import dynamic_graph_bridge.srv
+import dynamic_graph_bridge_msgs.srv
 
 import sys
 import code
@@ -18,10 +19,10 @@ class RosShell(InteractiveConsole):
         rospy.loginfo('waiting for service...')
         rospy.wait_for_service('run_command')
         self.client = rospy.ServiceProxy(
-            'run_command', dynamic_graph_bridge.srv.RunCommand, True)
+            'run_command', dynamic_graph_bridge_msgs.srv.RunCommand, True)
         rospy.wait_for_service('run_script')
         self.scriptClient = rospy.ServiceProxy(
-            'run_script', dynamic_graph_bridge.srv.RunPythonFile, True)
+            'run_script', dynamic_graph_bridge_msgs.srv.RunPythonFile, True)
 
     def runcode(self, code, retry = True):
         source = self.cache[:-1]
@@ -31,7 +32,7 @@ class RosShell(InteractiveConsole):
                 if not self.client:
                     print("Connection to remote server lost. Reconnecting...")
                     self.client = rospy.ServiceProxy(
-                        'run_command', dynamic_graph_bridge.srv.RunCommand, True)
+                        'run_command', dynamic_graph_bridge_msgs.srv.RunCommand, True)
                     if retry:
                         print("Retrying previous command...")
                         self.cache = source
@@ -46,7 +47,7 @@ class RosShell(InteractiveConsole):
             except rospy.ServiceException, e:
                 print("Connection to remote server lost. Reconnecting...")
                 self.client = rospy.ServiceProxy(
-                    'run_command', dynamic_graph_bridge.srv.RunCommand, True)
+                    'run_command', dynamic_graph_bridge_msgs.srv.RunCommand, True)
                 if retry:
                     print("Retrying previous command...")
                     self.cache = source
