@@ -149,7 +149,7 @@ rospack_use_dependency(interpreter dynamic_graph_bridge_msgs)
 # Stand alone embedded intepreter with a robot controller.
 add_executable(geometric_simu src/geometric_simu.cpp src/sot_loader.cpp)
 pkg_config_use_dependency(geometric_simu roscpp)
-target_link_libraries(geometric_simu  ${Boost_LIBRARIES})
+target_link_libraries(geometric_simu  ${Boost_LIBRARIES} dl)
 
 add_subdirectory(src)
 
