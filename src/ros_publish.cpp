@@ -206,10 +206,16 @@ namespace dynamicgraph
     if(bindedSignal_.find(signal) == bindedSignal_.end())
       return;
 
+    if(signal == "trigger")
+    {
+      std::cerr << "The trigger signal should not be removed. Aborting." << std::endl;
+      return;
+    }
+
     //lock the mutex to avoid deleting the signal during a call to trigger
     while(! mutex_.try_lock() ){}
-    bindedSignal_.erase (signal);
     signalDeregistration(signal);
+    bindedSignal_.erase (signal);
     mutex_.unlock();
   }
 
@@ -226,7 +232,19 @@ namespace dynamicgraph
 
   void RosPublish::clear ()
   {
-    bindedSignal_.clear ();
+    std::map<std::string, bindedSignal_t>::iterator it = bindedSignal_.begin();
+    for(; it!= bindedSignal_.end(); )
+    {
+      if (it->first != "trigger")
+      {
+        rm(it->first);
+        it = bindedSignal_.begin();
+      }
+      else
+      {
+          ++it;
+      }
+    }
   }
 
   int& RosPublish::trigger (int& dummy, int t)
