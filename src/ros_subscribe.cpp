@@ -183,7 +183,16 @@ namespace dynamicgraph
 
   void RosSubscribe::rm (const std::string& signal)
   {
+    std::string signalTs = signal+"Timestamp";
+
+    signalDeregistration(signal);
     bindedSignal_.erase (signal);
+
+    if(bindedSignal_.find(signalTs) != bindedSignal_.end())
+    {
+       signalDeregistration(signalTs);
+       bindedSignal_.erase(signalTs);
+    }
   }
 
   std::string RosSubscribe::list ()
@@ -199,7 +208,12 @@ namespace dynamicgraph
 
   void RosSubscribe::clear ()
   {
-    bindedSignal_.clear ();
+    std::map<std::string, bindedSignal_t>::iterator it = bindedSignal_.begin();
+    for(; it!= bindedSignal_.end(); )
+    {
+      rm(it->first);
+      it = bindedSignal_.begin();
+    }
   }
 
   std::string RosSubscribe::getDocString () const
