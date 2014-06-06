@@ -94,6 +94,11 @@ macro(compile_plugin NAME)
   target_link_libraries(${NAME} ros_bridge)
   set_target_properties(${NAME} PROPERTIES BUILD_WITH_INSTALL_RPATH True)
   install(TARGETS ${NAME} DESTINATION lib)
+
+  # DelPrete: install header files
+  set(${NAME}_HEADERS src/${NAME}.hh)
+  #message(headers ${${NAME}_HEADERS})
+  install(FILES ${${NAME}_HEADERS} DESTINATION include/${PROJECT_NAME})
   
 
   dynamic_graph_python_module("ros/${NAME}"
@@ -131,7 +136,7 @@ add_dependencies(ros_interpreter ros_bridge)
 target_link_libraries(ros_interpreter ros_bridge)
 set_target_properties(ros_interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True
                       LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
-message(cmakeinstalllibdir ${CMAKE_INSTALL_LIBDIR} )
+#message(cmakeinstalllibdir ${CMAKE_INSTALL_LIBDIR} )
 install(TARGETS ros_interpreter DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 # Stand alone remote dynamic-graph Python interpreter.
