@@ -30,7 +30,7 @@ namespace dynamicgraph
   (dynamic_graph_bridge_msgs::RunCommand::Request& req,
    dynamic_graph_bridge_msgs::RunCommand::Response& res)
   {
-    interpreter_.python(req.input, res.result, res.stdout, res.stderr);
+    interpreter_.python(req.input, res.result, res.standardoutput, res.standarderror);
     return true;
   }
 
