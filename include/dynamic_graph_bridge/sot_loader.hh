@@ -96,13 +96,16 @@ protected:
   // Joint state to be published.
   sensor_msgs::JointState joint_state_;
 
+  // \brief Start control loop.
+  virtual void startControlLoop();
+
   // Number of DOFs according to KDL.
   int nbOfJoints_;
   int nbOfParallelJoints_;
 
 
 public:
-  SotLoader();
+  SotLoader(int argc, char *argv[]);
   ~SotLoader() {};
 
   // \brief Read user input to extract the path of the SoT dynamic library.
@@ -110,6 +113,9 @@ public:
 
   // \brief Load the SoT
   void Initialization();
+
+  // \brief Create a thread for ros
+  void initializeRosNode(int argc, char *argv[]);
 
   // \brief Compute one iteration of control.
   // Basically calls fillSensors, the SoT and the readControl.
@@ -143,5 +149,6 @@ public:
   // \brief Get Status of dg.
   bool isDynamicGraphStopped()
   { return dynamic_graph_stopped_; }
+
 };
 

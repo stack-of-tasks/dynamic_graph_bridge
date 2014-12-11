@@ -20,48 +20,18 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 
-#include "sot_loader.hh"
-
-boost::condition_variable cond;
-boost::mutex mut;
-
-void workThread(SotLoader *aSotLoader)
-{
-  {
-    boost::lock_guard<boost::mutex> lock(mut);
-  }
-  while(aSotLoader->isDynamicGraphStopped())
-    {
-      usleep(5000);
-    }  
-  while(!aSotLoader->isDynamicGraphStopped())
-    {
-      aSotLoader->oneIteration();
-      usleep(5000);
-    }
-  cond.notify_all();
-  ros::waitForShutdown();
-}
-
+#include "dynamic_graph_bridge/sot_loader.hh"
 
 int main(int argc, char *argv[])
 {
-  
-  ros::init(argc, argv, "sot_ros_encapsulator");
-
-  SotLoader aSotLoader;
+  SotLoader aSotLoader(argc, argv);
   if (aSotLoader.parseOptions(argc,argv)<0)
     return -1;
-  
-  ros::NodeHandle n;
-  ros::ServiceServer service = n.advertiseService("start_dynamic_graph", 
-                                                  &SotLoader::start_dg,
-                                                  &aSotLoader);
-  ROS_INFO("Ready to start dynamic graph.");
 
-  boost::thread thr(workThread,&aSotLoader);
+  aSotLoader.initializeRosNode(argc,argv);
 
-  boost::unique_lock<boost::mutex> lock(mut);
-  cond.wait(lock);
-  ros::spin();
+  while(true){
+    usleep(5000);
+  }
+
 }

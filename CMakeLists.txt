@@ -65,6 +65,7 @@ include(cmake/python.cmake)
 
 include_directories(${DYNAMIC_GRAPH_include_DIRS})
 link_directories(${DYNAMIC_GRAPH_LIBRARY_DIRS})
+MESSAGE("dyn graph include dirs:   ${DYNAMIC_GRAPH_include_DIRS}")
 
 compile_plugin(ros_publish)
 compile_plugin(ros_subscribe)
@@ -99,6 +100,15 @@ pkg_config_use_dependency(interpreter sot-dynamic)
 # Stand alone embedded intepreter with a robot controller.
 rosbuild_add_executable(geometric_simu src/geometric_simu.cpp src/sot_loader.cpp)
 rosbuild_link_boost(geometric_simu program_options)
+target_link_libraries(geometric_simu  ${Boost_LIBRARIES} dl)
+add_dependencies(geometric_simu ros_interpreter)
+target_link_libraries(geometric_simu ros_interpreter)
+
+# sot_loader library
+rosbuild_add_library(sot_loader src/sot_loader.cpp)
+install(TARGETS sot_loader DESTINATION ${CMAKE_INSTALL_LIBDIR}) 
+
+
 
 add_subdirectory(src)
 

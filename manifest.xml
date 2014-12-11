@@ -12,7 +12,7 @@
   <export>
     <cpp
        cflags="-I${prefix}/include"
-       lflags="-L${prefix}/lib -lros_bridge -lros_interpreter -Wl,-rpath,${prefix}/lib"
+       lflags="-L${prefix}/lib -lros_bridge -lros_interpreter -lsot_loader -Wl,-rpath,${prefix}/lib"
        />
     <rosdoc config="rosdoc.yaml" />
   </export>

@@ -20,16 +20,58 @@
 /* --- INCLUDES ------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-#include "sot_loader.hh"
+#include "dynamic_graph_bridge/sot_loader.hh"
+#include "dynamic_graph_bridge/ros_init.hh"
 
 // POSIX.1-2001
 #include <dlfcn.h>
+
+#include <boost/thread/thread.hpp>
+#include <boost/thread/condition.hpp>
+
+boost::condition_variable cond;
+boost::mutex mut;
+
 
 using namespace std;
 using namespace dynamicgraph::sot; 
 namespace po = boost::program_options;
 
-SotLoader::SotLoader():
+
+void createRosSpin(SotLoader *aSotLoader)
+{
+  ROS_INFO("createRosSpin started\n");
+  ros::NodeHandle n;
+
+  ros::ServiceServer service = n.advertiseService("start_dynamic_graph", 
+                                                  &SotLoader::start_dg,
+                                                  aSotLoader);
+
+  ros::ServiceServer service2 = n.advertiseService("stop_dynamic_graph", 
+                                                  &SotLoader::stop_dg,
+                                                  aSotLoader);
+  
+  ros::waitForShutdown();
+}
+
+
+void workThreadLoader(SotLoader *aSotLoader)
+{
+  while(aSotLoader->isDynamicGraphStopped())
+    {
+      usleep(5000);
+    }  
+  while(!aSotLoader->isDynamicGraphStopped())
+    {
+      aSotLoader->oneIteration();
+      usleep(5000);
+    }
+  cond.notify_all();
+  ros::waitForShutdown();
+}
+
+
+SotLoader::SotLoader(int argc, char *argv[]):
   dynamic_graph_stopped_(true),
   sensorsIn_ (),
   controlValues_ (),
@@ -41,14 +83,18 @@ SotLoader::SotLoader():
   accelerometer_ (3),
   gyrometer_ (3)
 {
+  if (argc!=0)
+  {
+    // initializeRosNode(argc, argv);
+  }
+
   readSotVectorStateParam();
   initPublication();
 }
 
 int SotLoader::initPublication()
 {
-  ros::NodeHandle n;
-
+  ros::NodeHandle & n = dynamicgraph::rosInit(false);
 
   // Prepare message to be published
   joint_pub_ = n.advertise<sensor_msgs::JointState>("joint_states", 1);
@@ -60,7 +106,7 @@ int SotLoader::readSotVectorStateParam()
 {
   std::map<std::string,int> from_state_name_to_state_vector;
   std::map<std::string,std::string> from_parallel_name_to_state_vector_name;
-  ros::NodeHandle n;
+  ros::NodeHandle & n = dynamicgraph::rosInit(false);
 
   if (!ros::param::has("/sot/state_vector_map"))
     {
@@ -186,8 +232,27 @@ void SotLoader::Initialization()
   
   // Create robot-controller
   sotController_ = createSot();
-  cout <<"Went out from Initialization." << endl;
+  ROS_INFO("Went out from Initialization.");
 }
+
+void SotLoader::startControlLoop()
+{
+  boost::thread thr(workThreadLoader, this);
+}
+
+void SotLoader::initializeRosNode(int argc, char *argv[])
+{
+
+  ROS_INFO("Ready to start dynamic graph.");
+
+  boost::unique_lock<boost::mutex> lock(mut);
+ 
+  boost::thread thr2(createRosSpin,this);
+
+  startControlLoop();
+
+}
+
 
 void 
 SotLoader::fillSensors(map<string,dgs::SensorValues> & sensorsIn)
