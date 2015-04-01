@@ -70,6 +70,7 @@ class RosShell(InteractiveConsole):
 
 if __name__ == '__main__':
     import optparse
+    import os.path
     manifest = roslib.manifest.load_manifest('dynamic_graph_bridge')
     rospy.init_node('run_command', argv=sys.argv)
     sys.argv = rospy.myargv(argv=None)
@@ -82,12 +83,14 @@ if __name__ == '__main__':
 
     if args[:]:
         infile = args[0]
-        source = open(infile).read()
-        if not sh.client:
-            print("Connection to remote server has been lost.")
-            sys.exit(1)
-        response = sh.scriptClient(infile)
-        if not response:
-            print("Error while file parsing ")
+        if os.path.isfile(infile):
+            if not sh.client:
+                print("Connection to remote server has been lost.")
+                sys.exit(1)
+            response = sh.scriptClient(os.path.abspath(infile))
+            if not response:
+                print("Error while file parsing ")
+        else:
+            print("Provided file does not exist: %s"%(infile))
     else:
         sh.interact("Interacting with remote server.")
