@@ -131,8 +131,8 @@ add_dependencies(ros_interpreter ros_bridge)
 target_link_libraries(ros_interpreter ros_bridge)
 set_target_properties(ros_interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True
                       LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
-message(cmakeinstalllibdir ${CMAKE_INSTALL_LIBDIR} )
-install(TARGETS ros_interpreter DESTINATION ${CMAKE_INSTALL_LIBDIR})
+message(cmakeinstalllibdir " is ${CMAKE_INSTALL_LIBDIR} ")
+install(TARGETS ros_interpreter DESTINATION lib)
 
 # Stand alone remote dynamic-graph Python interpreter.
 add_executable(interpreter src/interpreter.cpp)
@@ -160,5 +160,8 @@ install(PROGRAMS
   ${CMAKE_SOURCE_DIR}/scripts/tf_publisher
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
+message(cmake_install_bindir " is ${CMAKE_INSTALL_BINDIR} ")
+install(TARGETS geometric_simu DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/)
 SETUP_PROJECT_FINALIZE()
 
