@@ -176,8 +176,10 @@ void SotLoader::Initialization()
   
   // Load the symbols.
   createSotExternalInterface_t * createSot =
-    (createSotExternalInterface_t *) dlsym(SotRobotControllerLibrary, 
-                          "createSotExternalInterface");
+    reinterpret_cast<createSotExternalInterface_t *> 
+    (reinterpret_cast<long> 
+     (dlsym(SotRobotControllerLibrary, 
+	    "createSotExternalInterface")));
   const char* dlsym_error = dlerror();
   if (dlsym_error) {
     std::cerr << "Cannot load symbol create: " << dlsym_error << '\n';
@@ -256,15 +258,15 @@ void SotLoader::oneIteration()
 }
 
 
-bool SotLoader::start_dg(std_srvs::Empty::Request& request, 
-                         std_srvs::Empty::Response& response)
+bool SotLoader::start_dg(std_srvs::Empty::Request& , 
+                         std_srvs::Empty::Response& )
 {
   dynamic_graph_stopped_=false;    
   return true;
 }
 
-bool SotLoader::stop_dg(std_srvs::Empty::Request& request, 
-                         std_srvs::Empty::Response& response)
+bool SotLoader::stop_dg(std_srvs::Empty::Request& , 
+                         std_srvs::Empty::Response& )
 {
   dynamic_graph_stopped_ = true;
   return true;

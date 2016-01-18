@@ -112,7 +112,7 @@ vectorN convertVector(const ml::Vector& v)
 ml::Vector convertVector(const vectorN& v)
 {
     ml::Vector res;
-    res.resize(v.size());
+    res.resize((unsigned int)v.size());
     for (unsigned i = 0; i < v.size(); ++i)
         res(i) = v[i];
     return res;

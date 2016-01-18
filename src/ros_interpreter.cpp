@@ -43,13 +43,6 @@ namespace dynamicgraph
     return true;
   }
 
-  std::string
-  Interpreter::runCommand
-  (const std::string& command)
-  {
-    return interpreter_.python(command);
-  }
-
   void Interpreter::runCommand
   (const std::string & command, 
    std::string &result,

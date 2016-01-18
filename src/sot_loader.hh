@@ -85,7 +85,8 @@ protected:
   XmlRpc::XmlRpcValue stateVectorMap_;
 
   /// \brief List of parallel joints from the state vector.
-  std::vector<int> parallel_joints_to_state_vector_;
+  typedef std::vector<int> parallel_joints_to_state_vector_t;
+  parallel_joints_to_state_vector_t parallel_joints_to_state_vector_;
 
   /// \brief Coefficient between parallel joints and the state vector.
   std::vector<double> coefficient_parallel_joints_;
@@ -98,7 +99,7 @@ protected:
 
   // Number of DOFs according to KDL.
   int nbOfJoints_;
-  int nbOfParallelJoints_;
+  parallel_joints_to_state_vector_t::size_type nbOfParallelJoints_;
 
 
 public:
