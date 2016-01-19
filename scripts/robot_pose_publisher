@@ -3,12 +3,9 @@
 # Listens to TransformStamped messages and publish them to tf
 #
 
-import roslib
-roslib.load_manifest('dynamic_graph_bridge')
 import rospy
 
 import tf
-#import geometry_msgs.msg
 import sensor_msgs.msg
 
 frame = ''

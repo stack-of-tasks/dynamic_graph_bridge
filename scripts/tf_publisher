@@ -6,8 +6,6 @@
 # through dynamic_graph_bridge.
 #
 
-import roslib
-roslib.load_manifest('dynamic_graph_bridge')
 import rospy
 
 import tf
