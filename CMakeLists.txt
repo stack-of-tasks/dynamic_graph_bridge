@@ -25,8 +25,6 @@ find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs message_generation
 find_package(realtime_tools)
 find_package(Boost REQUIRED COMPONENTS program_options)
 
-catkin_package(CATKIN_DEPENDS message_runtime)
-
 
 ## LAAS cmake submodule part
 set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
@@ -154,6 +152,11 @@ target_link_libraries(geometric_simu  ros_bridge ${Boost_LIBRARIES} dl)
 
 add_subdirectory(src)
 
+# Deal with the ROS part.
+add_service_files( FILES RunPythonFile.srv )
+generate_messages( DEPENDENCIES std_msgs )
+catkin_package(CATKIN_DEPENDS message_runtime )
+
 #install ros executables
 install(PROGRAMS
   ${CMAKE_SOURCE_DIR}/scripts/robot_pose_publisher
@@ -164,5 +167,9 @@ install(PROGRAMS
 message(cmake_install_bindir " is ${CMAKE_INSTALL_BINDIR} ")
 install(TARGETS geometric_simu DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/)
+
+# Service file.
+install(FILES ./srv/RunPythonFile.srv DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/srv)
+
 SETUP_PROJECT_FINALIZE()
 
