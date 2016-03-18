@@ -46,21 +46,16 @@ void workThread(SotLoader *aSotLoader)
 
 int main(int argc, char *argv[])
 {
-  
   ros::init(argc, argv, "sot_ros_encapsulator");
-
   SotLoader aSotLoader;
   if (aSotLoader.parseOptions(argc,argv)<0)
     return -1;
-  
   ros::NodeHandle n;
   ros::ServiceServer service = n.advertiseService("start_dynamic_graph", 
                                                   &SotLoader::start_dg,
-                                                  &aSotLoader);
+						  &aSotLoader);
   ROS_INFO("Ready to start dynamic graph.");
-
   boost::thread thr(workThread,&aSotLoader);
-
   boost::unique_lock<boost::mutex> lock(mut);
   cond.wait(lock);
   ros::spin();

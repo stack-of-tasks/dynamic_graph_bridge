@@ -15,19 +15,19 @@ namespace dynamicgraph
   template <>
   inline void
   RosPublish::sendData
-  <std::pair<sot::MatrixHomogeneous, ml::Vector> >
+  <std::pair<sot::MatrixHomogeneous, Vector> >
   (boost::shared_ptr
    <realtime_tools::RealtimePublisher
    <SotToRos
-   <std::pair<sot::MatrixHomogeneous, ml::Vector> >::ros_t> > publisher,
+   <std::pair<sot::MatrixHomogeneous, Vector> >::ros_t> > publisher,
    boost::shared_ptr
    <SotToRos
-   <std::pair<sot::MatrixHomogeneous, ml::Vector> >::signalIn_t> signal,
+   <std::pair<sot::MatrixHomogeneous, Vector> >::signalIn_t> signal,
    int time)
   {
     SotToRos
       <std::pair
-      <sot::MatrixHomogeneous, ml::Vector> >::ros_t result;
+      <sot::MatrixHomogeneous, Vector> >::ros_t result;
     if (publisher->trylock ())
       {
 	publisher->msg_.child_frame_id = "/dynamic_graph/world";

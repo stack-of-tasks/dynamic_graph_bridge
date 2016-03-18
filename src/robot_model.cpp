@@ -2,18 +2,22 @@
 
 #include <dynamic-graph/all-commands.h>
 #include <dynamic-graph/factory.h>
-#include <jrl/dynamics/urdf/parser.hh>
+#include <pinocchio/multibody/parser/urdf.hpp>
+#include <pinocchio/multibody/model.hpp>
 
 #include "dynamic_graph_bridge/ros_init.hh"
+
+#include <ros/package.h>
 
 namespace dynamicgraph
 {
 
 RosRobotModel::RosRobotModel(const std::string& name)
-    : Dynamic(name,false),
+    : Dynamic(name),
       jointsParameterName_("jrl_map"),
       ns_("sot_controller")
 {
+
     std::string docstring;
 
     docstring =
@@ -54,19 +58,28 @@ RosRobotModel::~RosRobotModel()
 
 void RosRobotModel::loadUrdf (const std::string& filename)
 {
-    jrl::dynamics::urdf::Parser parser;
+  // jrl::dynamics::urdf::Parser parser;
 
-    std::map<std::string, std::string>::const_iterator it = specialJoints_.begin();
-    for (;it!=specialJoints_.end();++it) {
-        parser.specifyREPName(it->first, it->second);
-    }
-    rosInit (false);
+  //TODO: Specific rep name. link them to the operational frames in pinocchio
+  //  std::map<std::string, std::string>::const_iterator it = specialJoints_.begin();
+  //  for (;it!=specialJoints_.end();++it) {
+  //    parser.specifyREPName(it->first, it->second);
+  //  }
+  rosInit (false);
+  m_model = se3::urdf::buildModel(filename);
+  this->m_urdfPath = filename;
+  if (m_data) delete m_data;
+  m_data = new se3::Data(m_model);
+  init=true;
 
-    m_HDR = parser.parse(filename);
-
-    ros::NodeHandle nh(ns_);
-
-    nh.setParam(jointsParameterName_, parser.JointsNamesByRank_);
+  //  m_HDR = parser.parse(filename);
+  ros::NodeHandle nh(ns_);
+  
+  XmlRpc::XmlRpcValue JointsNamesByRank_;
+  JointsNamesByRank_.setSize(m_model.names.size());
+  std::vector<std::string>::const_iterator it = m_model.names.begin();
+  for (int i=0;it!=m_model.names.end();++it, ++i)  JointsNamesByRank_[i]= (*it);
+  nh.setParam(jointsParameterName_, JointsNamesByRank_);
 }
 
 void RosRobotModel::setNamespace (const std::string& ns)
@@ -76,28 +89,41 @@ void RosRobotModel::setNamespace (const std::string& ns)
 
 void RosRobotModel::loadFromParameterServer()
 {
-    jrl::dynamics::urdf::Parser parser;
+  //jrl::dynamics::urdf::Parser parser;
 
-    std::map<std::string, std::string>::const_iterator it = specialJoints_.begin();
-    for (;it!=specialJoints_.end();++it) {
-        parser.specifyREPName(it->first, it->second);
-    }
-
+  //TODO: Specific rep name. link them to the operational frames in pinocchio
+  //    std::map<std::string, std::string>::const_iterator it = specialJoints_.begin();
+  //    for (;it!=specialJoints_.end();++it) {
+  //        parser.specifyREPName(it->first, it->second);
+  //    }
     rosInit (false);
     std::string robotDescription;
     ros::param::param<std::string> ("/robot_description", robotDescription, "");
-
     if (robotDescription.empty ())
         throw std::runtime_error("No model available as ROS parameter. Fail.");
+    ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDF (robotDescription);
+    if (urdfTree)
+      se3::urdf::parseTree(urdfTree->getRoot(), 
+			   this->m_model, se3::SE3::Identity(), false);
+    else {
+      const std::string exception_message 
+	("robot_description not parsed correctly.");
+      throw std::invalid_argument(exception_message);
+    }
 
-    m_HDR = parser.parseStream (robotDescription);
-
+    this->m_urdfPath = "";
+    if (m_data) delete m_data;
+    m_data = new se3::Data(m_model);
+    init=true;
     ros::NodeHandle nh(ns_);
-
-    nh.setParam(jointsParameterName_, parser.JointsNamesByRank_);
-
+    
+    XmlRpc::XmlRpcValue JointsNamesByRank_;
+    JointsNamesByRank_.setSize(m_model.names.size());
+    std::vector<std::string>::const_iterator it = m_model.names.begin();
+    for (int i=0;it!=m_model.names.end();++it, ++i) JointsNamesByRank_[i]= (*it);
+    nh.setParam(jointsParameterName_, JointsNamesByRank_);
 }
-
+  /*  
 namespace
 {
 
@@ -119,7 +145,7 @@ ml::Vector convertVector(const vectorN& v)
 }
 
 } // end of anonymous namespace.
-
+*/
 Vector RosRobotModel::curConf() const
 {
 
@@ -127,7 +153,6 @@ Vector RosRobotModel::curConf() const
     // Freeflyer reference frame should be the same as global
     // frame so that operational point positions correspond to
     // position in freeflyer frame.
-
     XmlRpc::XmlRpcValue ffpose;
     ros::NodeHandle nh(ns_);
     std::string param_name = "ffpose";
@@ -147,17 +172,17 @@ Vector RosRobotModel::curConf() const
             ffpose[i] = 0.0;
     }
 
-    if (!m_HDR )
+    if (!m_data )
         throw std::runtime_error ("no robot loaded");
     else {
-        vectorN currConf = m_HDR->currentConfiguration();
-        Vector res;
-        res = convertVector(currConf);
-
-        for (int32_t i = 0; i < ffpose.size(); ++i)
-            res(i) = static_cast<double>(ffpose[i]);
-
-        return res;
+      //TODO: confirm accesscopy is for asynchronous commands
+      Vector currConf = jointPositionSIN.accessCopy();
+      
+      for (int32_t i = 0; i < ffpose.size(); ++i)
+	currConf(i) = static_cast<double>(ffpose[i]);
+      
+      return currConf;
+     
     }
 }
 

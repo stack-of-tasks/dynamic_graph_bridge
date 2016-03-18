@@ -32,41 +32,34 @@ namespace dynamicgraph
     RetrieveJointNames::RetrieveJointNames
     (RosJointState& entity, const std::string& docstring)
       : Command (entity, boost::assign::list_of (Value::STRING), docstring)
-    {}
-
-    namespace
     {
-      void
-      buildJointNames (sensor_msgs::JointState& jointState, CjrlJoint* joint)
-      {
-	if (!joint)
-	  return;
-	// Ignore anchors.
-	if (joint->numberDof() != 0)
-	  {
+}
+
+    namespace {
+      void  buildJointNames (sensor_msgs::JointState& jointState, se3::Model& robot_model) {
+	for (int i=0;i<robot_model.nbody-1;i++) {	  
+	  // Ignore anchors.
+	  if (se3::nv(robot_model.joints[i]) != 0) {
 	    // If we only have one dof, the dof name is the joint name.
-	    if (joint->numberDof() == 1)
-	      {
-		jointState.name[joint->rankInConfiguration()] =
-		  joint->getName();
+	    if (se3::nv(robot_model.joints[i]) == 1) {
+	      jointState.name[i] =  robot_model.names[i];
+	    }
+	    else {
+	      // ...otherwise, the dof name is the joint name on which
+	      // the dof id is appended.
+	      int joint_dof = se3::nv(robot_model.joints[i]);
+	      for(int j = 0; j<joint_dof; j++) {
+		boost::format fmt("%1%_%2%");
+		fmt % robot_model.names[i];
+		fmt % j;
+		jointState.name[i + j] =  fmt.str();
 	      }
-	    // ...otherwise, the dof name is the joint name on which
-	    // the dof id is appended.
-	    else
-	      for (unsigned i = 0; i < joint->numberDof(); ++i)
-		{
-		  boost::format fmt("%1%_%2%");
-		  fmt % joint->getName();
-		  fmt % i;
-		  jointState.name[joint->rankInConfiguration() + i] =
-		    fmt.str();
-		}
+	    }
 	  }
-	for (unsigned i = 0; i < joint->countChildJoints (); ++i)
-	  buildJointNames (jointState, joint->childJoint (i));
+	}
       }
     } // end of anonymous namespace
-
+	  
     Value RetrieveJointNames::doExecute ()
     {
       RosJointState& entity = static_cast<RosJointState&> (owner ());
@@ -89,15 +82,15 @@ namespace dynamicgraph
 	  return Value ();
 	}
 
-      CjrlHumanoidDynamicRobot* robot = dynamic->m_HDR;
-      if (!robot)
+      se3::Model& robot_model = dynamic->m_model;
+      if (robot_model.nbody == 1)
 	{
 	  std::cerr << "no robot in the dynamic entity" << std::endl;
 	  return Value ();
 	}
 
-      entity.jointState ().name.resize (robot->numberDof());
-      buildJointNames (entity.jointState (), robot->rootJoint());
+      entity.jointState ().name.resize (robot_model.nv);
+      buildJointNames (entity.jointState (), robot_model);
       return Value ();
     }
   } // end of namespace command.

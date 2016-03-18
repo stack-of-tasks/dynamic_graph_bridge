@@ -65,13 +65,14 @@ int SotLoader::readSotVectorStateParam()
   if (!ros::param::has("/sot/state_vector_map"))
     {
       std::cerr<< " Read Sot Vector State Param " << std::endl;
+      std::cerr<< " Can't read state_vector_map. Does not exist. "<<std::endl;
       return 1;
     }
 
   n.getParam("/sot/state_vector_map", stateVectorMap_);
   ROS_ASSERT(stateVectorMap_.getType() == XmlRpc::XmlRpcValue::TypeArray);
   nbOfJoints_ = stateVectorMap_.size();
-
+  nbOfParallelJoints_ = 0;
   if (ros::param::has("/sot/joint_state_parallel"))
     {
       XmlRpc::XmlRpcValue joint_state_parallel;
@@ -105,7 +106,7 @@ int SotLoader::readSotVectorStateParam()
   // Prepare joint_state according to robot description.
   joint_state_.name.resize(nbOfJoints_+nbOfParallelJoints_);
   joint_state_.position.resize(nbOfJoints_+nbOfParallelJoints_);
-
+  
   // Fill in the name of the joints from the state vector.
   // and build local map from state name to state vector
   for (int32_t i = 0; i < stateVectorMap_.size(); ++i) 
@@ -134,7 +135,7 @@ int SotLoader::readSotVectorStateParam()
 
 
 int SotLoader::parseOptions(int argc, char *argv[])
-{ 
+{
   po::options_description desc("Allowed options");
   desc.add_options()
     ("help", "produce help message")
@@ -162,8 +163,8 @@ int SotLoader::parseOptions(int argc, char *argv[])
 
 void SotLoader::Initialization()
 {
-  
-  // Load the SotRobotBipedController library.
+ 
+ // Load the SotRobotBipedController library.
   void * SotRobotControllerLibrary = dlopen( dynamicLibraryName_.c_str(),
                                              RTLD_LAZY | RTLD_GLOBAL );
   if (!SotRobotControllerLibrary) {
@@ -214,7 +215,9 @@ SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
   // Check if the size if coherent with the robot description.
   if (angleControl_.size()!=(unsigned int)nbOfJoints_)
     {
-      std::cerr << " angleControl_ and nbOfJoints are different !"
+      std::cerr << " angleControl_"<<angleControl_.size()
+		<< " and nbOfJoints"<<(unsigned int)nbOfJoints_
+		<< " are different !"
                 << std::endl;
       exit(-1);
     }

@@ -15,7 +15,7 @@ namespace dynamicgraph
   /// the robot_description parameter or a specified file and build
   /// a Dynamic entity
   ///
-  /// This relies on jrl_dynamics_urdf to load the model and jrl-dynamics
+  /// This relies on pinocchio urdf parser to load the model and pinocchio
   /// to realize the computation.
   class RosRobotModel : public sot::Dynamic
   {
@@ -35,9 +35,11 @@ namespace dynamicgraph
 
     unsigned getDimension () const
     {
-      if (!m_HDR)
+      if (!m_data)
 	throw std::runtime_error ("no robot loaded");
-      return m_HDR->numberDof();
+      //TODO: Configuration vector dimension or the dof?
+      return m_model.nv;
+      //return m_model.nq;
     }
 
 
