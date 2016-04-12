@@ -77,7 +77,7 @@ void RosRobotModel::loadUrdf (const std::string& filename)
   
   XmlRpc::XmlRpcValue JointsNamesByRank_;
   JointsNamesByRank_.setSize(m_model.names.size());
-  std::vector<std::string>::const_iterator it = m_model.names.begin();
+  std::vector<std::string>::const_iterator it = m_model.names.begin()+1; //the first name is universe
   for (int i=0;it!=m_model.names.end();++it, ++i)  JointsNamesByRank_[i]= (*it);
   nh.setParam(jointsParameterName_, JointsNamesByRank_);
 }
@@ -123,29 +123,7 @@ void RosRobotModel::loadFromParameterServer()
     for (int i=0;it!=m_model.names.end();++it, ++i) JointsNamesByRank_[i]= (*it);
     nh.setParam(jointsParameterName_, JointsNamesByRank_);
 }
-  /*  
-namespace
-{
 
-vectorN convertVector(const ml::Vector& v)
-{
-    vectorN res (v.size());
-    for (unsigned i = 0; i < v.size(); ++i)
-        res[i] = v(i);
-    return res;
-}
-
-ml::Vector convertVector(const vectorN& v)
-{
-    ml::Vector res;
-    res.resize((unsigned int)v.size());
-    for (unsigned i = 0; i < v.size(); ++i)
-        res(i) = v[i];
-    return res;
-}
-
-} // end of anonymous namespace.
-*/
 Vector RosRobotModel::curConf() const
 {
 

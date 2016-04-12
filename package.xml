@@ -1,6 +1,6 @@
 <package>
   <name>dynamic_graph_bridge</name>
-  <version>2.0.0</version>
+  <version>3.0.0</version>
   <description>
 
      ROS bindings for dynamic graph.

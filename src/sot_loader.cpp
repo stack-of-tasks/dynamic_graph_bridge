@@ -221,7 +221,6 @@ SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
                 << std::endl;
       exit(-1);
     }
-
   // Publish the data.
   joint_state_.header.stamp = ros::Time::now();  
   for(int i=0;i<nbOfJoints_;i++)
@@ -235,7 +234,6 @@ SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
     }
 
   joint_pub_.publish(joint_state_);  
-
   
 }
 
