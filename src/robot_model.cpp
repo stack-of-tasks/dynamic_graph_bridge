@@ -77,7 +77,7 @@ void RosRobotModel::loadUrdf (const std::string& filename)
   
   XmlRpc::XmlRpcValue JointsNamesByRank_;
   JointsNamesByRank_.setSize(m_model.names.size());
-  std::vector<std::string>::const_iterator it = m_model.names.begin()+1; //the first name is universe
+  std::vector<std::string>::const_iterator it = m_model.names.begin()+2; //first joint is universe, second is freeflyer
   for (int i=0;it!=m_model.names.end();++it, ++i)  JointsNamesByRank_[i]= (*it);
   nh.setParam(jointsParameterName_, JointsNamesByRank_);
 }
@@ -119,7 +119,7 @@ void RosRobotModel::loadFromParameterServer()
     
     XmlRpc::XmlRpcValue JointsNamesByRank_;
     JointsNamesByRank_.setSize(m_model.names.size());
-    std::vector<std::string>::const_iterator it = m_model.names.begin();
+    std::vector<std::string>::const_iterator it = m_model.names.begin()+2; //first joint is universe, second is freeflyer
     for (int i=0;it!=m_model.names.end();++it, ++i) JointsNamesByRank_[i]= (*it);
     nh.setParam(jointsParameterName_, JointsNamesByRank_);
 }
@@ -127,43 +127,38 @@ void RosRobotModel::loadFromParameterServer()
 Vector RosRobotModel::curConf() const
 {
 
-    // The first 6 dofs are associated to the Freeflyer frame
-    // Freeflyer reference frame should be the same as global
-    // frame so that operational point positions correspond to
-    // position in freeflyer frame.
-    XmlRpc::XmlRpcValue ffpose;
-    ros::NodeHandle nh(ns_);
-    std::string param_name = "ffpose";
-    if (nh.hasParam(param_name)){
-        nh.getParam(param_name, ffpose);
-        ROS_ASSERT(ffpose.getType() == XmlRpc::XmlRpcValue::TypeArray);
-        ROS_ASSERT(ffpose.size() == 6);
-        for (int32_t i = 0; i < ffpose.size(); ++i)
-        {
-            ROS_ASSERT(ffpose[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-        }
+  // The first 6 dofs are associated to the Freeflyer frame
+  // Freeflyer reference frame should be the same as global
+  // frame so that operational point positions correspond to
+  // position in freeflyer frame.
+  XmlRpc::XmlRpcValue ffpose;
+  ros::NodeHandle nh(ns_);
+  std::string param_name = "ffpose";
+  if (nh.hasParam(param_name)){
+    nh.getParam(param_name, ffpose);
+    ROS_ASSERT(ffpose.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    ROS_ASSERT(ffpose.size() == 6);
+    for (int32_t i = 0; i < ffpose.size(); ++i) {
+      ROS_ASSERT(ffpose[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
     }
-    else
-    {
-        ffpose.setSize(6);
-        for (int32_t i = 0; i < ffpose.size(); ++i)
-            ffpose[i] = 0.0;
-    }
+  }
+  else {
+    ffpose.setSize(6);
+    for (int32_t i = 0; i < ffpose.size(); ++i)  ffpose[i] = 0.0;
+  }
+  
+  if (!m_data )
+    throw std::runtime_error ("no robot loaded");
+  else {
+    //TODO: confirm accesscopy is for asynchronous commands
+    Vector currConf = jointPositionSIN.accessCopy();  
+    for (int32_t i = 0; i < ffpose.size(); ++i)
+      currConf(i) = static_cast<double>(ffpose[i]);
 
-    if (!m_data )
-        throw std::runtime_error ("no robot loaded");
-    else {
-      //TODO: confirm accesscopy is for asynchronous commands
-      Vector currConf = jointPositionSIN.accessCopy();
-      
-      for (int32_t i = 0; i < ffpose.size(); ++i)
-	currConf(i) = static_cast<double>(ffpose[i]);
-      
-      return currConf;
-     
-    }
+    return currConf;
+  }
 }
-
+  
 void
 RosRobotModel::addJointMapping(const std::string &link, const std::string &repName)
 {

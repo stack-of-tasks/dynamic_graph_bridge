@@ -36,6 +36,7 @@
 #include "ros/ros.h"
 #include "std_srvs/Empty.h"
 #include <sensor_msgs/JointState.h>
+#include <tf/transform_broadcaster.h>
 
 // Sot Framework includes 
 #include <sot/core/debug.hh>
@@ -100,6 +101,10 @@ protected:
   // Number of DOFs according to KDL.
   int nbOfJoints_;
   parallel_joints_to_state_vector_t::size_type nbOfParallelJoints_;
+
+  //Robot Pose Publisher
+  tf::TransformBroadcaster freeFlyerPublisher_;
+  tf::Transform freeFlyerPose_;
 
 
 public:

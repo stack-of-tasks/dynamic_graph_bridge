@@ -11,6 +11,7 @@ import sensor_msgs.msg
 frame = ''
 childFrame = ''
 
+#DEPRECATED. Robot Pose is already being published
 def pose_broadcaster(msg):
     translation = msg.position[0:3];
     rotation = tf.transformations.quaternion_from_euler(msg.position[3], msg.position[4], msg.position[5])
