@@ -1,6 +1,6 @@
 <package>
   <name>dynamic_graph_bridge</name>
-  <version>2.0.0</version>
+  <version>2.0.2</version>
   <description>
 
      ROS bindings for dynamic graph.
@@ -13,10 +13,6 @@
   <url>http://ros.org/wiki/dynamic_graph_bridge</url>
 
   <export>
-    <cpp
-       cflags="-I${prefix}/include"
-       lflags="-L${prefix}/lib -lros_bridge -lros_interpreter -Wl,-rpath,${prefix}/lib"
-       />
     <rosdoc config="rosdoc.yaml" />
   </export>
 
