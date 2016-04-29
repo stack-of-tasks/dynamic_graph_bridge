@@ -20,7 +20,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 
-#include "sot_loader.hh"
+#include <dynamic_graph_bridge/sot_loader.hh>
 
 boost::condition_variable cond;
 boost::mutex mut;
