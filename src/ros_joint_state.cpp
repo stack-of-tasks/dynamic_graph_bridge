@@ -172,7 +172,7 @@ namespace dynamicgraph
 	// Fill position.
 	jointState_.position.resize (s);
 	for (std::size_t i = 0; i < s; ++i)
-	  jointState_.position[i] = state_.access (t) (i);
+	  jointState_.position[i] = state_.access (t) ((unsigned int)i);
 
 	publisher_.msg_ = jointState_;
 	publisher_.unlockAndPublish ();

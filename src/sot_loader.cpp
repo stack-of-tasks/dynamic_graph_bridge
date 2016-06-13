@@ -21,13 +21,53 @@
 /* -------------------------------------------------------------------------- */
 
 #include <dynamic_graph_bridge/sot_loader.hh>
+#include "dynamic_graph_bridge/ros_init.hh"
 
 // POSIX.1-2001
 #include <dlfcn.h>
 
+#include <boost/thread/thread.hpp>
+#include <boost/thread/condition.hpp>
+
+boost::condition_variable cond;
+boost::mutex mut;
+
 using namespace std;
 using namespace dynamicgraph::sot; 
 namespace po = boost::program_options;
+
+void createRosSpin(SotLoader *aSotLoader)
+{
+  ROS_INFO("createRosSpin started\n");
+  ros::NodeHandle n;
+
+  ros::ServiceServer service = n.advertiseService("start_dynamic_graph",
+                                                  &SotLoader::start_dg,
+                                                  aSotLoader);
+
+  ros::ServiceServer service2 = n.advertiseService("stop_dynamic_graph",
+                                                  &SotLoader::stop_dg,
+                                                  aSotLoader);
+
+
+  ros::waitForShutdown();
+}
+
+void workThreadLoader(SotLoader *aSotLoader)
+{
+  while(aSotLoader->isDynamicGraphStopped())
+    {
+      usleep(5000);
+    }
+
+  while(!aSotLoader->isDynamicGraphStopped())
+    {
+      aSotLoader->oneIteration();
+      usleep(5000);
+    }
+  cond.notify_all();
+  ros::waitForShutdown();
+}
 
 SotLoader::SotLoader():
   dynamic_graph_stopped_(true),
@@ -47,13 +87,33 @@ SotLoader::SotLoader():
 
 int SotLoader::initPublication()
 {
-  ros::NodeHandle n;
-
+  ros::NodeHandle & n = dynamicgraph::rosInit(false);
+ 
 
   // Prepare message to be published
   joint_pub_ = n.advertise<sensor_msgs::JointState>("joint_states", 1);
 
   return 0;
+}
+
+void SotLoader::startControlLoop()
+{
+  boost::thread thr(workThreadLoader, this);
+}
+
+void SotLoader::initializeRosNode(int , char *[])
+{
+  ROS_INFO("Ready to start dynamic graph.");
+  boost::unique_lock<boost::mutex> lock(mut);
+  boost::thread thr2(createRosSpin,this);
+
+  startControlLoop();
+}   
+
+
+void SotLoader::setDynamicLibraryName(std::string &afilename)
+{
+  dynamicLibraryName_ = afilename;
 }
 
 int SotLoader::readSotVectorStateParam()

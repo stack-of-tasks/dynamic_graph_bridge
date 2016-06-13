@@ -32,7 +32,7 @@ namespace dynamicgraph {
   }
 
   ptime&
-  RosTime::update (ptime& time, const int& t)
+  RosTime::update (ptime& time, const int& )
   {
     time = rosTimeToPtime (ros::Time::now ());
     return time;

@@ -76,7 +76,7 @@ namespace dynamicgraph
 
   ROS_TO_SOT_IMPL(ml::Vector)
   {
-    dst.resize (src.data.size ());
+    dst.resize ((int)src.data.size ());
     for (unsigned i = 0; i < src.data.size (); ++i)
       dst.elementAt (i) =  src.data[i];
   }
@@ -115,7 +115,8 @@ namespace dynamicgraph
 
   ROS_TO_SOT_IMPL(ml::Matrix)
   {
-    dst.resize (src.width, src.data.size () / src.width);
+    dst.resize (src.width, (unsigned int) src.data.size () / 
+		(unsigned int)src.width);
     for (unsigned i = 0; i < src.data.size (); ++i)
       dst.elementAt (i) =  src.data[i];
   }
@@ -127,7 +128,7 @@ namespace dynamicgraph
     btQuaternion quaternion;
     for(unsigned i = 0; i < 3; ++i)
       for(unsigned j = 0; j < 3; ++j)
-	rotation[i][j] = src (i, j);
+	rotation[i][j] = (float)src (i, j);
     rotation.getRotation (quaternion);
 
     dst.translation.x = src (0, 3);
@@ -143,7 +144,8 @@ namespace dynamicgraph
   ROS_TO_SOT_IMPL(sot::MatrixHomogeneous)
   {
     btQuaternion quaternion
-      (src.rotation.x, src.rotation.y, src.rotation.z, src.rotation.w);
+      ((float)src.rotation.x,(float)src.rotation.y, 
+       (float)src.rotation.z,(float)src.rotation.w);
     btMatrix3x3 rotation (quaternion);
 
     // Copy the rotation component.
@@ -303,8 +305,9 @@ namespace dynamicgraph
     static ptime timeStart(date(1970,1,1));
     time_duration diff = time - timeStart;
 
-    uint32_t sec = diff.ticks ()/time_duration::rep_type::res_adjust ();
-    uint32_t nsec = diff.fractional_seconds();
+    uint32_t sec = (unsigned int)diff.ticks ()/
+      (unsigned int)time_duration::rep_type::res_adjust ();
+    uint32_t nsec = (unsigned int)diff.fractional_seconds();
 
     return ros::Time (sec, nsec);
   }
