@@ -87,7 +87,7 @@ set_target_properties(ros_bridge PROPERTIES BUILD_WITH_INSTALL_RPATH True
 macro(compile_plugin NAME)
   message(lib path ${LIBRARY_OUTPUT_PATH})
   file(MAKE_DIRECTORY "${LIBRARY_OUTPUT_PATH}/dynamic_graph/ros/${NAME}")
-  add_library(${NAME} src/${NAME}.cpp src/${NAME}.hh)
+  add_library(${NAME} SHARED src/${NAME}.cpp src/${NAME}.hh)
   pkg_config_use_dependency(${NAME} jrl-mal)
   pkg_config_use_dependency(${NAME} dynamic-graph)
   pkg_config_use_dependency(${NAME} sot-core)
@@ -96,7 +96,8 @@ macro(compile_plugin NAME)
   add_dependencies(${NAME} ros_bridge)
   target_link_libraries(${NAME} ros_bridge)
   set_target_properties(${NAME} PROPERTIES BUILD_WITH_INSTALL_RPATH True)
-  install(TARGETS ${NAME} DESTINATION lib)
+  set_target_properties(${NAME} PROPERTIES PREFIX "")
+  install(TARGETS ${NAME} DESTINATION lib/plugin)
   
 
   dynamic_graph_python_module("ros/${NAME}"
