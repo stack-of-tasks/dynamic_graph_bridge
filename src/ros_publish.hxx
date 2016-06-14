@@ -56,7 +56,6 @@ namespace dynamicgraph
   template <typename T>
   void RosPublish::add (const std::string& signal, const std::string& topic)
   {
-    typedef typename SotToRos<T>::sot_t sot_t;
     typedef typename SotToRos<T>::ros_t ros_t;
     typedef typename SotToRos<T>::signalIn_t signal_t;
 

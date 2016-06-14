@@ -117,8 +117,8 @@ namespace dynamicgraph
   
   ROS_TO_SOT_IMPL(Matrix)
   {
-    //TODO: Confirm Ros Matrix Storage order.
-    dst.resize (src.width, src.data.size () / src.width);
+    dst.resize (src.width, (unsigned int) src.data.size () / 
+		(unsigned int)src.width);
     for (unsigned i = 0; i < src.data.size (); ++i)
       dst.data()[i] =  src.data[i];
   }
@@ -126,6 +126,7 @@ namespace dynamicgraph
   // Homogeneous matrix.
   SOT_TO_ROS_IMPL(sot::MatrixHomogeneous)
   {
+
     sot::VectorQuaternion q(src.linear());
     dst.translation.x = src.translation()(0);
     dst.translation.y = src.translation()(1);
@@ -135,6 +136,7 @@ namespace dynamicgraph
     dst.rotation.y = q.y();
     dst.rotation.z = q.z();
     dst.rotation.w = q.w();
+
   }
 
   ROS_TO_SOT_IMPL(sot::MatrixHomogeneous)
@@ -297,8 +299,9 @@ namespace dynamicgraph
     static ptime timeStart(date(1970,1,1));
     time_duration diff = time - timeStart;
 
-    uint32_t sec = diff.ticks ()/time_duration::rep_type::res_adjust ();
-    uint32_t nsec = diff.fractional_seconds();
+    uint32_t sec = (unsigned int)diff.ticks ()/
+      (unsigned int)time_duration::rep_type::res_adjust ();
+    uint32_t nsec = (unsigned int)diff.fractional_seconds();
 
     return ros::Time (sec, nsec);
   }

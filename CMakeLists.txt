@@ -42,6 +42,7 @@ set(CUSTOM_HEADER_DIR dynamic_graph_bridge)
 set(${PROJECT_NAME}_HEADERS
   include/dynamic_graph_bridge/ros_init.hh
   include/dynamic_graph_bridge/ros_interpreter.hh
+  include/dynamic_graph_bridge/sot_loader.hh
   )
 SEARCH_FOR_EIGEN()
 SEARCH_FOR_BOOST()
@@ -98,9 +99,7 @@ set_target_properties(ros_bridge PROPERTIES BUILD_WITH_INSTALL_RPATH True
 macro(compile_plugin NAME)
   message(lib path ${LIBRARY_OUTPUT_PATH})
   file(MAKE_DIRECTORY "${LIBRARY_OUTPUT_PATH}/dynamic_graph/ros/${NAME}")
-  add_library(${NAME} src/${NAME}.cpp src/${NAME}.hh)
-  #pkg_config_use_dependency(${NAME} jrl-mal)
-  #kg_config_use_dependency(${NAME} eigen3)
+  add_library(${NAME} SHARED src/${NAME}.cpp src/${NAME}.hh)
   pkg_config_use_dependency(${NAME} dynamic-graph)
   pkg_config_use_dependency(${NAME} sot-core)
   #pkg_config_use_dependency(${NAME} jrl-dynamics-urdf)
@@ -108,7 +107,8 @@ macro(compile_plugin NAME)
   add_dependencies(${NAME} ros_bridge)
   target_link_libraries(${NAME} ros_bridge)
   set_target_properties(${NAME} PROPERTIES BUILD_WITH_INSTALL_RPATH True)
-  install(TARGETS ${NAME} DESTINATION lib)
+  set_target_properties(${NAME} PROPERTIES PREFIX "")
+  install(TARGETS ${NAME} DESTINATION lib/plugin)
   
 
   dynamic_graph_python_module("ros/${NAME}"
@@ -165,7 +165,14 @@ pkg_config_use_dependency(interpreter dynamic_graph_bridge_msgs)
 # Stand alone embedded intepreter with a robot controller.
 add_executable(geometric_simu src/geometric_simu.cpp src/sot_loader.cpp)
 pkg_config_use_dependency(geometric_simu roscpp)
-target_link_libraries(geometric_simu  ros_bridge ${Boost_LIBRARIES} dl tf)
+target_link_libraries(geometric_simu  ros_bridge ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
+
+# Sot loader library
+add_library(sot_loader src/sot_loader.cpp)
+pkg_config_use_dependency(sot_loader dynamic-graph)
+pkg_config_use_dependency(sot_loader sot-core)
+target_link_libraries(sot_loader ${Boost_LIBRARIES})
+install(TARGETS sot_loader DESTINATION lib)
 
 add_subdirectory(src)
 
