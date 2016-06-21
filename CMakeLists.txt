@@ -60,6 +60,7 @@ set(PKG_CONFIG_ADDITIONAL_VARIABLES
   )
 
 add_required_dependency(roscpp)
+add_required_dependency(tf)
 add_required_dependency("realtime_tools >= 1.8")
 add_required_dependency(bullet)
 ADD_REQUIRED_DEPENDENCY("pinocchio")
@@ -164,8 +165,8 @@ pkg_config_use_dependency(interpreter dynamic_graph_bridge_msgs)
 
 # Stand alone embedded intepreter with a robot controller.
 add_executable(geometric_simu src/geometric_simu.cpp src/sot_loader.cpp)
-pkg_config_use_dependency(geometric_simu roscpp)
-target_link_libraries(geometric_simu  ros_bridge ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
+pkg_config_use_dependency(geometric_simu roscpp tf)
+target_link_libraries(geometric_simu ros_bridge tf ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
 
 # Sot loader library
 add_library(sot_loader src/sot_loader.cpp)
