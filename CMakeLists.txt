@@ -37,6 +37,7 @@ set(${PROJECT_NAME}_HEADERS
   include/dynamic_graph_bridge/ros_init.hh
   include/dynamic_graph_bridge/ros_interpreter.hh
   include/dynamic_graph_bridge/sot_loader.hh
+  include/dynamic_graph_bridge/sot_loader_basic.hh
   )
 include(cmake/base.cmake)
 include(cmake/ros.cmake)
@@ -151,15 +152,15 @@ pkg_config_use_dependency(interpreter dynamic_graph_bridge_msgs)
 #install(TARGETS interpreter DESTINATION bin)
 
 # Stand alone embedded intepreter with a robot controller.
-add_executable(geometric_simu src/geometric_simu.cpp src/sot_loader.cpp)
+add_executable(geometric_simu src/geometric_simu.cpp src/sot_loader.cpp src/sot_loader_basic.cpp)
 pkg_config_use_dependency(geometric_simu roscpp)
 target_link_libraries(geometric_simu  ros_bridge ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
 
 # Sot loader library
-add_library(sot_loader src/sot_loader.cpp)
+add_library(sot_loader src/sot_loader.cpp src/sot_loader_basic.cpp)
 pkg_config_use_dependency(sot_loader dynamic-graph)
 pkg_config_use_dependency(sot_loader sot-core)
-target_link_libraries(sot_loader ${Boost_LIBRARIES})
+target_link_libraries(sot_loader ${Boost_LIBRARIES} roscpp)
 install(TARGETS sot_loader DESTINATION lib)
 
 
