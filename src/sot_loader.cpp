@@ -73,7 +73,11 @@ void SotLoader::startControlLoop()
   boost::thread thr(workThreadLoader, this);
 }
 
-
+void SotLoader::initializeRosNode(int argc, char *argv[])
+{
+  SotLoaderBasic::initializeRosNode(argc, argv);
+  startControlLoop();
+}
 
 void 
 SotLoader::fillSensors(map<string,dgs::SensorValues> & sensorsIn)

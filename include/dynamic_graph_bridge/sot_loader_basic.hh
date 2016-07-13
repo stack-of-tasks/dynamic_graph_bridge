@@ -93,8 +93,8 @@ public:
   void Initialization();
 
   // \brief Create a thread for ROS.
-  void initializeRosNode(int argc, char *argv[]);
-
+  virtual void initializeRosNode(int argc, char *argv[]);
+  
 
   // \brief Callback function when starting dynamic graph.
   bool start_dg(std_srvs::Empty::Request& request, 

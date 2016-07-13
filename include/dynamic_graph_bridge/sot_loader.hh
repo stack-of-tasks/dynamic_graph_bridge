@@ -89,6 +89,8 @@ public:
   SotLoader();
   ~SotLoader() {};
 
+  // \brief Create a thread for ROS and start the control loop.
+  void initializeRosNode(int argc, char *argv[]);
 
   // \brief Compute one iteration of control.
   // Basically calls fillSensors, the SoT and the readControl.
