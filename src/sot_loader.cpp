@@ -76,6 +76,7 @@ void SotLoader::startControlLoop()
 void SotLoader::initializeRosNode(int argc, char *argv[])
 {
   SotLoaderBasic::initializeRosNode(argc, argv);
+  angleEncoder_.resize(nbOfJoints_);
   startControlLoop();
 }
 
@@ -125,7 +126,6 @@ SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
 
 void SotLoader::setup()
 {
-  angleEncoder_.resize(nbOfJoints_);
   
   fillSensors(sensorsIn_);
   sotController_->setupSetSensors(sensorsIn_);
