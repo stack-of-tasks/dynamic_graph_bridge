@@ -36,21 +36,21 @@ namespace dynamicgraph
 }
 
     namespace {
-      void  buildJointNames (sensor_msgs::JointState& jointState, se3::Model& robot_model) {
-	for (int i=0;i<robot_model.nbody-1;i++) {	  
+      void  buildJointNames (sensor_msgs::JointState& jointState, se3::Model* robot_model) {
+	for (int i=0;i<robot_model->nbody-1;i++) {
 	  // Ignore anchors.
-	  if (se3::nv(robot_model.joints[i]) != 0) {
+	  if (se3::nv(robot_model->joints[i]) != 0) {
 	    // If we only have one dof, the dof name is the joint name.
-	    if (se3::nv(robot_model.joints[i]) == 1) {
-	      jointState.name[i] =  robot_model.names[i];
+	    if (se3::nv(robot_model->joints[i]) == 1) {
+	      jointState.name[i] =  robot_model->names[i];
 	    }
 	    else {
 	      // ...otherwise, the dof name is the joint name on which
 	      // the dof id is appended.
-	      int joint_dof = se3::nv(robot_model.joints[i]);
+	      int joint_dof = se3::nv(robot_model->joints[i]);
 	      for(int j = 0; j<joint_dof; j++) {
 		boost::format fmt("%1%_%2%");
-		fmt % robot_model.names[i];
+		fmt % robot_model->names[i];
 		fmt % j;
 		jointState.name[i + j] =  fmt.str();
 	      }
@@ -82,14 +82,14 @@ namespace dynamicgraph
 	  return Value ();
 	}
 
-      se3::Model& robot_model = dynamic->m_model;
-      if (robot_model.nbody == 1)
+      se3::Model* robot_model = dynamic->m_model;
+      if (robot_model->nbody == 1)
 	{
 	  std::cerr << "no robot in the dynamic entity" << std::endl;
 	  return Value ();
 	}
 
-      entity.jointState ().name.resize (robot_model.nv);
+      entity.jointState ().name.resize (robot_model->nv);
       buildJointNames (entity.jointState (), robot_model);
       return Value ();
     }

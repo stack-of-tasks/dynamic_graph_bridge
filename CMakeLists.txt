@@ -132,7 +132,7 @@ compile_plugin(ros_joint_state)
 
 target_link_libraries(ros_joint_state "${DYNAMIC_GRAPH_PLUGINDIR}/dynamic.so")
 
-compile_plugin(robot_model)
+#compile_plugin(robot_model)
 
 # ros_interperter library.
 add_library(ros_interpreter src/ros_interpreter.cpp)

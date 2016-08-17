@@ -58,13 +58,6 @@ RosRobotModel::~RosRobotModel()
 
 void RosRobotModel::loadUrdf (const std::string& filename)
 {
-  // jrl::dynamics::urdf::Parser parser;
-
-  //TODO: Specific rep name. link them to the operational frames in pinocchio
-  //  std::map<std::string, std::string>::const_iterator it = specialJoints_.begin();
-  //  for (;it!=specialJoints_.end();++it) {
-  //    parser.specifyREPName(it->first, it->second);
-  //  }
   rosInit (false);
   m_model = se3::urdf::buildModel(filename);
   this->m_urdfPath = filename;
@@ -89,13 +82,6 @@ void RosRobotModel::setNamespace (const std::string& ns)
 
 void RosRobotModel::loadFromParameterServer()
 {
-  //jrl::dynamics::urdf::Parser parser;
-
-  //TODO: Specific rep name. link them to the operational frames in pinocchio
-  //    std::map<std::string, std::string>::const_iterator it = specialJoints_.begin();
-  //    for (;it!=specialJoints_.end();++it) {
-  //        parser.specifyREPName(it->first, it->second);
-  //    }
     rosInit (false);
     std::string robotDescription;
     ros::param::param<std::string> ("/robot_description", robotDescription, "");
@@ -119,7 +105,8 @@ void RosRobotModel::loadFromParameterServer()
     
     XmlRpc::XmlRpcValue JointsNamesByRank_;
     JointsNamesByRank_.setSize(m_model.names.size());
-    std::vector<std::string>::const_iterator it = m_model.names.begin()+2; //first joint is universe, second is freeflyer
+    //first joint is universe, second is freeflyer
+    std::vector<std::string>::const_iterator it = m_model.names.begin()+2;
     for (int i=0;it!=m_model.names.end();++it, ++i) JointsNamesByRank_[i]= (*it);
     nh.setParam(jointsParameterName_, JointsNamesByRank_);
 }
@@ -151,7 +138,7 @@ Vector RosRobotModel::curConf() const
     throw std::runtime_error ("no robot loaded");
   else {
     //TODO: confirm accesscopy is for asynchronous commands
-    Vector currConf = jointPositionSIN.accessCopy();  
+    Vector currConf = jointPositionSIN.accessCopy();
     for (int32_t i = 0; i < ffpose.size(); ++i)
       currConf(i) = static_cast<double>(ffpose[i]);
 
