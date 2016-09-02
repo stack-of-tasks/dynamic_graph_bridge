@@ -11,8 +11,8 @@ from ros import RosSubscribe as RosExport
 
 
 class RosRobotModel(Dynamic):
-    def __init__(self):
-        Dynamic.__init__(self)
+    def __init__(self, name):
+        Dynamic.__init__(self, name)
         self.namespace = "sot_controller"
         self.jointsParameterName_ = "jrl_map"
 
