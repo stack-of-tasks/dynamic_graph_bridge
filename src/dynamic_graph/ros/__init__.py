@@ -9,7 +9,6 @@ from ros import Ros
 from ros import RosPublish as RosImport
 from ros import RosSubscribe as RosExport
 
-import rospy
 
 class RosRobotModel(Dynamic):
     def __init__(self):
@@ -18,6 +17,7 @@ class RosRobotModel(Dynamic):
         self.jointsParameterName_ = "jrl_map"
 
     def setJointsNamesParameter(self):
+        import rospy
         if self.model is not None:
             parameter_name = self.namespace + "/" + jointsParameterName_
             jointsName = []
