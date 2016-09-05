@@ -37,12 +37,14 @@ namespace dynamicgraph
 
     namespace {
       void  buildJointNames (sensor_msgs::JointState& jointState, se3::Model* robot_model) {
-	for (int i=0;i<robot_model->nbody-1;i++) {
+	int cnt = 0;
+	for (int i=1;i<robot_model.nbody;i++) {
 	  // Ignore anchors.
 	  if (se3::nv(robot_model->joints[i]) != 0) {
 	    // If we only have one dof, the dof name is the joint name.
 	    if (se3::nv(robot_model->joints[i]) == 1) {
-	      jointState.name[i] =  robot_model->names[i];
+	      jointState.name[cnt] =  robot_model.names[i];
+	      cnt++;
 	    }
 	    else {
 	      // ...otherwise, the dof name is the joint name on which
@@ -52,8 +54,9 @@ namespace dynamicgraph
 		boost::format fmt("%1%_%2%");
 		fmt % robot_model->names[i];
 		fmt % j;
-		jointState.name[i + j] =  fmt.str();
+		jointState.name[cnt + j] =  fmt.str();
 	      }
+	      cnt+=joint_dof;
 	    }
 	  }
 	}
