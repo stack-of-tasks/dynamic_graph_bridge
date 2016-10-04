@@ -58,6 +58,9 @@ set(PKG_CONFIG_ADDITIONAL_VARIABLES
 
 # Add dependency to SoT specific packages.
 SET(SOT_PKGNAMES
+jrl-mal
+dynamic-graph
+dynamic-graph-python
 sot-core
 sot-dynamic
 jrl-dynamics-urdf
