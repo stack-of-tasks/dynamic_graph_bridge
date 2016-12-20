@@ -77,22 +77,22 @@ namespace dynamicgraph
 	else if (type == "unsigned")
 	  entity.add<unsigned int> (signal, topic);
 	else if (type == "matrix")
-	  entity.add<ml::Matrix> (signal, topic);
+	  entity.add<dg::Matrix> (signal, topic);
 	else if (type == "vector")
-	  entity.add<ml::Vector> (signal, topic);
+	  entity.add<dg::Vector> (signal, topic);
 	else if (type == "vector3")
 	  entity.add<specific::Vector3> (signal, topic);
 	else if (type == "vector3Stamped")
-	  entity.add<std::pair<specific::Vector3, ml::Vector> > (signal, topic);
+	  entity.add<std::pair<specific::Vector3, dg::Vector> > (signal, topic);
 	else if (type == "matrixHomo")
 	  entity.add<sot::MatrixHomogeneous> (signal, topic);
 	else if (type == "matrixHomoStamped")
-	  entity.add<std::pair<sot::MatrixHomogeneous, ml::Vector> >
+	  entity.add<std::pair<sot::MatrixHomogeneous, dg::Vector> >
 	    (signal, topic);
 	else if (type == "twist")
 	  entity.add<specific::Twist> (signal, topic);
 	else if (type == "twistStamped")
-	  entity.add<std::pair<specific::Twist, ml::Vector> >
+	  entity.add<std::pair<specific::Twist, dg::Vector> >
 	    (signal, topic);
 	else
 	  throw std::runtime_error("bad type");

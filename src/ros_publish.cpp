@@ -13,6 +13,7 @@
 
 #include <dynamic-graph/factory.h>
 #include <dynamic-graph/command.h>
+#include <dynamic-graph/linear-algebra.h>
 
 #include "dynamic_graph_bridge/ros_init.hh"
 #include "ros_publish.hh"
@@ -82,22 +83,22 @@ namespace dynamicgraph
 	else if (type == "unsigned")
 	  entity.add<unsigned int> (signal, topic);
 	else if (type == "matrix")
-	  entity.add<ml::Matrix> (signal, topic);
+	  entity.add<Matrix> (signal, topic);
 	else if (type == "vector")
-	  entity.add<ml::Vector> (signal, topic);
+	  entity.add<Vector> (signal, topic);
 	else if (type == "vector3")
 	  entity.add<specific::Vector3> (signal, topic);
 	else if (type == "vector3Stamped")
-	  entity.add<std::pair<specific::Vector3, ml::Vector> > (signal, topic);
+	  entity.add<std::pair<specific::Vector3, Vector> > (signal, topic);
 	else if (type == "matrixHomo")
 	  entity.add<sot::MatrixHomogeneous> (signal, topic);
 	else if (type == "matrixHomoStamped")
-	  entity.add<std::pair<sot::MatrixHomogeneous, ml::Vector> >
+	  entity.add<std::pair<sot::MatrixHomogeneous, Vector> >
 	    (signal, topic);
 	else if (type == "twist")
 	  entity.add<specific::Twist> (signal, topic);
 	else if (type == "twistStamped")
-	  entity.add<std::pair<specific::Twist, ml::Vector> > (signal, topic);
+	  entity.add<std::pair<specific::Twist, Vector> > (signal, topic);
 	else
 	  throw std::runtime_error("bad type");
 	return Value ();
@@ -109,7 +110,8 @@ namespace dynamicgraph
 	  (entity,
 	   boost::assign::list_of (Value::STRING),
 	   docstring)
-      {}
+      {
+}
 
       Value Rm::doExecute ()
       {
@@ -139,6 +141,7 @@ namespace dynamicgraph
       rate_ (ROS_JOINT_STATE_PUBLISHER_RATE),
       lastPublicated_ ()
   {
+
     try {
       lastPublicated_ = ros::Time::now ();
     } catch (const std::exception& exc) {

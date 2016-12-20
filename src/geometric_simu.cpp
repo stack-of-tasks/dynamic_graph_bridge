@@ -25,9 +25,7 @@
 
 int main(int argc, char *argv[])
 {
-  
   ros::init(argc, argv, "sot_ros_encapsulator");
-
   SotLoader aSotLoader;
   if (aSotLoader.parseOptions(argc,argv)<0)
     return -1;
@@ -37,5 +35,5 @@ int main(int argc, char *argv[])
   while(true){
     usleep(5000);
   }
-  
+ 
 }

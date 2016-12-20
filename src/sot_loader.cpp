@@ -99,14 +99,28 @@ SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
   // Update joint values.
   angleControl_ = controlValues["joints"].getValues();
 
+  //Debug
+  std::map<std::string,dgs::ControlValues>::iterator it = controlValues.begin();
+  sotDEBUG (30)<<"ControlValues to be broadcasted:"<<std::endl;
+  for(;it!=controlValues.end(); it++){
+    sotDEBUG (30)<<it->first<<":";
+    std::vector<double> ctrlValues_ = it->second.getValues();
+    std::vector<double>::iterator it_d = ctrlValues_.begin();
+    for(;it_d!=ctrlValues_.end();it_d++) sotDEBUG (30)<<*it_d<<" ";
+    sotDEBUG (30)<<std::endl;
+  }
+  sotDEBUG (30)<<"End ControlValues"<<std::endl;
+
+
   // Check if the size if coherent with the robot description.
   if (angleControl_.size()!=(unsigned int)nbOfJoints_)
     {
-      std::cerr << " angleControl_ and nbOfJoints are different !"
+      std::cerr << " angleControl_"<<angleControl_.size()
+		<< " and nbOfJoints"<<(unsigned int)nbOfJoints_
+		<< " are different !"
                 << std::endl;
       exit(-1);
     }
-
   // Publish the data.
   joint_state_.header.stamp = ros::Time::now();  
   for(int i=0;i<nbOfJoints_;i++)
@@ -119,8 +133,25 @@ SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
         coefficient_parallel_joints_[i]*angleControl_[parallel_joints_to_state_vector_[i]];
     }
 
-  joint_pub_.publish(joint_state_);  
+  joint_pub_.publish(joint_state_);
 
+  //Publish robot pose
+  //get the robot pose values
+  std::vector<double> poseValue_ = controlValues["baseff"].getValues();
+
+  freeFlyerPose_.setOrigin(tf::Vector3(poseValue_[0],
+				       poseValue_[1],
+				       poseValue_[2]));
+  tf::Quaternion poseQ_(poseValue_[4],
+			poseValue_[5],
+			poseValue_[6],
+			poseValue_[3]);
+  freeFlyerPose_.setRotation(poseQ_);
+  //Publish
+  freeFlyerPublisher_.sendTransform(tf::StampedTransform(freeFlyerPose_,
+							 ros::Time::now(),
+							 "odom",
+							 "base_link"));
   
 }
 

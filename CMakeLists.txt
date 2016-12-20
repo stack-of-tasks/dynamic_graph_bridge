@@ -17,14 +17,20 @@
 
 # Catkin part
 
+
 cmake_minimum_required(VERSION 2.4.6)
+
+include(cmake/base.cmake)
+INCLUDE(cmake/boost.cmake)
+INCLUDE(cmake/eigen.cmake)
+include(cmake/ros.cmake)
+include(cmake/GNUInstallDirs.cmake)
+include(cmake/python.cmake)
 
 project(dynamic_graph_bridge)
 
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf)
 find_package(realtime_tools)
-find_package(Boost REQUIRED COMPONENTS program_options)
-
 
 ## LAAS cmake submodule part
 set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
@@ -39,10 +45,8 @@ set(${PROJECT_NAME}_HEADERS
   include/dynamic_graph_bridge/sot_loader.hh
   include/dynamic_graph_bridge/sot_loader_basic.hh
   )
-include(cmake/base.cmake)
-include(cmake/ros.cmake)
-include(cmake/GNUInstallDirs.cmake)
-include(cmake/python.cmake)
+SEARCH_FOR_EIGEN()
+SEARCH_FOR_BOOST()
 
 SETUP_PROJECT()
 
@@ -67,8 +71,23 @@ jrl-dynamics-urdf
 dynamic_graph_bridge_msgs)
 
 add_required_dependency(roscpp)
+add_required_dependency(tf)
 add_required_dependency("realtime_tools >= 1.8")
 add_required_dependency(bullet)
+ADD_REQUIRED_DEPENDENCY("pinocchio")
+ADD_REQUIRED_DEPENDENCY("dynamic-graph >= 3.0.0")
+ADD_REQUIRED_DEPENDENCY("dynamic-graph-python >= 3.0.0")
+ADD_REQUIRED_DEPENDENCY("sot-core >= 3.0.0")
+ADD_REQUIRED_DEPENDENCY("sot-tools >= 2.0.0")
+ADD_REQUIRED_DEPENDENCY("sot-dynamic >= 3.1.0")
+#add_required_dependency(jrl-mal)
+#add_required_dependency(dynamic-graph)
+#add_required_dependency(dynamic-graph-python)
+#add_required_dependency(sot-core)
+#add_required_dependency(sot-dynamic)
+#add_required_dependency(jrl-dynamics-urdf)
+
+add_required_dependency(dynamic_graph_bridge_msgs)
 
 foreach(sot_pkgname ${SOT_PKGNAMES})
   add_required_dependency(${sot_pkgname})
@@ -82,7 +101,8 @@ add_library(ros_bridge
   include/dynamic_graph_bridge/ros_init.hh src/ros_init.cpp
   src/sot_to_ros.hh src/sot_to_ros.cpp
   )
-pkg_config_use_dependency(ros_bridge jrl-mal)
+#pkg_config_use_dependency(ros_bridge jrl-mal)
+#PKG_CONFIG_USE_COMPILE_DEPENDENCY(ros_bridge eigen3)
 pkg_config_use_dependency(ros_bridge bullet)
 pkg_config_use_dependency(ros_bridge dynamic_graph_bridge_msgs)
 install(TARGETS ros_bridge DESTINATION lib)
@@ -99,10 +119,9 @@ macro(compile_plugin NAME)
   message(lib path ${LIBRARY_OUTPUT_PATH})
   file(MAKE_DIRECTORY "${LIBRARY_OUTPUT_PATH}/dynamic_graph/ros/${NAME}")
   add_library(${NAME} SHARED src/${NAME}.cpp src/${NAME}.hh)
-  pkg_config_use_dependency(${NAME} jrl-mal)
   pkg_config_use_dependency(${NAME} dynamic-graph)
   pkg_config_use_dependency(${NAME} sot-core)
-  pkg_config_use_dependency(${NAME} jrl-dynamics-urdf)
+  #pkg_config_use_dependency(${NAME} jrl-dynamics-urdf)
   pkg_config_use_dependency(${NAME} dynamic_graph_bridge_msgs)
   add_dependencies(${NAME} ros_bridge)
   target_link_libraries(${NAME} ros_bridge)
@@ -117,13 +136,14 @@ macro(compile_plugin NAME)
     )
 
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap realtime_tools)
-  PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap jrl-mal)
+  #KG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap eigen3)
+  #PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap jrl-mal)
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph)
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap sot-core)
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph_bridge_msgs)
 endmacro()
 
-include(cmake/python.cmake)
+#include(cmake/python.cmake)
 
 # Build Sot Entities
 compile_plugin(ros_publish)
@@ -133,11 +153,12 @@ compile_plugin(ros_joint_state)
 
 target_link_libraries(ros_joint_state "${DYNAMIC_GRAPH_PLUGINDIR}/dynamic.so")
 
-compile_plugin(robot_model)
+#compile_plugin(robot_model)
 
 # ros_interperter library.
 add_library(ros_interpreter src/ros_interpreter.cpp)
-pkg_config_use_dependency(ros_interpreter jrl-mal)
+#kg_config_use_dependency(ros_interpreter eigen3)
+#pkg_config_use_dependency(ros_interpreter jrl-mal)
 pkg_config_use_dependency(ros_interpreter dynamic-graph)
 pkg_config_use_dependency(ros_interpreter sot-core)
 pkg_config_use_dependency(ros_interpreter roscpp)
@@ -154,7 +175,8 @@ install(TARGETS ros_interpreter DESTINATION lib)
 add_executable(interpreter src/interpreter.cpp)
 add_dependencies(interpreter ros_interpreter)
 target_link_libraries(interpreter ros_interpreter)
-pkg_config_use_dependency(interpreter jrl-mal)
+#kg_config_use_dependency(interpreter eigen3)
+#pkg_config_use_dependency(interpreter jrl-mal)
 pkg_config_use_dependency(interpreter dynamic-graph)
 pkg_config_use_dependency(interpreter sot-core)
 pkg_config_use_dependency(interpreter sot-dynamic)
@@ -164,8 +186,8 @@ pkg_config_use_dependency(interpreter dynamic_graph_bridge_msgs)
 
 # Stand alone embedded intepreter with a robot controller.
 add_executable(geometric_simu src/geometric_simu.cpp src/sot_loader.cpp src/sot_loader_basic.cpp)
-pkg_config_use_dependency(geometric_simu roscpp)
-target_link_libraries(geometric_simu  ros_bridge ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
+pkg_config_use_dependency(geometric_simu roscpp tf)
+target_link_libraries(geometric_simu  ros_bridge tf ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
 
 # Sot loader library
 add_library(sot_loader src/sot_loader.cpp src/sot_loader_basic.cpp)
@@ -173,7 +195,6 @@ pkg_config_use_dependency(sot_loader dynamic-graph)
 pkg_config_use_dependency(sot_loader sot-core)
 target_link_libraries(sot_loader ${Boost_LIBRARIES} roscpp)
 install(TARGETS sot_loader DESTINATION lib)
-
 
 add_subdirectory(src)
 

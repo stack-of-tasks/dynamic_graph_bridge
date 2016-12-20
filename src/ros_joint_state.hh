@@ -19,7 +19,7 @@ namespace dynamicgraph
     DYNAMIC_GRAPH_ENTITY_DECL();
   public:
     /// \brief Vector input signal.
-    typedef SignalPtr<ml::Vector, int> signalVectorIn_t;
+    typedef SignalPtr<Vector, int> signalVectorIn_t;
 
     static const double ROS_JOINT_STATE_PUBLISHER_RATE;
 

@@ -4,14 +4,14 @@
 # include <boost/bind.hpp>
 # include <boost/date_time/posix_time/posix_time.hpp>
 # include <dynamic-graph/signal-caster.h>
+# include <dynamic-graph/linear-algebra.h>
 # include <dynamic-graph/signal-cast-helper.h>
-# include <jrl/mal/boost.hh>
 # include <std_msgs/Float64.h>
 # include "dynamic_graph_bridge_msgs/Matrix.h"
 # include "dynamic_graph_bridge_msgs/Vector.h"
 # include "ros_time.hh"
 
-namespace ml = ::maal::boost;
+namespace dg = dynamicgraph;
 
 namespace dynamicgraph
 {
@@ -79,13 +79,13 @@ namespace dynamicgraph
     };
 
     template <typename T>
-    struct Add<std::pair<T, ml::Vector> >
+    struct Add<std::pair<T, dg::Vector> >
     {
       void operator () (RosSubscribe& RosSubscribe,
 			const std::string& signal,
 			const std::string& topic)
       {
-	typedef std::pair<T, ml::Vector> type_t;
+	typedef std::pair<T, dg::Vector> type_t;
 
 	typedef typename SotToRos<type_t>::sot_t sot_t;
 	typedef typename SotToRos<type_t>::ros_const_ptr_t ros_const_ptr_t;
