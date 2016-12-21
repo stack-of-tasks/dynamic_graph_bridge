@@ -5,7 +5,7 @@
 #include <dynamic-graph/command.h>
 #include <dynamic-graph/factory.h>
 #include <dynamic-graph/pool.h>
-#include <sot-dynamic/dynamic.h>
+#include <sot-dynamic-pinocchio/dynamic-pinocchio.h>
 
 #include "dynamic_graph_bridge/ros_init.hh"
 #include "ros_joint_state.hh"
@@ -76,12 +76,12 @@ namespace dynamicgraph
 	  return Value ();
 	}
 
-      dynamicgraph::sot::Dynamic* dynamic =
-	dynamic_cast<dynamicgraph::sot::Dynamic*>
+      dynamicgraph::sot::DynamicPinocchio* dynamic =
+	dynamic_cast<dynamicgraph::sot::DynamicPinocchio*>
 	(&dynamicgraph::PoolStorage::getInstance ()->getEntity (name));
       if (!dynamic)
 	{
-	  std::cerr << "entity is not a Dynamic entity" << std::endl;
+	  std::cerr << "entity is not a DynamicPinocchio entity" << std::endl;
 	  return Value ();
 	}
 
