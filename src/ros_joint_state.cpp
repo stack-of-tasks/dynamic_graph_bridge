@@ -38,7 +38,7 @@ namespace dynamicgraph
     namespace {
       void  buildJointNames (sensor_msgs::JointState& jointState, se3::Model* robot_model) {
 	int cnt = 0;
-	for (int i=1;i<robot_model->nbodies;i++) {
+	for (int i=1;i<robot_model->njoints;i++) {
 	  // Ignore anchors.
 	  if (se3::nv(robot_model->joints[i]) != 0) {
 	    // If we only have one dof, the dof name is the joint name.
@@ -86,7 +86,7 @@ namespace dynamicgraph
 	}
 
       se3::Model* robot_model = dynamic->m_model;
-      if (robot_model->nbodies == 1)
+      if (robot_model->njoints == 1)
 	{
 	  std::cerr << "no robot in the dynamic entity" << std::endl;
 	  return Value ();
