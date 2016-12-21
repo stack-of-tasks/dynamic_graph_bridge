@@ -62,12 +62,6 @@ set(PKG_CONFIG_ADDITIONAL_VARIABLES
 
 # Add dependency to SoT specific packages.
 SET(SOT_PKGNAMES
-jrl-mal
-dynamic-graph
-dynamic-graph-python
-sot-core
-sot-dynamic
-jrl-dynamics-urdf
 dynamic_graph_bridge_msgs)
 
 add_required_dependency(roscpp)
@@ -77,15 +71,9 @@ add_required_dependency(bullet)
 ADD_REQUIRED_DEPENDENCY("pinocchio")
 ADD_REQUIRED_DEPENDENCY("dynamic-graph >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("dynamic-graph-python >= 3.0.0")
+ADD_REQUIRED_DEPENDENCY("sot-dynamic-pinocchio >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("sot-core >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("sot-tools >= 2.0.0")
-ADD_REQUIRED_DEPENDENCY("sot-dynamic >= 3.1.0")
-#add_required_dependency(jrl-mal)
-#add_required_dependency(dynamic-graph)
-#add_required_dependency(dynamic-graph-python)
-#add_required_dependency(sot-core)
-#add_required_dependency(sot-dynamic)
-#add_required_dependency(jrl-dynamics-urdf)
 
 add_required_dependency(dynamic_graph_bridge_msgs)
 
@@ -101,8 +89,6 @@ add_library(ros_bridge
   include/dynamic_graph_bridge/ros_init.hh src/ros_init.cpp
   src/sot_to_ros.hh src/sot_to_ros.cpp
   )
-#pkg_config_use_dependency(ros_bridge jrl-mal)
-#PKG_CONFIG_USE_COMPILE_DEPENDENCY(ros_bridge eigen3)
 pkg_config_use_dependency(ros_bridge bullet)
 pkg_config_use_dependency(ros_bridge dynamic_graph_bridge_msgs)
 install(TARGETS ros_bridge DESTINATION lib)
@@ -136,8 +122,6 @@ macro(compile_plugin NAME)
     )
 
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap realtime_tools)
-  #KG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap eigen3)
-  #PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap jrl-mal)
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph)
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap sot-core)
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph_bridge_msgs)
@@ -157,8 +141,6 @@ target_link_libraries(ros_joint_state "${DYNAMIC_GRAPH_PLUGINDIR}/dynamic.so")
 
 # ros_interperter library.
 add_library(ros_interpreter src/ros_interpreter.cpp)
-#kg_config_use_dependency(ros_interpreter eigen3)
-#pkg_config_use_dependency(ros_interpreter jrl-mal)
 pkg_config_use_dependency(ros_interpreter dynamic-graph)
 pkg_config_use_dependency(ros_interpreter sot-core)
 pkg_config_use_dependency(ros_interpreter roscpp)
@@ -175,11 +157,9 @@ install(TARGETS ros_interpreter DESTINATION lib)
 add_executable(interpreter src/interpreter.cpp)
 add_dependencies(interpreter ros_interpreter)
 target_link_libraries(interpreter ros_interpreter)
-#kg_config_use_dependency(interpreter eigen3)
-#pkg_config_use_dependency(interpreter jrl-mal)
 pkg_config_use_dependency(interpreter dynamic-graph)
 pkg_config_use_dependency(interpreter sot-core)
-pkg_config_use_dependency(interpreter sot-dynamic)
+pkg_config_use_dependency(interpreter sot-dynamic-pinocchio)
 pkg_config_use_dependency(interpreter dynamic_graph_bridge_msgs)
 # set_target_properties(interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
 #install(TARGETS interpreter DESTINATION bin)
