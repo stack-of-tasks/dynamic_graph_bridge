@@ -1,4 +1,4 @@
-from dynamic_graph.sot.dynamics import Dynamic
+from dynamic_graph.sot.dynamics_pinocchio import DynamicPinocchio
 from ros_publish import RosPublish
 from ros_subscribe import RosSubscribe
 from ros_joint_state import RosJointState
@@ -10,9 +10,9 @@ from ros import RosPublish as RosImport
 from ros import RosSubscribe as RosExport
 
 
-class RosRobotModel(Dynamic):
+class RosRobotModel(DynamicPinocchio):
     def __init__(self, name):
-        Dynamic.__init__(self, name)
+        DynamicPinocchio.__init__(self, name)
         self.namespace = "sot_controller"
         self.jointsParameterName_ = "jrl_map"
 
