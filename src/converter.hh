@@ -109,7 +109,7 @@ namespace dynamicgraph
   {
 
     //TODO: Confirm Ros Matrix Storage order. It changes the RosMatrix to ColMajor.
-    dst.width = src.rows ();
+    dst.width = (unsigned int)src.rows ();
     dst.data.resize (src.cols () * src.rows ());
     for (int i = 0; i < src.cols () * src.rows (); ++i)
       dst.data[i] =  src.data()[i];
