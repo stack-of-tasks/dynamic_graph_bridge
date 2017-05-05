@@ -1,6 +1,6 @@
 <package format="2">
   <name>dynamic_graph_bridge</name>
-  <version>3.0.4</version>
+  <version>3.0.6</version>
   <description>
 
      ROS bindings for dynamic graph.
@@ -27,7 +27,7 @@
   <depend>realtime_tools</depend>
   <depend>message_generation</depend>
   <depend>message_runtime</depend>
-  <depend>bullet</depend>
+  <depend>tf2_bullet</depend>
   <depend>dynamic-graph</depend>
   <depend>dynamic-graph-python</depend>
   <depend>sot-core</depend>

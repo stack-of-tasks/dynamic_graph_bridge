@@ -60,6 +60,8 @@ protected:
   po::variables_map vm_;
   std::string dynamicLibraryName_;
 
+  /// \brief Handle on the SoT library.
+  void * sotRobotControllerLibrary_;
 
   /// \brief Map between SoT state vector and some joint_state_links
   XmlRpc::XmlRpcValue stateVectorMap_;
@@ -89,8 +91,11 @@ public:
   // \brief Read user input to extract the path of the SoT dynamic library.
   int parseOptions(int argc, char *argv[]);
 
-  // \brief Load the SoT
+  /// \brief Load the SoT device corresponding to the robot.
   void Initialization();
+
+  /// \brief Unload the library which handles the robot device.
+  void CleanUp();
 
   // \brief Create a thread for ROS.
   virtual void initializeRosNode(int argc, char *argv[]);
