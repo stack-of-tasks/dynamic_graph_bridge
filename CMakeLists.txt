@@ -136,6 +136,7 @@ compile_plugin(ros_time)
 compile_plugin(ros_joint_state)
 
 target_link_libraries(ros_joint_state "${DYNAMIC_GRAPH_PLUGINDIR}/dp-dynamic.so")
+target_link_libraries(ros_publish ros_bridge)
 
 #compile_plugin(robot_model)
 
