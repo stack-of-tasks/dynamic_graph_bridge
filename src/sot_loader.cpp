@@ -76,15 +76,20 @@ void SotLoader::startControlLoop()
 void SotLoader::initializeRosNode(int argc, char *argv[])
 {
   SotLoaderBasic::initializeRosNode(argc, argv);
-  angleEncoder_.resize(nbOfJoints_);
+  //Temporary fix. TODO: where should nbOfJoints_ be initialized from?                         
+  if (ros::param::has("/sot/state_vector_map")) {
+    angleEncoder_.resize(nbOfJoints_);
+  }
+
   startControlLoop();
 }
 
 void 
 SotLoader::fillSensors(map<string,dgs::SensorValues> & sensorsIn)
 {
-  
   // Update joint values.w
+  assert(angleControl_.size() == angleEncoder_.size());
+
   sensorsIn["joints"].setName("angle");
   for(unsigned int i=0;i<angleControl_.size();i++)
     angleEncoder_[i] = angleControl_[i];
