@@ -9,7 +9,7 @@
 # include <dynamic-graph/signal-time-dependent.h>
 # include <dynamic-graph/signal-ptr.h>
 # include <dynamic-graph/command.h>
-# include <sot/core/matrix-homogeneous.hh>
+# include <sot/core/matrix-geometry.hh>
 
 # include <ros/ros.h>
 

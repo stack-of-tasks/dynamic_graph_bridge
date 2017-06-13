@@ -54,7 +54,8 @@ void createRosSpin(SotLoaderBasic *aSotLoaderBasic)
 
 
 SotLoaderBasic::SotLoaderBasic():
-  dynamic_graph_stopped_(true)
+  dynamic_graph_stopped_(true),
+  sotRobotControllerLibrary_(0)
 {
   readSotVectorStateParam();
   initPublication();
@@ -192,9 +193,9 @@ void SotLoaderBasic::Initialization()
 {
   
   // Load the SotRobotBipedController library.
-  void * SotRobotControllerLibrary = dlopen( dynamicLibraryName_.c_str(),
+  sotRobotControllerLibrary_ = dlopen( dynamicLibraryName_.c_str(),
                                              RTLD_LAZY | RTLD_GLOBAL );
-  if (!SotRobotControllerLibrary) {
+  if (!sotRobotControllerLibrary_) {
     std::cerr << "Cannot load library: " << dlerror() << '\n';
     return ;
   }
@@ -206,7 +207,7 @@ void SotLoaderBasic::Initialization()
   createSotExternalInterface_t * createSot =
     reinterpret_cast<createSotExternalInterface_t *> 
     (reinterpret_cast<long> 
-     (dlsym(SotRobotControllerLibrary, 
+     (dlsym(sotRobotControllerLibrary_, 
 	    "createSotExternalInterface")));
   const char* dlsym_error = dlerror();
   if (dlsym_error) {
@@ -217,6 +218,12 @@ void SotLoaderBasic::Initialization()
   // Create robot-controller
   sotController_ = createSot();
   cout <<"Went out from Initialization." << endl;
+}
+
+void SotLoaderBasic::CleanUp()
+{
+  /// Uncount the number of access to this library.
+  dlclose(sotRobotControllerLibrary_);
 }
 
 

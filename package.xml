@@ -1,6 +1,6 @@
 <package format="2">
   <name>dynamic_graph_bridge</name>
-  <version>2.0.9</version>
+  <version>3.0.6</version>
   <description>
 
      ROS bindings for dynamic graph.
@@ -27,13 +27,10 @@
   <depend>realtime_tools</depend>
   <depend>message_generation</depend>
   <depend>message_runtime</depend>
-
-  <depend>bullet</depend>
-  <depend>jrl-mal</depend>
+  <depend>tf2_bullet</depend>
   <depend>dynamic-graph</depend>
   <depend>dynamic-graph-python</depend>
   <depend>sot-core</depend>
-  <depend>sot-dynamic</depend>
-  <depend>jrl-dynamics-urdf</depend>
+  <depend>sot-dynamic-pinocchio</depend>
   <depend>dynamic_graph_bridge_msgs</depend>
 </package>

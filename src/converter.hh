@@ -67,18 +67,18 @@ namespace dynamicgraph
   }
 
   // Vector
-  SOT_TO_ROS_IMPL(ml::Vector)
+  SOT_TO_ROS_IMPL(Vector)
   {
     dst.data.resize (src.size ());
-    for (unsigned i = 0; i < src.size (); ++i)
-      dst.data[i] =  src.elementAt (i);
+    for (int i = 0; i < src.size (); ++i)
+      dst.data[i] =  src (i);
   }
 
-  ROS_TO_SOT_IMPL(ml::Vector)
+  ROS_TO_SOT_IMPL(Vector)
   {
-    dst.resize ((int)src.data.size ());
-    for (unsigned i = 0; i < src.data.size (); ++i)
-      dst.elementAt (i) =  src.data[i];
+    dst.resize (src.data.size ());
+    for (unsigned int i = 0; i < src.data.size (); ++i)
+      dst (i) =  src.data[i];
   }
 
   // Vector3
@@ -86,12 +86,12 @@ namespace dynamicgraph
   {
     if (src.size () > 0)
       {
-	dst.x =  src.elementAt (0);
+	dst.x =  src (0);
 	if (src.size () > 1)
 	  {
-	    dst.y =  src.elementAt (1);
+	    dst.y =  src (1);
 	    if (src.size () > 2)
-	      dst.z =  src.elementAt (2);
+	      dst.z =  src (2);
 	  }
       }
   }
@@ -99,64 +99,58 @@ namespace dynamicgraph
   ROS_TO_SOT_IMPL(specific::Vector3)
   {
     dst.resize (3);
-    dst.elementAt (0) =  src.x;
-    dst.elementAt (1) =  src.y;
-    dst.elementAt (2) =  src.z;
+    dst (0) =  src.x;
+    dst (1) =  src.y;
+    dst (2) =  src.z;
   }
 
   // Matrix
-  SOT_TO_ROS_IMPL(ml::Matrix)
+  SOT_TO_ROS_IMPL(Matrix)
   {
-    dst.width = src.nbRows ();
-    dst.data.resize (src.nbCols () * src.nbRows ());
-    for (unsigned i = 0; i < src.nbCols () * src.nbRows (); ++i)
-      dst.data[i] =  src.elementAt (i);
-  }
 
-  ROS_TO_SOT_IMPL(ml::Matrix)
+    //TODO: Confirm Ros Matrix Storage order. It changes the RosMatrix to ColMajor.
+    dst.width = (unsigned int)src.rows ();
+    dst.data.resize (src.cols () * src.rows ());
+    for (int i = 0; i < src.cols () * src.rows (); ++i)
+      dst.data[i] =  src.data()[i];
+  }
+  
+  ROS_TO_SOT_IMPL(Matrix)
   {
     dst.resize (src.width, (unsigned int) src.data.size () / 
 		(unsigned int)src.width);
     for (unsigned i = 0; i < src.data.size (); ++i)
-      dst.elementAt (i) =  src.data[i];
+      dst.data()[i] =  src.data[i];
   }
 
   // Homogeneous matrix.
   SOT_TO_ROS_IMPL(sot::MatrixHomogeneous)
   {
-    btMatrix3x3 rotation;
-    btQuaternion quaternion;
-    for(unsigned i = 0; i < 3; ++i)
-      for(unsigned j = 0; j < 3; ++j)
-	rotation[i][j] = (float)src (i, j);
-    rotation.getRotation (quaternion);
 
-    dst.translation.x = src (0, 3);
-    dst.translation.y = src (1, 3);
-    dst.translation.z = src (2, 3);
+    sot::VectorQuaternion q(src.linear());
+    dst.translation.x = src.translation()(0);
+    dst.translation.y = src.translation()(1);
+    dst.translation.z = src.translation()(2);
 
-    dst.rotation.x = quaternion.x ();
-    dst.rotation.y = quaternion.y ();
-    dst.rotation.z = quaternion.z ();
-    dst.rotation.w = quaternion.w ();
+    dst.rotation.x = q.x();
+    dst.rotation.y = q.y();
+    dst.rotation.z = q.z();
+    dst.rotation.w = q.w();
+
   }
 
   ROS_TO_SOT_IMPL(sot::MatrixHomogeneous)
   {
-    btQuaternion quaternion
-      ((float)src.rotation.x,(float)src.rotation.y, 
-       (float)src.rotation.z,(float)src.rotation.w);
-    btMatrix3x3 rotation (quaternion);
-
-    // Copy the rotation component.
-    for(unsigned i = 0; i < 3; ++i)
-      for(unsigned j = 0; j < 3; ++j)
-	dst (i, j) = rotation[i][j];
+    sot::VectorQuaternion q(src.rotation.w,
+			    src.rotation.x,
+			    src.rotation.y,
+			    src.rotation.z);
+    dst.linear() = q.matrix();
 
     // Copy the translation component.
-    dst(0, 3) = src.translation.x;
-    dst(1, 3) = src.translation.y;
-    dst(2, 3) = src.translation.z;
+    dst.translation()(0) = src.translation.x;
+    dst.translation()(1) = src.translation.y;
+    dst.translation()(2) = src.translation.z;
   }
 
 
@@ -191,8 +185,8 @@ namespace dynamicgraph
 # define DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(T, ATTRIBUTE, EXTRA)	\
   template <>								\
   inline void converter							\
-  (SotToRos<std::pair<T, ml::Vector> >::ros_t& dst,			\
-   const SotToRos<std::pair<T, ml::Vector> >::sot_t& src)		\
+  (SotToRos<std::pair<T, Vector> >::ros_t& dst,			\
+   const SotToRos<std::pair<T, Vector> >::sot_t& src)		\
   {									\
     makeHeader(dst.header);						\
     converter<SotToRos<T>::ros_t, SotToRos<T>::sot_t> (dst.ATTRIBUTE, src); \
@@ -224,9 +218,9 @@ namespace dynamicgraph
 
   DG_BRIDGE_MAKE_SHPTR_IMPL(double);
   DG_BRIDGE_MAKE_SHPTR_IMPL(unsigned int);
-  DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Vector);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(Vector);
   DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Vector3);
-  DG_BRIDGE_MAKE_SHPTR_IMPL(ml::Matrix);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(Matrix);
   DG_BRIDGE_MAKE_SHPTR_IMPL(sot::MatrixHomogeneous);
   DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Twist);
 
@@ -237,8 +231,8 @@ namespace dynamicgraph
 # define DG_BRIDGE_MAKE_STAMPED_IMPL(T, ATTRIBUTE, EXTRA)		\
   template <>								\
   inline void converter							\
-  (SotToRos<std::pair<T, ml::Vector> >::sot_t& dst,			\
-   const SotToRos<std::pair<T, ml::Vector> >::ros_t& src)		\
+  (SotToRos<std::pair<T, Vector> >::sot_t& dst,			\
+   const SotToRos<std::pair<T, Vector> >::ros_t& src)		\
   {									\
     converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t> (dst, src.ATTRIBUTE); \
     do { EXTRA } while (0);						\
@@ -256,9 +250,9 @@ namespace dynamicgraph
 # define DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(T, ATTRIBUTE, EXTRA)		\
   template <>								\
   inline void converter							\
-  (SotToRos<std::pair<T, ml::Vector> >::sot_t& dst,			\
+  (SotToRos<std::pair<T, Vector> >::sot_t& dst,			\
    const boost::shared_ptr						\
-   <SotToRos<std::pair<T, ml::Vector> >::ros_t const>& src)		\
+   <SotToRos<std::pair<T, Vector> >::ros_t const>& src)		\
   {									\
     converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t> (dst, src->ATTRIBUTE); \
     do { EXTRA } while (0);						\

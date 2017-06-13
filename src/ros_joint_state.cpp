@@ -5,7 +5,7 @@
 #include <dynamic-graph/command.h>
 #include <dynamic-graph/factory.h>
 #include <dynamic-graph/pool.h>
-#include <sot-dynamic/dynamic.h>
+#include <sot-dynamic-pinocchio/dynamic-pinocchio.h>
 
 #include "dynamic_graph_bridge/ros_init.hh"
 #include "ros_joint_state.hh"
@@ -32,41 +32,37 @@ namespace dynamicgraph
     RetrieveJointNames::RetrieveJointNames
     (RosJointState& entity, const std::string& docstring)
       : Command (entity, boost::assign::list_of (Value::STRING), docstring)
-    {}
-
-    namespace
     {
-      void
-      buildJointNames (sensor_msgs::JointState& jointState, CjrlJoint* joint)
-      {
-	if (!joint)
-	  return;
-	// Ignore anchors.
-	if (joint->numberDof() != 0)
-	  {
+}
+
+    namespace {
+      void  buildJointNames (sensor_msgs::JointState& jointState, se3::Model* robot_model) {
+	int cnt = 0;
+	for (int i=1;i<robot_model->njoints;i++) {
+	  // Ignore anchors.
+	  if (se3::nv(robot_model->joints[i]) != 0) {
 	    // If we only have one dof, the dof name is the joint name.
-	    if (joint->numberDof() == 1)
-	      {
-		jointState.name[joint->rankInConfiguration()] =
-		  joint->getName();
+	    if (se3::nv(robot_model->joints[i]) == 1) {
+	      jointState.name[cnt] =  robot_model->names[i];
+	      cnt++;
+	    }
+	    else {
+	      // ...otherwise, the dof name is the joint name on which
+	      // the dof id is appended.
+	      int joint_dof = se3::nv(robot_model->joints[i]);
+	      for(int j = 0; j<joint_dof; j++) {
+		boost::format fmt("%1%_%2%");
+		fmt % robot_model->names[i];
+		fmt % j;
+		jointState.name[cnt + j] =  fmt.str();
 	      }
-	    // ...otherwise, the dof name is the joint name on which
-	    // the dof id is appended.
-	    else
-	      for (unsigned i = 0; i < joint->numberDof(); ++i)
-		{
-		  boost::format fmt("%1%_%2%");
-		  fmt % joint->getName();
-		  fmt % i;
-		  jointState.name[joint->rankInConfiguration() + i] =
-		    fmt.str();
-		}
+	      cnt+=joint_dof;
+	    }
 	  }
-	for (unsigned i = 0; i < joint->countChildJoints (); ++i)
-	  buildJointNames (jointState, joint->childJoint (i));
+	}
       }
     } // end of anonymous namespace
-
+	  
     Value RetrieveJointNames::doExecute ()
     {
       RosJointState& entity = static_cast<RosJointState&> (owner ());
@@ -80,24 +76,24 @@ namespace dynamicgraph
 	  return Value ();
 	}
 
-      dynamicgraph::sot::Dynamic* dynamic =
-	dynamic_cast<dynamicgraph::sot::Dynamic*>
+      dynamicgraph::sot::DynamicPinocchio* dynamic =
+	dynamic_cast<dynamicgraph::sot::DynamicPinocchio*>
 	(&dynamicgraph::PoolStorage::getInstance ()->getEntity (name));
       if (!dynamic)
 	{
-	  std::cerr << "entity is not a Dynamic entity" << std::endl;
+	  std::cerr << "entity is not a DynamicPinocchio entity" << std::endl;
 	  return Value ();
 	}
 
-      CjrlHumanoidDynamicRobot* robot = dynamic->m_HDR;
-      if (!robot)
+      se3::Model* robot_model = dynamic->m_model;
+      if (robot_model->njoints == 1)
 	{
 	  std::cerr << "no robot in the dynamic entity" << std::endl;
 	  return Value ();
 	}
 
-      entity.jointState ().name.resize (robot->numberDof());
-      buildJointNames (entity.jointState (), robot->rootJoint());
+      entity.jointState ().name.resize (robot_model->nv);
+      buildJointNames (entity.jointState (), robot_model);
       return Value ();
     }
   } // end of namespace command.

@@ -39,6 +39,7 @@
 #include "ros/ros.h"
 #include "std_srvs/Empty.h"
 #include <sensor_msgs/JointState.h>
+#include <tf/transform_broadcaster.h>
 
 // Sot Framework includes 
 #include <sot/core/debug.hh>
@@ -84,6 +85,10 @@ protected:
   // \brief Start control loop
   virtual void startControlLoop();
 
+
+  //Robot Pose Publisher
+  tf::TransformBroadcaster freeFlyerPublisher_;
+  tf::Transform freeFlyerPose_;
 
 public:
   SotLoader();
