@@ -102,7 +102,7 @@ SotLoader::readControl(map<string,dgs::ControlValues> &controlValues)
 
   
   // Update joint values.
-  angleControl_ = controlValues["joints"].getValues();
+  angleControl_ = controlValues["control"].getValues();
 
   //Debug
   std::map<std::string,dgs::ControlValues>::iterator it = controlValues.begin();
