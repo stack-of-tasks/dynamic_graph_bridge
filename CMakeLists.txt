@@ -136,6 +136,7 @@ compile_plugin(ros_time)
 compile_plugin(ros_joint_state)
 
 target_link_libraries(ros_joint_state "${DYNAMIC_GRAPH_PLUGINDIR}/dp-dynamic.so")
+target_link_libraries(ros_publish ros_bridge)
 
 #compile_plugin(robot_model)
 
@@ -173,7 +174,7 @@ target_link_libraries(geometric_simu  ros_bridge tf ${Boost_LIBRARIES} ${CMAKE_D
 add_library(sot_loader src/sot_loader.cpp src/sot_loader_basic.cpp)
 pkg_config_use_dependency(sot_loader dynamic-graph)
 pkg_config_use_dependency(sot_loader sot-core)
-target_link_libraries(sot_loader ${Boost_LIBRARIES} roscpp ros_bridge)
+target_link_libraries(sot_loader ${Boost_LIBRARIES} roscpp ros_bridge tf)
 install(TARGETS sot_loader DESTINATION lib)
 
 add_subdirectory(src)
