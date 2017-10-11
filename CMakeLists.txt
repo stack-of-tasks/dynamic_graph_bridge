@@ -134,6 +134,7 @@ compile_plugin(ros_publish)
 compile_plugin(ros_subscribe)
 compile_plugin(ros_time)
 compile_plugin(ros_joint_state)
+pkg_config_use_dependency(ros_joint_state pinocchio)
 
 target_link_libraries(ros_joint_state "${DYNAMIC_GRAPH_PLUGINDIR}/dp-dynamic.so")
 target_link_libraries(ros_publish ros_bridge)
