@@ -66,7 +66,6 @@ class RosShell(InteractiveConsole):
                         self.cache = source
                         return self.runcode(code, False)
                 response = self.client(str(source))
-                print(dir(response))
                 if response.standardoutput != "":
                     print response.standardoutput[:-1]
                 if response.standarderror != "":
