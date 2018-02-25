@@ -2,12 +2,27 @@
 
 import rospy
 
+import dynamic_graph
 import dynamic_graph_bridge_msgs.srv
-
 import sys
 import code
 from code import InteractiveConsole
-import readline
+
+import os
+
+from dynamic_graph.ros.dgcompleter import DGCompleter
+
+try:
+    import readline
+except ImportError:
+    print("Module readline not available.")
+
+# Enable a History
+HISTFILE="%s/.pyhistory" % os.environ["HOME"]
+
+def savehist():
+    readline.write_history_file(HISTFILE)
+
 
 class RosShell(InteractiveConsole):
     def __init__(self):
@@ -21,6 +36,21 @@ class RosShell(InteractiveConsole):
         rospy.wait_for_service('run_script')
         self.scriptClient = rospy.ServiceProxy(
             'run_script', dynamic_graph_bridge_msgs.srv.RunPythonFile, True)
+        
+        readline.set_completer(DGCompleter(self.client).complete)
+        readline.parse_and_bind("tab: complete")
+
+        # Read the existing history if there is one
+        if os.path.exists(HISTFILE):
+            readline.read_history_file(HISTFILE)
+            
+        # Set maximum number of items that will be written to the history file
+        readline.set_history_length(300)
+            
+ 
+    import atexit
+    atexit.register(savehist)
+
 
     def runcode(self, code, retry = True):
         source = self.cache[:-1]
@@ -36,6 +66,7 @@ class RosShell(InteractiveConsole):
                         self.cache = source
                         return self.runcode(code, False)
                 response = self.client(str(source))
+                print(dir(response))
                 if response.standardoutput != "":
                     print response.standardoutput[:-1]
                 if response.standarderror != "":
