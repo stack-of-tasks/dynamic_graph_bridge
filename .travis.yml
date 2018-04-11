@@ -1,0 +1,11 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+- docker pull ros
+- docker run ros /bin/sh -c "sudo sh -c \"echo \"deb [arch=amd64] http://robotpkg.openrobots.org/wip/packages/debian/pub trusty robotpkg\" >> /etc/apt/sources.list \""
+- docker run ros /bin/sh -c "sudo sh -c \"echo \"deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub trusty robotpkg\" >> /etc/apt/sources.list \""
+- docker run ros /bin/sh -c "curl http://robotpkg.openrobots.org/wip/packages/debian/robotpkg.key | sudo apt-key add -"
+- docker run ros /bin/sh -c "curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -"
