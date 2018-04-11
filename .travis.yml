@@ -6,7 +6,7 @@ services:
 before_install:
 - docker build -t dyngb-trusty -f ./travis_custom/Dockerfile .
 - docker run -t -d --name dyngb-trusty-test dyngb-trusty
-- docker exec dyngb-trusty-test sudo git clone https://github.com/stack-of-tasks/dynamic_graph_bridge.git /repo
+- docker exec dyngb-trusty-test sudo git clone --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge.git /repo
 
 script:
 - docker exec dyngb-trusty-test sudo mkdir /build
