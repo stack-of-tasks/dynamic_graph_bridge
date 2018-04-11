@@ -15,7 +15,6 @@ RUN chmod 440 /etc/sudoers
 
 USER docker
 CMD /bin/bash
-
 # Add robotpkg binary repo
 
 RUN sudo sh -c "echo \"deb [arch=amd64] http://robotpkg.openrobots.org/wip/packages/debian/pub trusty robotpkg\" >> /etc/apt/sources.list "
@@ -34,4 +33,7 @@ RUN sudo apt-get install -y robotpkg-pinocchio
 RUN sudo apt-get install -y robotpkg-dynamic-graph-v3 robotpkg-py27-dynamic-graph-v3 robotpkg-dynamic-graph-bridge-msgs
 RUN sudo apt-get install -y robotpkg-sot-core-v3 robotpkg-py27-sot-tools-v3 robotpkg-sot-dynamic-pinocchio-v3
 RUN sudo apt-get install -y libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy python-sphinx
+RUN env
+
+
 
