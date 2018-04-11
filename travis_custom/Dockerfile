@@ -27,6 +27,7 @@ RUN sudo apt-get update
 RUN more /etc/apt/sources.list
 # 
 RUN sudo apt-get install -y cppcheck doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev libtinyxml-dev
+RUN sudo apt-get install -y ros-indigo-tf
 RUN sudo apt-get install -y robotpkg-dynamic-graph-v3 robotpkg-py27-dynamic-graph-v3
 RUN sudo apt-get install -y robotpkg-sot-core-v3 libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy python-sphinx
 
