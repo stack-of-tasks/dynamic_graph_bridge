@@ -10,7 +10,7 @@ RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
 
 USER root
 ADD /travis_custom/sudoers.txt /etc/sudoers
-ADD /travis_custom/setup-opt-robotpkg.sh 
+ADD /travis_custom/setup-opt-robotpkg.sh /etc/profile.d
 RUN chmod 440 /etc/sudoers
 
 USER docker
