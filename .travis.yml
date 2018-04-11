@@ -11,4 +11,4 @@ before_install:
 - docker exec dyngb-trusty-test sudo git clone --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge.git /catkin_ws_dyngb/src/dynamic_graph_bridge
 
 script:
-- docker exec dyngb-trusty-test sudo sh -c "cd /catkin_ws_dyngb;. /opt/ros/indigo/setup.sh;catkin_make"
+- docker exec dyngb-trusty-test sudo sh -c "cd /catkin_ws_dyngb;. /opt/ros/indigo/setup.sh;. /home/ostasse/travis_custom/setup-opt-robotpkg.sh;catkin_make"
