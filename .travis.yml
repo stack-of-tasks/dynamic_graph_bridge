@@ -6,9 +6,9 @@ services:
 before_install:
 - docker build -t dyngb-trusty -f ./travis_custom/Dockerfile .
 - docker run -t -d --name dyngb-trusty-test dyngb-trusty
-- docker exec dyngb-trusty-test sudo git clone --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge.git /repo
+- docker exec dyngb-trusty-test sudo mkdir -p /catkin_ws_dyngb/src
+- docker exec dyngb-trusty-test sudo sh -c "cd /catkin_ws_dyngb/src;. /opt/ros/indigo/setup.sh;catkin_init_workspace"
+- docker exec dyngb-trusty-test sudo git clone --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge.git /catkin_ws_dyngb/src/dynamic_graph_bridge
 
 script:
-- docker exec dyngb-trusty-test sudo mkdir /build
-- docker exec dyngb-trusty-test sudo sh -c "cd /build;cmake ../repo"
-- docker exec dyngb-trusty-test sudo sh -c "cd /build;make"
+- docker exec dyngb-trusty-test sudo sh -c "cd /catkin_ws_dyngb;. /opt/ros/indigo/setup.sh;catkin_make"
