@@ -1,5 +1,5 @@
 # Pull ros docker image
-FROM ros:indigo-ros-base
+FROM ros:indigo-desktop-full-trusty
 
 # Prepapre sudo environment
 RUN apt-get update && \
