@@ -10,6 +10,7 @@ RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
 
 USER root
 ADD /travis_custom/sudoers.txt /etc/sudoers
+ADD /travis_custom/setup-opt-robotpkg.sh 
 RUN chmod 440 /etc/sudoers
 
 USER docker
@@ -26,11 +27,11 @@ RUN curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-
 RUN sudo apt-get update
 RUN more /etc/apt/sources.list
 #
-RUN sudo apt-get install -y g++ 
+RUN sudo apt-get install -y g++ python2.7 python2.7-dev
 RUN sudo apt-get install -y cppcheck doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev libtinyxml-dev
-RUN sudo apt-get install -y ros-indigo-tf ros-indigo-tf2-bullet
+RUN sudo apt-get install -y ros-indigo-tf ros-indigo-tf2-bullet ros-indigo-realtime-tools 
 RUN sudo apt-get install -y robotpkg-pinocchio 
 RUN sudo apt-get install -y robotpkg-dynamic-graph-v3 robotpkg-py27-dynamic-graph-v3 robotpkg-dynamic-graph-bridge-msgs
-RUN sudo apt-get install -y robotpkg-sot-core-v3 robotpkg-py27-sot-tools-v3
+RUN sudo apt-get install -y robotpkg-sot-core-v3 robotpkg-py27-sot-tools-v3 robotpkg-sot-dynamic-pinocchio-v3
 RUN sudo apt-get install -y libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy python-sphinx
 
