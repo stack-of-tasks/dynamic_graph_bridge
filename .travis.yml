@@ -5,9 +5,9 @@ services:
 
 before_install:
 - docker build -t dyngb-trusty -f ./travis_custom/Dockerfile .
-- docker exec build git clone https://github.com/stack-of-tasks/dynamic_graph_bridge.git /repo
+- docker exec dyngb-trusty git clone https://github.com/stack-of-tasks/dynamic_graph_bridge.git /repo
 
 script:
-- docker exec build make /build
-- docker exec build cmake -DCMAKE_SOURCE_DIR=/repo -DCMAKE_BINARY_DIR=/build
-- docker exec build cmake /build
+- docker exec dyngb-trusty make /build
+- docker exec dyngb-trusty cmake -DCMAKE_SOURCE_DIR=/repo -DCMAKE_BINARY_DIR=/build
+- docker exec dyngb-trusty cmake /build
