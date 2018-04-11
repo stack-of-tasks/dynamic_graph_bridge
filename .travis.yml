@@ -9,5 +9,5 @@ before_install:
 
 script:
 - docker run dyngb-trusty:latest sudo mkdir /build
-- docker run dyngb-trusty:latest sudo cd /build;cmake ../repo
-- docker run dyngb-trusty:latest sudo cd /build;make
+- docker run dyngb-trusty:latest sudo -c "cd /build;cmake ../repo"
+- docker run dyngb-trusty:latest sudo -c "cd /build;make"
