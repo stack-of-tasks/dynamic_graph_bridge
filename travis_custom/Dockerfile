@@ -1,5 +1,5 @@
 # Pull ros docker image
-FROM ros:indigo-desktop-full-trusty
+FROM ros:indigo-ros-base
 
 # Prepapre sudo environment
 RUN apt-get update && \
@@ -25,9 +25,12 @@ RUN curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-
 # Update the reference to packages
 RUN sudo apt-get update
 RUN more /etc/apt/sources.list
-# 
+#
+RUN sudo apt-get install -y g++ 
 RUN sudo apt-get install -y cppcheck doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev libtinyxml-dev
-RUN sudo apt-get install -y ros-indigo-tf
-RUN sudo apt-get install -y robotpkg-dynamic-graph-v3 robotpkg-py27-dynamic-graph-v3
-RUN sudo apt-get install -y robotpkg-sot-core-v3 libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy python-sphinx
+RUN sudo apt-get install -y ros-indigo-tf ros-indigo-tf2-bullet
+RUN sudo apt-get install -y robotpkg-pinocchio 
+RUN sudo apt-get install -y robotpkg-dynamic-graph-v3 robotpkg-py27-dynamic-graph-v3 robotpkg-dynamic-graph-bridge-msgs
+RUN sudo apt-get install -y robotpkg-sot-core-v3 robotpkg-py27-sot-tools-v3
+RUN sudo apt-get install -y libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy python-sphinx
 
