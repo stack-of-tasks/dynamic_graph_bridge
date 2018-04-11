@@ -8,6 +8,6 @@ before_install:
 - docker run dyngb-trusty:latest sudo git clone https://github.com/stack-of-tasks/dynamic_graph_bridge.git /repo
 
 script:
-- docker run dyngb-trusty:latest sudo make /build
-- docker run dyngb-trusty:latest sudo cmake -DCMAKE_SOURCE_DIR=/repo -DCMAKE_BINARY_DIR=/build
+- docker run dyngb-trusty:latest sudo mkdir /build
+- docker run dyngb-trusty:latest sudo cd /build;cmake ../repo
 - docker run dyngb-trusty:latest sudo cmake /build
