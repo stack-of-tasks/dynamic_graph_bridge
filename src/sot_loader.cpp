@@ -26,7 +26,6 @@
 // POSIX.1-2001
 #include <dlfcn.h>
 
-#include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 
 boost::condition_variable cond;
@@ -39,15 +38,30 @@ namespace po = boost::program_options;
 
 void workThreadLoader(SotLoader *aSotLoader)
 {
+  unsigned period = 1000; // micro seconds
+  if (ros::param::has("/sot/dt")) {
+    double periodd;
+    ros::param::get("/sot/dt", periodd);
+    period = unsigned(1e6 * periodd);
+  }
+  DataToLog dataToLog (5000);
+
   while(aSotLoader->isDynamicGraphStopped())
     {
-      usleep(5000);
+      usleep(period);
     }
 
+  struct timeval start, stop;
   while(!aSotLoader->isDynamicGraphStopped())
     {
+      gettimeofday(&start,0);
       aSotLoader->oneIteration();
-      usleep(5000);
+      gettimeofday(&stop,0);
+
+      unsigned long long dt = 1000000 * (stop.tv_sec  - start.tv_sec) + (stop.tv_usec - start.tv_usec);
+      if (period > dt) {
+        usleep(period - (unsigned)dt);
+      }
     }
   cond.notify_all();
   ros::waitForShutdown();
@@ -62,15 +76,22 @@ SotLoader::SotLoader():
   torques_ (),
   baseAtt_ (),
   accelerometer_ (3),
-  gyrometer_ (3)
+  gyrometer_ (3),
+  thread_ ()
 {
   readSotVectorStateParam();
   initPublication();
 }
 
+SotLoader::~SotLoader()
+{
+  dynamic_graph_stopped_ = true;
+  thread_.join();
+}
+
 void SotLoader::startControlLoop()
 {
-  boost::thread thr(workThreadLoader, this);
+  thread_ = boost::thread (workThreadLoader, this);
 }
 
 void SotLoader::initializeRosNode(int argc, char *argv[])

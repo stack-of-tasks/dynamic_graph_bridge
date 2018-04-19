@@ -32,8 +32,6 @@ int main(int argc, char *argv[])
   
   aSotLoader.initializeRosNode(argc,argv);
 
-  while(true){
-    usleep(5000);
-  }
- 
+  ros::spin();
+  return 0;
 }

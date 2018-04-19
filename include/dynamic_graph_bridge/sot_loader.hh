@@ -34,6 +34,7 @@
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
+#include <boost/thread/thread.hpp>
 
 // ROS includes
 #include "ros/ros.h"
@@ -82,6 +83,9 @@ protected:
   std::string robot_desc_string_;
   
 
+  /// The thread running dynamic graph
+  boost::thread thread_;
+  
   // \brief Start control loop
   virtual void startControlLoop();
 
@@ -92,7 +96,7 @@ protected:
 
 public:
   SotLoader();
-  ~SotLoader() {};
+  ~SotLoader();
 
   // \brief Create a thread for ROS and start the control loop.
   void initializeRosNode(int argc, char *argv[]);
