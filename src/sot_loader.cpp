@@ -34,6 +34,40 @@ using namespace std;
 using namespace dynamicgraph::sot; 
 namespace po = boost::program_options;
 
+struct DataToLog
+{
+  const std::size_t N;
+  std::size_t idx;
+
+  std::vector<double> times;
+
+  DataToLog (std::size_t N_)
+    : N (N_)
+    , idx (0)
+    , times (N, 0)
+  {}
+
+  void record (const double t)
+  {
+    times[idx] = t;
+    ++idx;
+    if (idx == N) idx = 0;
+  }
+
+  void save (const char* prefix)
+  {
+    std::ostringstream oss;
+    oss << prefix << "-times.log";
+
+    std::ofstream aof(oss.str().c_str());
+    if (aof.is_open()) {
+      for (std::size_t k = 0; k < N; ++k) {
+        aof << times[ (idx + k) % N ] << '\n';
+      }
+    }
+    aof.close();
+  }
+};
 
 
 void workThreadLoader(SotLoader *aSotLoader)
@@ -59,10 +93,12 @@ void workThreadLoader(SotLoader *aSotLoader)
       gettimeofday(&stop,0);
 
       unsigned long long dt = 1000000 * (stop.tv_sec  - start.tv_sec) + (stop.tv_usec - start.tv_usec);
+      dataToLog.record ((double)dt * 1e-6);
       if (period > dt) {
         usleep(period - (unsigned)dt);
       }
     }
+  dataToLog.save ("/tmp/geometric_simu");
   cond.notify_all();
   ros::waitForShutdown();
 }
