@@ -73,9 +73,9 @@ struct DataToLog
 void workThreadLoader(SotLoader *aSotLoader)
 {
   unsigned period = 1000; // micro seconds
-  if (ros::param::has("/sot/dt")) {
+  if (ros::param::has("/sot_controller/dt")) {
     double periodd;
-    ros::param::get("/sot/dt", periodd);
+    ros::param::get("/sot_controller/dt", periodd);
     period = unsigned(1e6 * periodd);
   }
   DataToLog dataToLog (5000);
