@@ -26,7 +26,6 @@
 // POSIX.1-2001
 #include <dlfcn.h>
 
-#include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 
 boost::condition_variable cond;
@@ -35,20 +34,71 @@ using namespace std;
 using namespace dynamicgraph::sot; 
 namespace po = boost::program_options;
 
+struct DataToLog
+{
+  const std::size_t N;
+  std::size_t idx;
+
+  std::vector<double> times;
+
+  DataToLog (std::size_t N_)
+    : N (N_)
+    , idx (0)
+    , times (N, 0)
+  {}
+
+  void record (const double t)
+  {
+    times[idx] = t;
+    ++idx;
+    if (idx == N) idx = 0;
+  }
+
+  void save (const char* prefix)
+  {
+    std::ostringstream oss;
+    oss << prefix << "-times.log";
+
+    std::ofstream aof(oss.str().c_str());
+    if (aof.is_open()) {
+      for (std::size_t k = 0; k < N; ++k) {
+        aof << times[ (idx + k) % N ] << '\n';
+      }
+    }
+    aof.close();
+  }
+};
 
 
 void workThreadLoader(SotLoader *aSotLoader)
 {
+  unsigned period = 1000; // micro seconds
+  if (ros::param::has("/sot_controller/dt")) {
+    double periodd;
+    ros::param::get("/sot_controller/dt", periodd);
+    period = unsigned(1e6 * periodd);
+  }
+  DataToLog dataToLog (5000);
+
   while(aSotLoader->isDynamicGraphStopped())
     {
-      usleep(5000);
+      usleep(period);
     }
 
+  struct timeval start, stop;
   while(!aSotLoader->isDynamicGraphStopped())
     {
+      gettimeofday(&start,0);
       aSotLoader->oneIteration();
-      usleep(5000);
+      gettimeofday(&stop,0);
+
+      unsigned long long dt = 1000000 * (stop.tv_sec  - start.tv_sec) + (stop.tv_usec - start.tv_usec);
+      dataToLog.record ((double)dt * 1e-6);
+      if (period > dt) {
+        usleep(period - (unsigned)dt);
+      }
     }
+  dataToLog.save ("/tmp/geometric_simu");
   cond.notify_all();
   ros::waitForShutdown();
 }
@@ -62,15 +112,22 @@ SotLoader::SotLoader():
   torques_ (),
   baseAtt_ (),
   accelerometer_ (3),
-  gyrometer_ (3)
+  gyrometer_ (3),
+  thread_ ()
 {
   readSotVectorStateParam();
   initPublication();
 }
 
+SotLoader::~SotLoader()
+{
+  dynamic_graph_stopped_ = true;
+  thread_.join();
+}
+
 void SotLoader::startControlLoop()
 {
-  boost::thread thr(workThreadLoader, this);
+  thread_ = boost::thread (workThreadLoader, this);
 }
 
 void SotLoader::initializeRosNode(int argc, char *argv[])
