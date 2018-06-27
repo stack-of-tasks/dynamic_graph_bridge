@@ -43,6 +43,7 @@ namespace dynamicgraph {
         } catch (const tf::TransformException& ex) {
           res.setIdentity();
           ROS_ERROR("Enable to get transform at time %i: %s",time,ex.what());
+          return res;
         }
         for (sot::MatrixHomogeneous::Index r = 0; r < 3; ++r) {
           for (sot::MatrixHomogeneous::Index c = 0; c < 3; ++c)
