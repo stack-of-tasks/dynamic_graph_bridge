@@ -132,6 +132,8 @@ endmacro()
 # Build Sot Entities
 compile_plugin(ros_publish)
 compile_plugin(ros_subscribe)
+compile_plugin(ros_queued_subscribe)
+compile_plugin(ros_tf_listener)
 compile_plugin(ros_time)
 compile_plugin(ros_joint_state)
 pkg_config_use_dependency(ros_joint_state pinocchio)

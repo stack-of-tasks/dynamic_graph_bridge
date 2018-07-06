@@ -65,6 +65,11 @@ namespace dynamicgraph
     {
       s.setConstant (0.);
     }
+
+    static void setDefault(sot_t& s)
+    {
+      s = 0.;
+    }
   };
 
   template <>
@@ -83,6 +88,11 @@ namespace dynamicgraph
     static void setDefault(S& s)
     {
       s.setConstant (0);
+    }
+
+    static void setDefault(sot_t& s)
+    {
+      s = 0;
     }
   };
 
@@ -105,6 +115,11 @@ namespace dynamicgraph
       m.resize(0, 0);
       s.setConstant (m);
     }
+
+    static void setDefault(sot_t& s)
+    {
+      s.resize(0,0);
+    }
   };
 
   template <>
@@ -126,6 +141,11 @@ namespace dynamicgraph
       v.resize (0);
       s.setConstant (v);
     }
+
+    static void setDefault(sot_t& s)
+    {
+      s.resize(0,0);
+    }
   };
 
   template <>
@@ -143,9 +163,13 @@ namespace dynamicgraph
     template <typename S>
     static void setDefault(S& s)
     {
-      Vector v;
-      v.resize (0);
+      Vector v (Vector::Zero(3));
       s.setConstant (v);
+    }
+
+    static void setDefault(sot_t& s)
+    {
+      s = Vector::Zero(3);
     }
   };
 
@@ -167,6 +191,11 @@ namespace dynamicgraph
       sot::MatrixHomogeneous m;
       s.setConstant (m);
     }
+
+    static void setDefault(sot_t& s)
+    {
+      s.setIdentity();
+    }
   };
 
   template <>
@@ -187,6 +216,11 @@ namespace dynamicgraph
       Vector v (6);
       v.setZero ();
       s.setConstant (v);
+    }
+
+    static void setDefault(sot_t& s)
+    {
+      s = Vector::Zero(6);
     }
   };
 
