@@ -29,13 +29,26 @@ include(cmake/python.cmake)
 
 project(dynamic_graph_bridge)
 
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf)
-find_package(realtime_tools)
+SET(CATKIN_REQUIRED_COMPONENTS roscpp std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf)
+SET(CATKIN_DEPENDS_LIBRARIES ros_bridge sot_loader)
 
 ## LAAS cmake submodule part
 set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
 set(PROJECT_NAME dynamic_graph_bridge)
 set(PROJECT_URL "")
+
+OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
+IF(BUILD_PYTHON_INTERFACE)
+  FINDPYTHON()
+  STRING(REGEX REPLACE "-" "_" PY_NAME ${PROJECT_NAME})
+  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS})
+  ADD_REQUIRED_DEPENDENCY("dynamic-graph-python >= 3.0.0")
+  SET(CATKIN_REQUIRED_COMPONENTS ${CATKIN_REQUIRED_COMPONENTS rospy)
+  SET(CATKIN_DEPENDS_LIBRARIES ${CATKIN_DEPENDS_LIBRARIES ros_interpreter)
+ENDIF(BUILD_PYTHON_INTERFACE)
+
+find_package(catkin REQUIRED COMPONENTS ${CATKIN_REQUIRED_COMPONENTS)
+find_package(realtime_tools)
 
 set(CXX_DISABLE_WERROR False)
 set(CUSTOM_HEADER_DIR dynamic_graph_bridge)
@@ -70,7 +83,6 @@ add_required_dependency("realtime_tools >= 1.8")
 add_required_dependency(tf2_bullet)
 ADD_REQUIRED_DEPENDENCY("pinocchio")
 ADD_REQUIRED_DEPENDENCY("dynamic-graph >= 3.0.0")
-ADD_REQUIRED_DEPENDENCY("dynamic-graph-python >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("sot-dynamic-pinocchio >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("sot-core >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("sot-tools >= 2.0.0")
@@ -114,20 +126,20 @@ macro(compile_plugin NAME)
   set_target_properties(${NAME} PROPERTIES BUILD_WITH_INSTALL_RPATH True)
   set_target_properties(${NAME} PROPERTIES PREFIX "")
   install(TARGETS ${NAME} DESTINATION lib/plugin)
-  
 
-  dynamic_graph_python_module("ros/${NAME}"
-    ${NAME}
-    ros/${NAME}/wrap
-    )
+
+  IF(BUILD_PYTHON_INTERFACE)
+    dynamic_graph_python_module("ros/${NAME}"
+      ${NAME}
+      ros/${NAME}/wrap
+      )
+  ENDIF(BUILD_PYTHON_INTERFACE)
 
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap realtime_tools)
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph)
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap sot-core)
   PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph_bridge_msgs)
 endmacro()
-
-#include(cmake/python.cmake)
 
 # Build Sot Entities
 compile_plugin(ros_publish)
@@ -144,29 +156,31 @@ target_link_libraries(ros_publish ros_bridge)
 #compile_plugin(robot_model)
 
 # ros_interperter library.
-add_library(ros_interpreter src/ros_interpreter.cpp)
-pkg_config_use_dependency(ros_interpreter dynamic-graph)
-pkg_config_use_dependency(ros_interpreter sot-core)
-pkg_config_use_dependency(ros_interpreter roscpp)
-pkg_config_use_dependency(ros_interpreter dynamic_graph_bridge_msgs)
+IF(BUILD_PYTHON_INTERFACE)
+  add_library(ros_interpreter src/ros_interpreter.cpp)
+  pkg_config_use_dependency(ros_interpreter dynamic-graph)
+  pkg_config_use_dependency(ros_interpreter sot-core)
+  pkg_config_use_dependency(ros_interpreter roscpp)
+  pkg_config_use_dependency(ros_interpreter dynamic_graph_bridge_msgs)
 
-add_dependencies(ros_interpreter ros_bridge)
-target_link_libraries(ros_interpreter ros_bridge)
-set_target_properties(ros_interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True
-                      LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
-message(cmakeinstalllibdir " is ${CMAKE_INSTALL_LIBDIR} ")
-install(TARGETS ros_interpreter DESTINATION lib)
+  add_dependencies(ros_interpreter ros_bridge)
+  target_link_libraries(ros_interpreter ros_bridge)
+  set_target_properties(ros_interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True
+                        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+  message(cmakeinstalllibdir " is ${CMAKE_INSTALL_LIBDIR} ")
+  install(TARGETS ros_interpreter DESTINATION lib)
 
-# Stand alone remote dynamic-graph Python interpreter.
-add_executable(interpreter src/interpreter.cpp)
-add_dependencies(interpreter ros_interpreter)
-target_link_libraries(interpreter ros_interpreter)
-pkg_config_use_dependency(interpreter dynamic-graph)
-pkg_config_use_dependency(interpreter sot-core)
-pkg_config_use_dependency(interpreter sot-dynamic-pinocchio)
-pkg_config_use_dependency(interpreter dynamic_graph_bridge_msgs)
-# set_target_properties(interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
-#install(TARGETS interpreter DESTINATION bin)
+  # Stand alone remote dynamic-graph Python interpreter.
+  add_executable(interpreter src/interpreter.cpp)
+  add_dependencies(interpreter ros_interpreter)
+  target_link_libraries(interpreter ros_interpreter)
+  pkg_config_use_dependency(interpreter dynamic-graph)
+  pkg_config_use_dependency(interpreter sot-core)
+  pkg_config_use_dependency(interpreter sot-dynamic-pinocchio)
+  pkg_config_use_dependency(interpreter dynamic_graph_bridge_msgs)
+  # set_target_properties(interpreter PROPERTIES BUILD_WITH_INSTALL_RPATH True)
+  #install(TARGETS interpreter DESTINATION bin)
+ENDIF(BUILD_PYTHON_INTERFACE)
 
 # Stand alone embedded intepreter with a robot controller.
 add_executable(geometric_simu src/geometric_simu.cpp src/sot_loader.cpp src/sot_loader_basic.cpp)
@@ -186,14 +200,18 @@ add_subdirectory(src)
 add_service_files( FILES RunPythonFile.srv )
 generate_messages( DEPENDENCIES std_msgs )
 
+
 # This is necessary so that the pc file generated by catking is similar to the on
 # done directly by jrl-cmake-modules
 catkin_package(CATKIN_DEPENDS message_runtime roscpp realtime_tools tf2_bullet ${SOT_PKGNAMES} tf
-LIBRARIES ros_bridge ros_interpreter sot_loader
+  LIBRARIES ${CATKIN_DEPENDS_LIBRARIES}
 )
 
 # Add libraries in pc file generated by cmake submodule
-PKG_CONFIG_APPEND_LIBS(ros_bridge ros_interpreter sot_loader)
+PKG_CONFIG_APPEND_LIBS(ros_bridge sot_loader)
+IF(BUILD_PYTHON_INTERFACE)
+  PKG_CONFIG_APPEND_LIBS(ros_interpreter)
+ENDIF(BUILD_PYTHON_INTERFACE)
 
 #install ros executables
 install(PROGRAMS
