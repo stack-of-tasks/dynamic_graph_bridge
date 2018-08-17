@@ -26,6 +26,7 @@ INCLUDE(cmake/eigen.cmake)
 include(cmake/ros.cmake)
 include(cmake/GNUInstallDirs.cmake)
 include(cmake/python.cmake)
+include(cmake/test.cmake)
 
 project(dynamic_graph_bridge)
 
