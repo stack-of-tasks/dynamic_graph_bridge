@@ -195,6 +195,7 @@ target_link_libraries(sot_loader ${Boost_LIBRARIES} roscpp ros_bridge tf)
 install(TARGETS sot_loader DESTINATION lib)
 
 add_subdirectory(src)
+add_subdirectory(tests)
 
 # Deal with the ROS part.
 add_service_files( FILES RunPythonFile.srv )
