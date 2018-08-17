@@ -31,6 +31,7 @@ robotpkg-dynamic-graph-bridge-v3-16.04-release:
 robotpkg-dynamic-graph-bridge-v3-18.04-release:
   <<: *robotpkg-dynamic-graph-bridge-v3
   image: eur0c.laas.fr:5000/stack-of-tasks/dynamic_graph_bridge/dynamic-graph-bridge-v3:18.04
+  allow_failure: true
 
 doc-coverage:
   <<: *robotpkg-dynamic-graph-bridge-v3
