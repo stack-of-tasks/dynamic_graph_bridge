@@ -120,7 +120,6 @@ macro(compile_plugin NAME)
   add_library(${NAME} SHARED src/${NAME}.cpp src/${NAME}.hh)
   pkg_config_use_dependency(${NAME} dynamic-graph)
   pkg_config_use_dependency(${NAME} sot-core)
-  #pkg_config_use_dependency(${NAME} jrl-dynamics-urdf)
   pkg_config_use_dependency(${NAME} dynamic_graph_bridge_msgs)
   add_dependencies(${NAME} ros_bridge)
   target_link_libraries(${NAME} ros_bridge)
@@ -128,18 +127,17 @@ macro(compile_plugin NAME)
   set_target_properties(${NAME} PROPERTIES PREFIX "")
   install(TARGETS ${NAME} DESTINATION lib/plugin)
 
-
   IF(BUILD_PYTHON_INTERFACE)
     dynamic_graph_python_module("ros/${NAME}"
       ${NAME}
       ros/${NAME}/wrap
       )
-  ENDIF(BUILD_PYTHON_INTERFACE)
 
-  PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap realtime_tools)
-  PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph)
-  PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap sot-core)
-  PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph_bridge_msgs)
+    PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap realtime_tools)
+    PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph)
+    PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap sot-core)
+    PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph_bridge_msgs)
+  ENDIF(BUILD_PYTHON_INTERFACE)
 endmacro()
 
 # Build Sot Entities
