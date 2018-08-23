@@ -38,6 +38,8 @@ set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
 set(PROJECT_NAME dynamic_graph_bridge)
 set(PROJECT_URL "")
 
+SET(DOXYGEN_USE_MATHJAX YES)
+
 OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 IF(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
