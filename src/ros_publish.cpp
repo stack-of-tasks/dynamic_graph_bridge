@@ -258,6 +258,8 @@ namespace dynamicgraph
     if (dt < rate_)
       return dummy;
 
+    lastPublicated_ = ros::Time::now();
+
     while(! mutex_.try_lock() ){}
     for (iterator_t it = bindedSignal_.begin ();
 	 it != bindedSignal_.end (); ++it)
