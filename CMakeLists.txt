@@ -91,9 +91,8 @@ add_required_dependency(roscpp)
 add_required_dependency(tf)
 add_required_dependency("realtime_tools >= 1.8")
 add_required_dependency(tf2_bullet)
-ADD_REQUIRED_DEPENDENCY("pinocchio")
+
 ADD_REQUIRED_DEPENDENCY("dynamic-graph >= 3.0.0")
-ADD_REQUIRED_DEPENDENCY("sot-dynamic-pinocchio >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("sot-core >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("sot-tools >= 2.0.0")
 
