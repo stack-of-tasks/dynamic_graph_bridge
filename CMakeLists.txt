@@ -94,7 +94,6 @@ add_required_dependency(tf2_bullet)
 
 ADD_REQUIRED_DEPENDENCY("dynamic-graph >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("sot-core >= 3.0.0")
-ADD_REQUIRED_DEPENDENCY("sot-tools >= 2.0.0")
 
 add_required_dependency(dynamic_graph_bridge_msgs)
 
