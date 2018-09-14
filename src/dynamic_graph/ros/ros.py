@@ -1,6 +1,5 @@
 from ros_publish import RosPublish
 from ros_subscribe import RosSubscribe
-from ros_joint_state import RosJointState
 from ros_time import RosTime
 
 from dynamic_graph import plug
@@ -9,7 +8,6 @@ class Ros(object):
     device = None
     rosPublish = None
     rosSubscribe = None
-    rosJointState = None
 
     # aliases, for retro compatibility
     rosImport = None
@@ -19,15 +17,10 @@ class Ros(object):
         self.robot = robot
         self.rosPublish = RosPublish('rosPublish{0}'.format(suffix))
         self.rosSubscribe = RosSubscribe('rosSubscribe{0}'.format(suffix))
-        self.rosJointState = RosJointState('rosJointState{0}'.format(suffix))
-        self.rosJointState.retrieveJointNames(self.robot.dynamic.name)
         self.rosTime = RosTime ('rosTime{0}'.format(suffix))
 
-        plug(self.robot.device.state, self.rosJointState.state)
         self.robot.device.after.addSignal(
             '{0}.trigger'.format(self.rosPublish.name))
-        self.robot.device.after.addSignal(
-            '{0}.trigger'.format(self.rosJointState.name))
 
         # aliases, for retro compatibility
         self.rosImport=self.rosPublish
