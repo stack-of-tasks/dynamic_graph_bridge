@@ -35,24 +35,6 @@ using namespace std;
 using namespace dynamicgraph::sot; 
 namespace po = boost::program_options;
 
-void createRosSpin(SotLoaderBasic *aSotLoaderBasic)
-{
-  ROS_INFO("createRosSpin started\n");
-  ros::NodeHandle n;
-
-  ros::ServiceServer service = n.advertiseService("start_dynamic_graph",
-                                                  &SotLoaderBasic::start_dg,
-                                                  aSotLoaderBasic);
-
-  ros::ServiceServer service2 = n.advertiseService("stop_dynamic_graph",
-                                                  &SotLoaderBasic::stop_dg,
-                                                  aSotLoaderBasic);
-
-
-  ros::waitForShutdown();
-}
-
-
 SotLoaderBasic::SotLoaderBasic():
   dynamic_graph_stopped_(true),
   sotRobotControllerLibrary_(0)
@@ -76,8 +58,15 @@ int SotLoaderBasic::initPublication()
 void SotLoaderBasic::initializeRosNode(int , char *[])
 {
   ROS_INFO("Ready to start dynamic graph.");
-  boost::unique_lock<boost::mutex> lock(mut);
-  boost::thread thr2(createRosSpin,this);
+  ros::NodeHandle n;
+
+  service_start_ = n.advertiseService("start_dynamic_graph",
+                                     &SotLoaderBasic::start_dg,
+                                     this);
+
+  service_stop_  = n.advertiseService("stop_dynamic_graph",
+                                     &SotLoaderBasic::stop_dg,
+                                     this);
 
 }   
 
