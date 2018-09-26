@@ -1,9 +1,6 @@
 from dynamic_graph.sot.dynamics_pinocchio import DynamicPinocchio
 from ros_publish import RosPublish
 from ros_subscribe import RosSubscribe
-from ros_joint_state import RosJointState
-
-from ros import Ros
 
 # aliases, for retro compatibility
 from ros import RosPublish as RosImport
