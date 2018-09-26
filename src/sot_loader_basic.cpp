@@ -23,6 +23,8 @@
 #include <dynamic_graph_bridge/sot_loader.hh>
 #include "dynamic_graph_bridge/ros_init.hh"
 
+#include <dynamic-graph/pool.h>
+
 // POSIX.1-2001
 #include <dlfcn.h>
 
@@ -211,6 +213,8 @@ void SotLoaderBasic::Initialization()
 
 void SotLoaderBasic::CleanUp()
 {
+  dynamicgraph::PoolStorage::destroy();
+
   /// Uncount the number of access to this library.
   dlclose(sotRobotControllerLibrary_);
 }
