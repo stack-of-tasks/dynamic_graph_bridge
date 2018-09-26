@@ -214,6 +214,25 @@ void SotLoaderBasic::Initialization()
 void SotLoaderBasic::CleanUp()
 {
   dynamicgraph::PoolStorage::destroy();
+  // We do not destroy the FactoryStorage singleton because the module will not
+  // be reloaded at next initialization (because Python C API cannot safely
+  // unload a module...).
+  // SignalCaster singleton could probably be destroyed.
+
+  // Load the symbols.
+  destroySotExternalInterface_t * destroySot =
+    reinterpret_cast<destroySotExternalInterface_t *> 
+    (reinterpret_cast<long> 
+     (dlsym(sotRobotControllerLibrary_, 
+	    "destroySotExternalInterface")));
+  const char* dlsym_error = dlerror();
+  if (dlsym_error) {
+    std::cerr << "Cannot load symbol destroy: " << dlsym_error << '\n';
+    return ;
+  }
+
+  destroySot (sotController_);
+  sotController_ = NULL;
 
   /// Uncount the number of access to this library.
   dlclose(sotRobotControllerLibrary_);
