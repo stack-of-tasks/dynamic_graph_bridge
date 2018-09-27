@@ -1,6 +1,5 @@
 #ifndef DYNAMIC_GRAPH_ROS_SUBSCRIBE_HH
 # define DYNAMIC_GRAPH_ROS_SUBSCRIBE_HH
-# include <iostream>
 # include <map>
 
 # include <boost/shared_ptr.hpp>

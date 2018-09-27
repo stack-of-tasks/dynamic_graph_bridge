@@ -24,7 +24,6 @@
 #define _SOT_LOADER_HH_
 
 // System includes
-#include <iostream>
 #include <cassert>
 
 // STL includes

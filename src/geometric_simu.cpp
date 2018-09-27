@@ -16,7 +16,6 @@
  * have received a copy of the GNU Lesser General Public License along
  * with dynamic_graph_bridge.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <iostream>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/condition.hpp>
 
