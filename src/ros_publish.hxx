@@ -8,8 +8,6 @@
 
 # include "sot_to_ros.hh"
 
-# include <iostream>
-
 namespace dynamicgraph
 {
   template <>
