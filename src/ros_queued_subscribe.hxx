@@ -19,9 +19,12 @@
 
 #ifndef DYNAMIC_GRAPH_ROS_QUEUED_SUBSCRIBE_HXX
 # define DYNAMIC_GRAPH_ROS_QUEUED_SUBSCRIBE_HXX
+# define ENABLE_RT_LOG
+
 # include <vector>
 # include <boost/bind.hpp>
 # include <boost/date_time/posix_time/posix_time.hpp>
+# include <dynamic-graph/real-time-logger.h>
 # include <dynamic-graph/signal-caster.h>
 # include <dynamic-graph/linear-algebra.h>
 # include <dynamic-graph/signal-cast-helper.h>
