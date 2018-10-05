@@ -44,6 +44,17 @@ namespace dynamicgraph
   template <typename D, typename S>
   void converter (D& dst, const S& src);
 
+  // Boolean
+  SOT_TO_ROS_IMPL(bool)
+  {
+    dst.data = src;
+  }
+
+  ROS_TO_SOT_IMPL(bool)
+  {
+    dst = src.data;
+  }
+
   // Double
   SOT_TO_ROS_IMPL(double)
   {
@@ -216,6 +227,7 @@ namespace dynamicgraph
   }									\
   struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
 
+  DG_BRIDGE_MAKE_SHPTR_IMPL(bool);
   DG_BRIDGE_MAKE_SHPTR_IMPL(double);
   DG_BRIDGE_MAKE_SHPTR_IMPL(unsigned int);
   DG_BRIDGE_MAKE_SHPTR_IMPL(Vector);

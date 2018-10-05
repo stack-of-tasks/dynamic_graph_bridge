@@ -78,7 +78,9 @@ namespace dynamicgraph
 	const std::string& signal = values[1].value ();
 	const std::string& topic = values[2].value ();
 
-	if (type == "double")
+	if (type == "boolean")
+	  entity.add<bool> (signal, topic);
+        else if (type == "double")
 	  entity.add<double> (signal, topic);
 	else if (type == "unsigned")
 	  entity.add<unsigned int> (signal, topic);
