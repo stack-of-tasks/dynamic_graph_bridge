@@ -5,6 +5,7 @@
 
 # include <boost/format.hpp>
 
+# include <std_msgs/Bool.h>
 # include <std_msgs/Float64.h>
 # include <std_msgs/UInt32.h>
 # include "dynamic_graph_bridge_msgs/Matrix.h"
@@ -47,6 +48,30 @@ namespace dynamicgraph
   /// - ROS callback type.
   template <typename SotType>
   class SotToRos;
+
+  template <>
+  struct SotToRos<bool>
+  {
+    typedef bool sot_t;
+    typedef std_msgs::Bool ros_t;
+    typedef std_msgs::BoolConstPtr ros_const_ptr_t;
+    typedef dynamicgraph::Signal<sot_t, int> signal_t;
+    typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
+    typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      s.setConstant (false);
+    }
+
+    static void setDefault(sot_t& s)
+    {
+      s = false;
+    }
+  };
 
   template <>
   struct SotToRos<double>
