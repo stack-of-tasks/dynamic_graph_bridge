@@ -86,14 +86,22 @@ void workThreadLoader(SotLoader *aSotLoader)
     }
 
   struct timeval start, stop;
+  ros::NodeHandle nh ("/geometric_simu");
+  bool paused;
+  unsigned long long dt;
   while(!aSotLoader->isDynamicGraphStopped())
     {
-      gettimeofday(&start,0);
-      aSotLoader->oneIteration();
-      gettimeofday(&stop,0);
+      nh.param<bool> ("paused", paused, false);
 
-      unsigned long long dt = 1000000 * (stop.tv_sec  - start.tv_sec) + (stop.tv_usec - start.tv_usec);
-      dataToLog.record ((double)dt * 1e-6);
+      if (!paused) {
+        gettimeofday(&start,0);
+        aSotLoader->oneIteration();
+        gettimeofday(&stop,0);
+
+        dt = 1000000 * (stop.tv_sec  - start.tv_sec) + (stop.tv_usec - start.tv_usec);
+        dataToLog.record ((double)dt * 1e-6);
+      } else
+        dt = 0;
       if (period > dt) {
         usleep(period - (unsigned)dt);
       }
