@@ -84,6 +84,8 @@ namespace dynamicgraph
 	  entity.add<double> (signal, topic);
 	else if (type == "unsigned")
 	  entity.add<unsigned int> (signal, topic);
+	else if (type == "int")
+	  entity.add<int> (signal, topic);
 	else if (type == "matrix")
 	  entity.add<Matrix> (signal, topic);
 	else if (type == "vector")
