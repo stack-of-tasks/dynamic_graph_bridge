@@ -66,6 +66,17 @@ namespace dynamicgraph
     dst = src.data;
   }
 
+  // Int
+  SOT_TO_ROS_IMPL(int)
+  {
+    dst.data = src;
+  }
+
+  ROS_TO_SOT_IMPL(int)
+  {
+    dst = src.data;
+  }
+
   // Unsigned
   SOT_TO_ROS_IMPL(unsigned int)
   {
@@ -229,6 +240,7 @@ namespace dynamicgraph
 
   DG_BRIDGE_MAKE_SHPTR_IMPL(bool);
   DG_BRIDGE_MAKE_SHPTR_IMPL(double);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(int);
   DG_BRIDGE_MAKE_SHPTR_IMPL(unsigned int);
   DG_BRIDGE_MAKE_SHPTR_IMPL(Vector);
   DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Vector3);
