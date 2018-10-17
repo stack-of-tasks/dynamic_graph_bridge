@@ -36,7 +36,8 @@ SET(CATKIN_DEPENDS_LIBRARIES ros_bridge sot_loader)
 ## LAAS cmake submodule part
 set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
 set(PROJECT_NAME dynamic_graph_bridge)
-set(PROJECT_URL "")
+set(PROJECT_URL "https://github.com/stack-of-tasks/dynamic_graph_bridge")
+set(PROJECT_SUFFIX "-v3")
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
@@ -214,7 +215,7 @@ IF(BUILD_PYTHON_INTERFACE)
     ${CMAKE_SOURCE_DIR}/scripts/tf_publisher
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
     )
-  
+
   # Service file.
   install(FILES ./srv/RunPythonFile.srv DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/srv)
 
@@ -226,4 +227,3 @@ install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_N
 
 
 SETUP_PROJECT_FINALIZE()
-
