@@ -194,7 +194,7 @@ namespace dynamicgraph
 
     static void setDefault(sot_t& s)
     {
-      s.resize(0,0);
+      s.resize(0);
     }
   };
 
