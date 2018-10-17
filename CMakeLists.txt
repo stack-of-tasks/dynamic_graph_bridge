@@ -164,6 +164,7 @@ IF(BUILD_PYTHON_INTERFACE)
   pkg_config_use_dependency(ros_interpreter sot-core)
   pkg_config_use_dependency(ros_interpreter roscpp)
   pkg_config_use_dependency(ros_interpreter dynamic_graph_bridge_msgs)
+  pkg_config_use_dependency(ros_interpreter dynamic-graph-python)
 
   add_dependencies(ros_interpreter ros_bridge)
   target_link_libraries(ros_interpreter ros_bridge)
