@@ -274,9 +274,7 @@ namespace dynamicgraph
   }
 
   RosQueuedSubscribe::~RosQueuedSubscribe ()
-  {
-    std::cout << getName() << ": Delete" << std::endl;
-  }
+  {}
 
   void RosQueuedSubscribe::display (std::ostream& os) const
   {
