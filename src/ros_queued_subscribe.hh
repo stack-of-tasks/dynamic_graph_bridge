@@ -104,7 +104,6 @@ namespace dynamicgraph
       {}
       ~BindedSignal()
       {
-        std::cout << signal->getName() << ": Delete" << std::endl;
         signal.reset();
         clear();
       }
