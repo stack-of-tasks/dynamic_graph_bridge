@@ -36,7 +36,8 @@ SET(CATKIN_DEPENDS_LIBRARIES ros_bridge sot_loader)
 ## LAAS cmake submodule part
 set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
 set(PROJECT_NAME dynamic_graph_bridge)
-set(PROJECT_URL "")
+set(PROJECT_URL "https://github.com/stack-of-tasks/dynamic_graph_bridge")
+set(PROJECT_SUFFIX "-v3")
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
@@ -91,11 +92,9 @@ add_required_dependency(roscpp)
 add_required_dependency(tf)
 add_required_dependency("realtime_tools >= 1.8")
 add_required_dependency(tf2_bullet)
-ADD_REQUIRED_DEPENDENCY("pinocchio")
+
 ADD_REQUIRED_DEPENDENCY("dynamic-graph >= 3.0.0")
-ADD_REQUIRED_DEPENDENCY("sot-dynamic-pinocchio >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("sot-core >= 3.0.0")
-ADD_REQUIRED_DEPENDENCY("sot-tools >= 2.0.0")
 
 add_required_dependency(dynamic_graph_bridge_msgs)
 
@@ -166,6 +165,7 @@ IF(BUILD_PYTHON_INTERFACE)
   pkg_config_use_dependency(ros_interpreter sot-core)
   pkg_config_use_dependency(ros_interpreter roscpp)
   pkg_config_use_dependency(ros_interpreter dynamic_graph_bridge_msgs)
+  pkg_config_use_dependency(ros_interpreter dynamic-graph-python)
 
   add_dependencies(ros_interpreter ros_bridge)
   target_link_libraries(ros_interpreter ros_bridge)
@@ -217,7 +217,7 @@ IF(BUILD_PYTHON_INTERFACE)
     ${CMAKE_SOURCE_DIR}/scripts/tf_publisher
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
     )
-  
+
   # Service file.
   install(FILES ./srv/RunPythonFile.srv DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/srv)
 
@@ -229,4 +229,3 @@ install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_N
 
 
 SETUP_PROJECT_FINALIZE()
-
