@@ -220,9 +220,10 @@ namespace dynamicgraph
     }
 
     //lock the mutex to avoid deleting the signal during a call to trigger
+    boost::mutex::scoped_lock lock (mutex_);
+
     signalDeregistration(signal);
     bindedSignal_.erase (signal);
-    mutex_.unlock();
   }
 
   std::string RosPublish::list () const
@@ -262,13 +263,14 @@ namespace dynamicgraph
 
     nextPublication_ = ros::Time::now() + rate_;
 
+    boost::mutex::scoped_lock lock (mutex_);
+
     while(! mutex_.try_lock() ){}
     for (iterator_t it = bindedSignal_.begin ();
 	 it != bindedSignal_.end (); ++it)
       {
 	boost::get<1>(it->second) (t);
       }
-    mutex_.unlock();
     return dummy;
   }
 
