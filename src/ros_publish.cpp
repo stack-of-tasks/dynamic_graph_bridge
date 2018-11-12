@@ -143,11 +143,11 @@ namespace dynamicgraph
 		sotNOSIGNAL,
 		MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
       rate_ (ROS_JOINT_STATE_PUBLISHER_RATE),
-      lastPublicated_ ()
+      nextPublication_ ()
   {
 
     try {
-      lastPublicated_ = ros::Time::now ();
+      nextPublication_ = ros::Time::now ();
     } catch (const std::exception& exc) {
       throw std::runtime_error ("Failed to call ros::Time::now ():" +
 				std::string (exc.what ()));
@@ -220,7 +220,6 @@ namespace dynamicgraph
     }
 
     //lock the mutex to avoid deleting the signal during a call to trigger
-    while(! mutex_.try_lock() ){}
     signalDeregistration(signal);
     bindedSignal_.erase (signal);
     mutex_.unlock();
@@ -258,11 +257,10 @@ namespace dynamicgraph
   {
     typedef std::map<std::string, bindedSignal_t>::iterator iterator_t;
 
-    ros::Duration dt = ros::Time::now () - lastPublicated_;
-    if (dt < rate_)
+    if (ros::Time::now() <= nextPublication_)
       return dummy;
 
-    lastPublicated_ = ros::Time::now();
+    nextPublication_ = ros::Time::now() + rate_;
 
     while(! mutex_.try_lock() ){}
     for (iterator_t it = bindedSignal_.begin ();
