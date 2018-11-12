@@ -93,7 +93,7 @@ namespace dynamicgraph
     std::map<std::string, bindedSignal_t> bindedSignal_;
     dynamicgraph::SignalTimeDependent<int,int> trigger_;
     ros::Duration rate_;
-    ros::Time lastPublicated_;
+    ros::Time nextPublication_;
     boost::interprocess::interprocess_mutex mutex_;
   };
 } // end of namespace dynamicgraph.
