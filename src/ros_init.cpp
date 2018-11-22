@@ -37,12 +37,33 @@ namespace dynamicgraph
     if (!ros.spinner && createAsyncSpinner)
       {
 	ros.spinner = boost::make_shared<ros::AsyncSpinner> (4);
+
+        // Change the thread's scheduler from real-time to normal and reduce its priority
+        int oldThreadPolicy, newThreadPolicy;
+        struct sched_param oldThreadParam, newThreadParam;
+        if (pthread_getschedparam (pthread_self(), &oldThreadPolicy, &oldThreadParam) == 0)
+        {
+          newThreadPolicy = SCHED_OTHER;
+          newThreadParam = oldThreadParam;
+          newThreadParam.sched_priority -= 5; // Arbitrary number, TODO: choose via param/file?
+          if (newThreadParam.sched_priority < sched_get_priority_min (newThreadPolicy))
+            newThreadParam.sched_priority = sched_get_priority_min (newThreadPolicy);
+           
+          pthread_setschedparam (pthread_self(), newThreadPolicy, &newThreadParam);
+        } 
+        
+        // AsyncSpinners are created with the reduced priority
 	ros.spinner->start ();
+        
+        // Switch the priority of the parent thread (this thread) back to real-time.
+        pthread_setschedparam (pthread_self(), oldThreadPolicy, &oldThreadParam);
       }
     else 
       {
 	if (!ros.mtSpinner && createMultiThreadedSpinner)
 	  {
+            // Seems not to be used.
+            // If we need to reduce its threads priority, it needs to be done before calling the MultiThreadedSpinner::spin() method
 	    ros.mtSpinner = boost::make_shared<ros::MultiThreadedSpinner>(4);
 	  }
       }
