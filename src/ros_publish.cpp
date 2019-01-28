@@ -265,7 +265,6 @@ namespace dynamicgraph
 
     boost::mutex::scoped_lock lock (mutex_);
 
-    while(! mutex_.try_lock() ){}
     for (iterator_t it = bindedSignal_.begin ();
 	 it != bindedSignal_.end (); ++it)
       {
