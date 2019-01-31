@@ -72,12 +72,6 @@ protected:
   /// \brief Coefficient between parallel joints and the state vector.
   std::vector<double> coefficient_parallel_joints_;
 
-  /// Advertises start_dynamic_graph services
-  ros::ServiceServer service_start_;
-
-  /// Advertises stop_dynamic_graph services
-  ros::ServiceServer service_stop_;
-
   // Joint state publication.
   ros::Publisher joint_pub_;
   
@@ -87,6 +81,7 @@ protected:
   // Number of DOFs according to KDL.
   int nbOfJoints_;
   parallel_joints_to_state_vector_t::size_type nbOfParallelJoints_;
+
 
 public:
   SotLoaderBasic();
