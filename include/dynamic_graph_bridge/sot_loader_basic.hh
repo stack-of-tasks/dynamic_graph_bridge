@@ -71,7 +71,12 @@ protected:
 
   /// \brief Coefficient between parallel joints and the state vector.
   std::vector<double> coefficient_parallel_joints_;
+  /// Advertises start_dynamic_graph services
+  ros::ServiceServer service_start_;
 
+  /// Advertises stop_dynamic_graph services
+  ros::ServiceServer service_stop_;
+  
   // Joint state publication.
   ros::Publisher joint_pub_;
   
