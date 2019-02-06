@@ -18,8 +18,12 @@
 #include "dynamic_graph_bridge/ros_init.hh"
 #include "ros_publish.hh"
 
+#define ENABLE_RT_LOG
+#include <dynamic-graph/real-time-logger.h>
+
 namespace dynamicgraph
 {
+  
   DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosPublish, "RosPublish");
   const double RosPublish::ROS_JOINT_STATE_PUBLISHER_RATE = 0.01;
 
@@ -142,12 +146,22 @@ namespace dynamicgraph
       trigger_ (boost::bind (&RosPublish::trigger, this, _1, _2),
 		sotNOSIGNAL,
 		MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
-      rate_ (ROS_JOINT_STATE_PUBLISHER_RATE),
+      rate_ (0,10000000),
       nextPublication_ ()
   {
-
+    aofs_.open("/tmp/ros_publish.txt");
+    dgADD_OSTREAM_TO_RTLOG (aofs_);
+    
     try {
-      nextPublication_ = ros::Time::now ();
+      if (ros::Time::isSimTime())
+	nextPublication_ = ros::Time::now ();
+      else
+	{
+	  struct timeval timeofday;
+	  gettimeofday(&timeofday,NULL);
+	  nextPublicationRT_.tv_sec = timeofday.tv_sec;
+	  nextPublicationRT_.tv_usec = timeofday.tv_usec;
+	}
     } catch (const std::exception& exc) {
       throw std::runtime_error ("Failed to call ros::Time::now ():" +
 				std::string (exc.what ()));
@@ -201,6 +215,7 @@ namespace dynamicgraph
 
   RosPublish::~RosPublish ()
   {
+    aofs_.close();
   }
 
   void RosPublish::display (std::ostream& os) const
@@ -256,13 +271,44 @@ namespace dynamicgraph
 
   int& RosPublish::trigger (int& dummy, int t)
   {
+    
     typedef std::map<std::string, bindedSignal_t>::iterator iterator_t;
+    ros::Time aTime;
+    struct timeval aTimeRT;
+    if (ros::Time::isSimTime())
+      {
+	 aTime= ros::Time::now();
+	 dgRTLOG() << "nextPublication_:"
+		   << " " << nextPublication_.sec
+		   << " " << nextPublication_.nsec
+		   << " " << ros::Time::isValid()
+		   << " " << ros::Time::isSimTime();
+	 
+	 if (aTime <= nextPublication_)
+	   return dummy;
 
-    if (ros::Time::now() <= nextPublication_)
-      return dummy;
+	 nextPublication_ = aTime + rate_;
+      }
+    else
+      {
+	struct timeval aTimeRT;
+	gettimeofday(&aTimeRT,NULL);
+	// dgRTLOG() << "nextPublicationRT_:"
+	// 	  << " " << nextPublicationRT_.tv_sec
+	// 	  << " " << nextPublicationRT_.tv_usec
+	// 	  << " " << ros::Time::isValid()
+	// 	  << " " << ros::Time::isSimTime()
+	// 	  << std::endl;
+	nextPublicationRT_.tv_sec = aTimeRT.tv_sec + rate_.sec;
+	nextPublicationRT_.tv_usec = aTimeRT.tv_usec + rate_.nsec/1000;
+	if (nextPublicationRT_.tv_usec>1000000)
+	  {
+	    nextPublicationRT_.tv_usec-=1000000;
+	    nextPublicationRT_.tv_sec+=1;
+	  }
+      }
 
-    nextPublication_ = ros::Time::now() + rate_;
-
+    //    dgRTLOG() << "after nextPublication_" << std::endl;
     boost::mutex::scoped_lock lock (mutex_);
 
     for (iterator_t it = bindedSignal_.begin ();
