@@ -16,6 +16,7 @@
 
 # include "converter.hh"
 # include "sot_to_ros.hh"
+# include <fstream>
 
 namespace dynamicgraph
 {
@@ -95,6 +96,8 @@ namespace dynamicgraph
     ros::Duration rate_;
     ros::Time nextPublication_;
     boost::mutex mutex_;
+    std::ofstream aofs_;
+    struct timeval nextPublicationRT_;
   };
 } // end of namespace dynamicgraph.
 
