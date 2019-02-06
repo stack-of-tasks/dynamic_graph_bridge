@@ -97,7 +97,7 @@ namespace dynamicgraph
     ros::Time nextPublication_;
     boost::mutex mutex_;
     std::ofstream aofs_;
-    struct timeval nextPublicationRT_;
+    struct timespec nextPublicationRT_;
   };
 } // end of namespace dynamicgraph.
 

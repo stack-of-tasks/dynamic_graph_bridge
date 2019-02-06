@@ -157,10 +157,7 @@ namespace dynamicgraph
 	nextPublication_ = ros::Time::now ();
       else
 	{
-	  struct timeval timeofday;
-	  gettimeofday(&timeofday,NULL);
-	  nextPublicationRT_.tv_sec = timeofday.tv_sec;
-	  nextPublicationRT_.tv_usec = timeofday.tv_usec;
+	  clock_gettime(CLOCK_REALTIME,&nextPublicationRT_);
 	}
     } catch (const std::exception& exc) {
       throw std::runtime_error ("Failed to call ros::Time::now ():" +
@@ -274,16 +271,9 @@ namespace dynamicgraph
     
     typedef std::map<std::string, bindedSignal_t>::iterator iterator_t;
     ros::Time aTime;
-    struct timeval aTimeRT;
     if (ros::Time::isSimTime())
       {
 	 aTime= ros::Time::now();
-	 dgRTLOG() << "nextPublication_:"
-		   << " " << nextPublication_.sec
-		   << " " << nextPublication_.nsec
-		   << " " << ros::Time::isValid()
-		   << " " << ros::Time::isSimTime();
-	 
 	 if (aTime <= nextPublication_)
 	   return dummy;
 
@@ -291,24 +281,17 @@ namespace dynamicgraph
       }
     else
       {
-	struct timeval aTimeRT;
-	gettimeofday(&aTimeRT,NULL);
-	// dgRTLOG() << "nextPublicationRT_:"
-	// 	  << " " << nextPublicationRT_.tv_sec
-	// 	  << " " << nextPublicationRT_.tv_usec
-	// 	  << " " << ros::Time::isValid()
-	// 	  << " " << ros::Time::isSimTime()
-	// 	  << std::endl;
+	struct timespec aTimeRT;
+	clock_gettime(CLOCK_REALTIME,&aTimeRT);
 	nextPublicationRT_.tv_sec = aTimeRT.tv_sec + rate_.sec;
-	nextPublicationRT_.tv_usec = aTimeRT.tv_usec + rate_.nsec/1000;
-	if (nextPublicationRT_.tv_usec>1000000)
+	nextPublicationRT_.tv_nsec = aTimeRT.tv_nsec + rate_.nsec;
+	if (nextPublicationRT_.tv_nsec>1000000000)
 	  {
-	    nextPublicationRT_.tv_usec-=1000000;
+	    nextPublicationRT_.tv_nsec-=1000000000;
 	    nextPublicationRT_.tv_sec+=1;
 	  }
       }
 
-    //    dgRTLOG() << "after nextPublication_" << std::endl;
     boost::mutex::scoped_lock lock (mutex_);
 
     for (iterator_t it = bindedSignal_.begin ();
