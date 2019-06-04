@@ -92,6 +92,7 @@ int SotLoaderBasic::readSotVectorStateParam()
   n.getParam("/sot/state_vector_map", stateVectorMap_);
   ROS_ASSERT(stateVectorMap_.getType() == XmlRpc::XmlRpcValue::TypeArray);
   nbOfJoints_ = stateVectorMap_.size();
+  nbOfParallelJoints_ = 0;
 
   if (ros::param::has("/sot/joint_state_parallel"))
     {
