@@ -19,15 +19,18 @@ namespace dynamicgraph {
     struct TransformListenerData {
       typedef Signal<sot::MatrixHomogeneous, int> signal_t;
 
+      RosTfListener* entity;
       tf::TransformListener& listener;
       const std::string toFrame, fromFrame;
       tf::StampedTransform transform;
       signal_t signal;
 
-      TransformListenerData (tf::TransformListener& l,
+      TransformListenerData (RosTfListener* e,
+          tf::TransformListener& l,
           const std::string& to, const std::string& from,
           const std::string& signame)
-        : listener (l)
+        : entity (e)
+        , listener (l)
         , toFrame (to)
         , fromFrame (from)
         , signal (signame)
@@ -35,23 +38,7 @@ namespace dynamicgraph {
         signal.setFunction (boost::bind(&TransformListenerData::getTransform, this, _1, _2));
       }
 
-      sot::MatrixHomogeneous& getTransform (sot::MatrixHomogeneous& res, int time)
-      {
-        static const ros::Time rosTime(0);
-        try {
-          listener.lookupTransform (toFrame, fromFrame, rosTime, transform);
-        } catch (const tf::TransformException& ex) {
-          res.setIdentity();
-          ROS_ERROR("Enable to get transform at time %i: %s",time,ex.what());
-          return res;
-        }
-        for (sot::MatrixHomogeneous::Index r = 0; r < 3; ++r) {
-          for (sot::MatrixHomogeneous::Index c = 0; c < 3; ++c)
-            res.linear ()(r,c) = transform.getBasis().getRow(r)[c];
-          res.translation()[r] = transform.getOrigin()[r];
-        }
-        return res;
-      }
+      sot::MatrixHomogeneous& getTransform (sot::MatrixHomogeneous& res, int time);
     };
   } // end of internal namespace.
 
@@ -93,7 +80,7 @@ namespace dynamicgraph {
         signalName % getName () % signame;
 
         TransformListenerData* tld = new TransformListenerData (
-            listener, to, from, signalName.str());
+            this, listener, to, from, signalName.str());
         signalRegistration (tld->signal);
         listenerDatas[signame] = tld;
       }
