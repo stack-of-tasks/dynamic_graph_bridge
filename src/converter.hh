@@ -88,6 +88,17 @@ namespace dynamicgraph
     dst = src.data;
   }
 
+  // String
+  SOT_TO_ROS_IMPL(std::string)
+  {
+    dst.data = src;
+  }
+
+  ROS_TO_SOT_IMPL(std::string)
+  {
+    dst = src.data;
+  }
+
   // Vector
   SOT_TO_ROS_IMPL(Vector)
   {
@@ -242,6 +253,7 @@ namespace dynamicgraph
   DG_BRIDGE_MAKE_SHPTR_IMPL(double);
   DG_BRIDGE_MAKE_SHPTR_IMPL(int);
   DG_BRIDGE_MAKE_SHPTR_IMPL(unsigned int);
+  DG_BRIDGE_MAKE_SHPTR_IMPL(std::string);
   DG_BRIDGE_MAKE_SHPTR_IMPL(Vector);
   DG_BRIDGE_MAKE_SHPTR_IMPL(specific::Vector3);
   DG_BRIDGE_MAKE_SHPTR_IMPL(Matrix);

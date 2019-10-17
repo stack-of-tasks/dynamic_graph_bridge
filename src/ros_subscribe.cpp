@@ -94,6 +94,8 @@ namespace dynamicgraph
 	else if (type == "twistStamped")
 	  entity.add<std::pair<specific::Twist, dg::Vector> >
 	    (signal, topic);
+	else if (type == "string")
+	  entity.add<std::string> (signal, topic);
 	else
 	  throw std::runtime_error("bad type");
 	return Value ();

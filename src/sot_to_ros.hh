@@ -9,6 +9,7 @@
 # include <std_msgs/Float64.h>
 # include <std_msgs/UInt32.h>
 # include <std_msgs/Int32.h>
+# include <std_msgs/String.h>
 # include "dynamic_graph_bridge_msgs/Matrix.h"
 # include "dynamic_graph_bridge_msgs/Vector.h"
 
@@ -143,6 +144,30 @@ namespace dynamicgraph
     static void setDefault(sot_t& s)
     {
       s = 0;
+    }
+  };
+
+  template <>
+  struct SotToRos<std::string>
+  {
+    typedef std::string sot_t;
+    typedef std_msgs::String ros_t;
+    typedef std_msgs::StringConstPtr ros_const_ptr_t;
+    typedef dynamicgraph::Signal<sot_t, int> signal_t;
+    typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
+    typedef boost::function<sot_t& (sot_t&, int)> callback_t;
+
+    static const char* signalTypeName;
+
+    template <typename S>
+    static void setDefault(S& s)
+    {
+      s.setConstant ("");
+    }
+
+    static void setDefault(sot_t& s)
+    {
+      s = std::string ();
     }
   };
 
