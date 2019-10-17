@@ -6,6 +6,7 @@ namespace dynamicgraph
   const char* SotToRos<bool>::signalTypeName = "bool";
   const char* SotToRos<double>::signalTypeName = "Double";
   const char* SotToRos<int>::signalTypeName = "int";
+  const char* SotToRos<std::string>::signalTypeName = "string";
   const char* SotToRos<unsigned int>::signalTypeName = "Unsigned";
   const char* SotToRos<Matrix>::signalTypeName = "Matrix";
   const char* SotToRos<Vector>::signalTypeName = "Vector";
