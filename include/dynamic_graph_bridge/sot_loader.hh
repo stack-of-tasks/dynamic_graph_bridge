@@ -41,7 +41,7 @@
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_broadcaster.h>
 
-// Sot Framework includes 
+// Sot Framework includes
 #include <sot/core/debug.hh>
 #include <sot/core/abstract-sot-external-interface.hh>
 
@@ -51,20 +51,15 @@
 namespace po = boost::program_options;
 namespace dgs = dynamicgraph::sot;
 
-
-class SotLoader: public SotLoaderBasic 
-{
-
-protected:
-
-
+class SotLoader : public SotLoaderBasic {
+ protected:
   /// Map of sensor readings
-  std::map <std::string,dgs::SensorValues> sensorsIn_;
+  std::map<std::string, dgs::SensorValues> sensorsIn_;
   /// Map of control values
-  std::map<std::string,dgs::ControlValues> controlValues_;
+  std::map<std::string, dgs::ControlValues> controlValues_;
 
   /// Angular values read by encoders
-  std::vector <double> angleEncoder_;
+  std::vector<double> angleEncoder_;
   /// Angular values sent to motors
   std::vector<double> angleControl_;
   /// Forces read by force sensors
@@ -74,26 +69,24 @@ protected:
   /// Attitude of the robot computed by extended Kalman filter.
   std::vector<double> baseAtt_;
   /// Accelerations read by Accelerometers
-  std::vector <double> accelerometer_;
+  std::vector<double> accelerometer_;
   /// Angular velocity read by gyrometers
-  std::vector <double> gyrometer_;
+  std::vector<double> gyrometer_;
 
   /// URDF string description of the robot.
   std::string robot_desc_string_;
-  
 
   /// The thread running dynamic graph
   boost::thread thread_;
-  
+
   // \brief Start control loop
   virtual void startControlLoop();
 
-
-  //Robot Pose Publisher
+  // Robot Pose Publisher
   tf::TransformBroadcaster freeFlyerPublisher_;
   tf::Transform freeFlyerPose_;
 
-public:
+ public:
   SotLoader();
   ~SotLoader();
 
@@ -105,17 +98,13 @@ public:
   void oneIteration();
 
   // \brief Fill the sensors value for the SoT.
-  void fillSensors(std::map<std::string, 
-                   dgs::SensorValues> & sensorsIn);
+  void fillSensors(std::map<std::string, dgs::SensorValues> &sensorsIn);
 
   // \brief Read the control computed by the SoT framework.
-  void readControl(std::map<std::string, 
-                   dgs::ControlValues> & controlValues);
+  void readControl(std::map<std::string, dgs::ControlValues> &controlValues);
 
   // \brief Prepare the SoT framework.
   void setup();
-
-
 };
 
 #endif /* SOT_LOADER_HH_ */
