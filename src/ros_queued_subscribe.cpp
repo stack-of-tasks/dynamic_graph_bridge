@@ -32,175 +32,124 @@
 #include "dynamic_graph_bridge/ros_init.hh"
 #include "ros_queued_subscribe.hh"
 
-namespace dynamicgraph
-{
-  DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosQueuedSubscribe, "RosQueuedSubscribe");
+namespace dynamicgraph {
+DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosQueuedSubscribe, "RosQueuedSubscribe");
 
-  namespace command
-  {
-    namespace rosQueuedSubscribe
-    {
-      Clear::Clear
-      (RosQueuedSubscribe& entity, const std::string& docstring)
-	: Command
-	  (entity,
-	   std::vector<Value::Type> (),
-	   docstring)
-      {}
+namespace command {
+namespace rosQueuedSubscribe {
+Clear::Clear(RosQueuedSubscribe& entity, const std::string& docstring)
+    : Command(entity, std::vector<Value::Type>(), docstring) {}
 
-      Value Clear::doExecute ()
-      {
-	RosQueuedSubscribe& entity =
-	  static_cast<RosQueuedSubscribe&> (owner ());
+Value Clear::doExecute() {
+  RosQueuedSubscribe& entity = static_cast<RosQueuedSubscribe&>(owner());
 
-	entity.clear ();
-	return Value ();
-      }
+  entity.clear();
+  return Value();
+}
 
-      ClearQueue::ClearQueue
-      (RosQueuedSubscribe& entity, const std::string& docstring)
-	: Command
-	  (entity,
-	   boost::assign::list_of (Value::STRING),
-	   docstring)
-      {}
+ClearQueue::ClearQueue(RosQueuedSubscribe& entity, const std::string& docstring)
+    : Command(entity, boost::assign::list_of(Value::STRING), docstring) {}
 
-      Value ClearQueue::doExecute ()
-      {
-	RosQueuedSubscribe& entity =
-	  static_cast<RosQueuedSubscribe&> (owner ());
+Value ClearQueue::doExecute() {
+  RosQueuedSubscribe& entity = static_cast<RosQueuedSubscribe&>(owner());
 
-	std::vector<Value> values = getParameterValues ();
-	const std::string& signal = values[0].value ();
-        entity.clearQueue (signal);
+  std::vector<Value> values = getParameterValues();
+  const std::string& signal = values[0].value();
+  entity.clearQueue(signal);
 
-	return Value ();
-      }
+  return Value();
+}
 
-      List::List
-      (RosQueuedSubscribe& entity, const std::string& docstring)
-	: Command
-	  (entity,
-	   std::vector<Value::Type> (),
-	   docstring)
-      {}
+List::List(RosQueuedSubscribe& entity, const std::string& docstring)
+    : Command(entity, std::vector<Value::Type>(), docstring) {}
 
-      Value List::doExecute ()
-      {
-	RosQueuedSubscribe& entity =
-	  static_cast<RosQueuedSubscribe&> (owner ());
-	return Value (entity.list ());
-      }
+Value List::doExecute() {
+  RosQueuedSubscribe& entity = static_cast<RosQueuedSubscribe&>(owner());
+  return Value(entity.list());
+}
 
-      Add::Add
-      (RosQueuedSubscribe& entity, const std::string& docstring)
-	: Command
-	  (entity,
-	   boost::assign::list_of
-	   (Value::STRING) (Value::STRING) (Value::STRING),
-	   docstring)
-      {}
+Add::Add(RosQueuedSubscribe& entity, const std::string& docstring)
+    : Command(
+          entity,
+          boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING),
+          docstring) {}
 
-      Value Add::doExecute ()
-      {
-	RosQueuedSubscribe& entity =
-	  static_cast<RosQueuedSubscribe&> (owner ());
-	std::vector<Value> values = getParameterValues ();
+Value Add::doExecute() {
+  RosQueuedSubscribe& entity = static_cast<RosQueuedSubscribe&>(owner());
+  std::vector<Value> values = getParameterValues();
 
-	const std::string& type = values[0].value ();
-	const std::string& signal = values[1].value ();
-	const std::string& topic = values[2].value ();
+  const std::string& type = values[0].value();
+  const std::string& signal = values[1].value();
+  const std::string& topic = values[2].value();
 
-	if (type == "double")
-	  entity.add<double> (type, signal, topic);
-	else if (type == "unsigned")
-	  entity.add<unsigned int> (type, signal, topic);
-	else if (type == "matrix")
-	  entity.add<dg::Matrix> (type, signal, topic);
-	else if (type == "vector")
-	  entity.add<dg::Vector> (type, signal, topic);
-	else if (type == "vector3")
-	  entity.add<specific::Vector3> (type, signal, topic);
-	else if (type == "matrixHomo")
-	  entity.add<sot::MatrixHomogeneous> (type, signal, topic);
-	else if (type == "twist")
-	  entity.add<specific::Twist> (type, signal, topic);
-	else
-	  throw std::runtime_error("bad type");
-	return Value ();
-      }
+  if (type == "double")
+    entity.add<double>(type, signal, topic);
+  else if (type == "unsigned")
+    entity.add<unsigned int>(type, signal, topic);
+  else if (type == "matrix")
+    entity.add<dg::Matrix>(type, signal, topic);
+  else if (type == "vector")
+    entity.add<dg::Vector>(type, signal, topic);
+  else if (type == "vector3")
+    entity.add<specific::Vector3>(type, signal, topic);
+  else if (type == "matrixHomo")
+    entity.add<sot::MatrixHomogeneous>(type, signal, topic);
+  else if (type == "twist")
+    entity.add<specific::Twist>(type, signal, topic);
+  else
+    throw std::runtime_error("bad type");
+  return Value();
+}
 
-      Rm::Rm
-      (RosQueuedSubscribe& entity, const std::string& docstring)
-	: Command
-	  (entity,
-	   boost::assign::list_of (Value::STRING),
-	   docstring)
-      {}
+Rm::Rm(RosQueuedSubscribe& entity, const std::string& docstring)
+    : Command(entity, boost::assign::list_of(Value::STRING), docstring) {}
 
-      Value Rm::doExecute ()
-      {
-	RosQueuedSubscribe& entity =
-	  static_cast<RosQueuedSubscribe&> (owner ());
-	std::vector<Value> values = getParameterValues ();
-	const std::string& signal = values[0].value ();
-	entity.rm (signal);
-	return Value ();
-      }
+Value Rm::doExecute() {
+  RosQueuedSubscribe& entity = static_cast<RosQueuedSubscribe&>(owner());
+  std::vector<Value> values = getParameterValues();
+  const std::string& signal = values[0].value();
+  entity.rm(signal);
+  return Value();
+}
 
-      QueueSize::QueueSize
-      (RosQueuedSubscribe& entity, const std::string& docstring)
-	: Command
-	  (entity,
-	   boost::assign::list_of (Value::STRING),
-	   docstring)
-      {}
+QueueSize::QueueSize(RosQueuedSubscribe& entity, const std::string& docstring)
+    : Command(entity, boost::assign::list_of(Value::STRING), docstring) {}
 
-      Value QueueSize::doExecute ()
-      {
-	RosQueuedSubscribe& entity =
-	  static_cast<RosQueuedSubscribe&> (owner ());
+Value QueueSize::doExecute() {
+  RosQueuedSubscribe& entity = static_cast<RosQueuedSubscribe&>(owner());
 
-	std::vector<Value> values = getParameterValues ();
-	const std::string& signal = values[0].value ();
+  std::vector<Value> values = getParameterValues();
+  const std::string& signal = values[0].value();
 
-	return Value ((unsigned)entity.queueSize (signal));
-      }
+  return Value((unsigned)entity.queueSize(signal));
+}
 
-      ReadQueue::ReadQueue
-      (RosQueuedSubscribe& entity, const std::string& docstring)
-	: Command
-	  (entity,
-	   boost::assign::list_of (Value::INT),
-	   docstring)
-      {}
+ReadQueue::ReadQueue(RosQueuedSubscribe& entity, const std::string& docstring)
+    : Command(entity, boost::assign::list_of(Value::INT), docstring) {}
 
-      Value ReadQueue::doExecute ()
-      {
-	RosQueuedSubscribe& entity =
-	  static_cast<RosQueuedSubscribe&> (owner ());
+Value ReadQueue::doExecute() {
+  RosQueuedSubscribe& entity = static_cast<RosQueuedSubscribe&>(owner());
 
-	std::vector<Value> values = getParameterValues ();
-        int read = values[0].value ();
-        entity.readQueue (read);
+  std::vector<Value> values = getParameterValues();
+  int read = values[0].value();
+  entity.readQueue(read);
 
-        return Value ();
-      }
-    } // end of errorEstimator.
-  } // end of namespace command.
+  return Value();
+}
+}  // namespace rosQueuedSubscribe
+}  // end of namespace command.
 
-  const std::string RosQueuedSubscribe::docstring_
-  ("Subscribe to a ROS topics and convert it into a dynamic-graph signals.\n"
-   "\n"
-   "  Use command \"add\" to subscribe to a new signal.\n");
+const std::string RosQueuedSubscribe::docstring_(
+    "Subscribe to a ROS topics and convert it into a dynamic-graph signals.\n"
+    "\n"
+    "  Use command \"add\" to subscribe to a new signal.\n");
 
-  RosQueuedSubscribe::RosQueuedSubscribe (const std::string& n)
+RosQueuedSubscribe::RosQueuedSubscribe(const std::string& n)
     : dynamicgraph::Entity(n),
-      nh_ (rosInit (true)),
-      bindedSignal_ (),
-      readQueue_ (-1)
-  {
-    std::string docstring =
+      nh_(rosInit(true)),
+      bindedSignal_(),
+      readQueue_(-1) {
+  std::string docstring =
       "\n"
       "  Add a signal reading data from a ROS topic\n"
       "\n"
@@ -210,143 +159,119 @@ namespace dynamicgraph
       "    - signal: the signal name in dynamic-graph,\n"
       "    - topic:  the topic name in ROS.\n"
       "\n";
-    addCommand ("add",
-		new command::rosQueuedSubscribe::Add
-		(*this, docstring));
-    docstring =
+  addCommand("add", new command::rosQueuedSubscribe::Add(*this, docstring));
+  docstring =
       "\n"
       "  Remove a signal reading data from a ROS topic\n"
       "\n"
       "  Input:\n"
-      "    - name of the signal to remove (see method list for the list of signals).\n"
+      "    - name of the signal to remove (see method list for the list of "
+      "signals).\n"
       "\n";
-    addCommand ("rm",
-		new command::rosQueuedSubscribe::Rm
-		(*this, docstring));
-    docstring =
+  addCommand("rm", new command::rosQueuedSubscribe::Rm(*this, docstring));
+  docstring =
       "\n"
       "  Remove all signals reading data from a ROS topic\n"
       "\n"
       "  No input:\n"
       "\n";
-    addCommand ("clear",
-		new command::rosQueuedSubscribe::Clear
-		(*this, docstring));
-    docstring =
+  addCommand("clear", new command::rosQueuedSubscribe::Clear(*this, docstring));
+  docstring =
       "\n"
       "  List signals reading data from a ROS topic\n"
       "\n"
       "  No input:\n"
       "\n";
-    addCommand ("list",
-		new command::rosQueuedSubscribe::List
-		(*this, docstring));
-    docstring =
+  addCommand("list", new command::rosQueuedSubscribe::List(*this, docstring));
+  docstring =
       "\n"
       "  Empty the queue of a given signal\n"
       "\n"
       "  Input is:\n"
       "    - name of the signal (see method list for the list of signals).\n"
       "\n";
-    addCommand ("clearQueue",
-		new command::rosQueuedSubscribe::ClearQueue
-		(*this, docstring));
-    docstring =
+  addCommand("clearQueue",
+             new command::rosQueuedSubscribe::ClearQueue(*this, docstring));
+  docstring =
       "\n"
       "  Return the queue size of a given signal\n"
       "\n"
       "  Input is:\n"
       "    - name of the signal (see method list for the list of signals).\n"
       "\n";
-    addCommand ("queueSize",
-		new command::rosQueuedSubscribe::QueueSize
-		(*this, docstring));
-    docstring =
+  addCommand("queueSize",
+             new command::rosQueuedSubscribe::QueueSize(*this, docstring));
+  docstring =
       "\n"
       "  Whether signals should read values from the queues, and when.\n"
       "\n"
       "  Input is:\n"
       "    - int (dynamic graph time at which the reading begin).\n"
       "\n";
-    addCommand ("readQueue",
-		new command::rosQueuedSubscribe::ReadQueue
-		(*this, docstring));
+  addCommand("readQueue",
+             new command::rosQueuedSubscribe::ReadQueue(*this, docstring));
+}
+
+RosQueuedSubscribe::~RosQueuedSubscribe() {}
+
+void RosQueuedSubscribe::display(std::ostream& os) const {
+  os << CLASS_NAME << std::endl;
+}
+
+void RosQueuedSubscribe::rm(const std::string& signal) {
+  std::string signalTs = signal + "Timestamp";
+
+  signalDeregistration(signal);
+  bindedSignal_.erase(signal);
+
+  if (bindedSignal_.find(signalTs) != bindedSignal_.end()) {
+    signalDeregistration(signalTs);
+    bindedSignal_.erase(signalTs);
   }
+}
 
-  RosQueuedSubscribe::~RosQueuedSubscribe ()
-  {}
-
-  void RosQueuedSubscribe::display (std::ostream& os) const
-  {
-    os << CLASS_NAME << std::endl;
+std::string RosQueuedSubscribe::list() {
+  std::string result("[");
+  for (std::map<std::string, bindedSignal_t>::const_iterator it =
+           bindedSignal_.begin();
+       it != bindedSignal_.end(); it++) {
+    result += "'" + it->first + "',";
   }
+  result += "]";
+  return result;
+}
 
-  void RosQueuedSubscribe::rm (const std::string& signal)
-  {
-    std::string signalTs = signal+"Timestamp";
-
-    signalDeregistration(signal);
-    bindedSignal_.erase (signal);
-
-    if(bindedSignal_.find(signalTs) != bindedSignal_.end())
-    {
-       signalDeregistration(signalTs);
-       bindedSignal_.erase(signalTs);
-    }
+void RosQueuedSubscribe::clear() {
+  std::map<std::string, bindedSignal_t>::iterator it = bindedSignal_.begin();
+  for (; it != bindedSignal_.end();) {
+    rm(it->first);
+    it = bindedSignal_.begin();
   }
+}
 
-  std::string RosQueuedSubscribe::list ()
-  {
-    std::string result("[");
-    for (std::map<std::string, bindedSignal_t>::const_iterator it =
-	   bindedSignal_.begin (); it != bindedSignal_.end (); it++) {
-      result += "'" + it->first + "',";
-    }
-    result += "]";
-    return result;
+void RosQueuedSubscribe::clearQueue(const std::string& signal) {
+  if (bindedSignal_.find(signal) != bindedSignal_.end()) {
+    bindedSignal_[signal]->clear();
   }
+}
 
-  void RosQueuedSubscribe::clear ()
-  {
-    std::map<std::string, bindedSignal_t>::iterator it = bindedSignal_.begin();
-    for(; it!= bindedSignal_.end(); )
-    {
-      rm(it->first);
-      it = bindedSignal_.begin();
-    }
-  }
-
-  void RosQueuedSubscribe::clearQueue (const std::string& signal)
-  {
-    if(bindedSignal_.find(signal) != bindedSignal_.end())
-    {
-       bindedSignal_[signal]->clear();
-    }
-  }
-
-  std::size_t RosQueuedSubscribe::queueSize (const std::string& signal) const
-  {
-    std::map<std::string, bindedSignal_t>::const_iterator _bs =
+std::size_t RosQueuedSubscribe::queueSize(const std::string& signal) const {
+  std::map<std::string, bindedSignal_t>::const_iterator _bs =
       bindedSignal_.find(signal);
-    if(_bs != bindedSignal_.end())
-    {
-       return _bs->second->size();
-    }
-    return -1;
+  if (_bs != bindedSignal_.end()) {
+    return _bs->second->size();
   }
+  return -1;
+}
 
-  void RosQueuedSubscribe::readQueue (int beginReadingAt)
-  {
-    // Prints signal queues sizes
-    /*for (std::map<std::string, bindedSignal_t>::const_iterator it =
-	   bindedSignal_.begin (); it != bindedSignal_.end (); it++) {
-      std::cout << it->first << " : " << it->second->size() << '\n';
-    }*/
-    readQueue_ = beginReadingAt;
-  }
+void RosQueuedSubscribe::readQueue(int beginReadingAt) {
+  // Prints signal queues sizes
+  /*for (std::map<std::string, bindedSignal_t>::const_iterator it =
+         bindedSignal_.begin (); it != bindedSignal_.end (); it++) {
+    std::cout << it->first << " : " << it->second->size() << '\n';
+  }*/
+  readQueue_ = beginReadingAt;
+}
 
-  std::string RosQueuedSubscribe::getDocString () const
-  {
-    return docstring_;
-  }
-} // end of namespace dynamicgraph.
+std::string RosQueuedSubscribe::getDocString() const { return docstring_; }
+}  // end of namespace dynamicgraph.
