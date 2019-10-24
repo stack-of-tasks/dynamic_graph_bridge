@@ -40,6 +40,9 @@ bool Interpreter::runPythonFileCallback(
 void Interpreter::runCommand(const std::string& command, std::string& result,
                              std::string& out, std::string& err) {
   interpreter_.python(command, result, out, err);
+  if (err.size() > 0) {
+    ROS_ERROR(err.c_str());
+  }
 }
 
 void Interpreter::runPythonFile(std::string ifilename) {
