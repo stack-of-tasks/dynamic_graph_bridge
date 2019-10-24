@@ -20,6 +20,7 @@
 /* --- INCLUDES ------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+#include <ros/rate.h>
 #include <dynamic_graph_bridge/sot_loader.hh>
 #include "dynamic_graph_bridge/ros_init.hh"
 
@@ -36,15 +37,27 @@ namespace po = boost::program_options;
 
 struct DataToLog {
   const std::size_t N;
-  std::size_t idx;
+  std::size_t idx, iter;
 
+  std::vector<std::size_t> iters;
   std::vector<double> times;
+  std::vector<double> ittimes;
 
-  DataToLog(std::size_t N_) : N(N_), idx(0), times(N, 0) {}
+  DataToLog(std::size_t N_)
+    : N(N_)
+    , idx(0)
+    , iter(0)
+    , iters(N, 0)
+    , times(N, 0)
+    , ittimes(N, 0)
+  {}
 
-  void record(const double t) {
-    times[idx] = t;
+  void record(const double t, const double itt) {
+    iters  [idx] = iter;
+    times  [idx] = t;
+    ittimes[idx] = itt;
     ++idx;
+    ++iter;
     if (idx == N) idx = 0;
   }
 
@@ -55,7 +68,10 @@ struct DataToLog {
     std::ofstream aof(oss.str().c_str());
     if (aof.is_open()) {
       for (std::size_t k = 0; k < N; ++k) {
-        aof << times[(idx + k) % N] << '\n';
+        aof
+          << iters  [(idx + k) % N] << ' '
+          << times  [(idx + k) % N] << ' '
+          << ittimes[(idx + k) % N] << '\n';
       }
     }
     aof.close();
@@ -63,38 +79,34 @@ struct DataToLog {
 };
 
 void workThreadLoader(SotLoader *aSotLoader) {
-  unsigned period = 1000;  // micro seconds
+  ros::Rate rate(1000); // 1 kHz
   if (ros::param::has("/sot_controller/dt")) {
     double periodd;
     ros::param::get("/sot_controller/dt", periodd);
-    period = unsigned(1e6 * periodd);
+    rate = ros::Rate(1/periodd);
   }
   DataToLog dataToLog(5000);
 
-  while (aSotLoader->isDynamicGraphStopped()) {
-    usleep(period);
+  rate.reset();
+  while (ros::ok() && aSotLoader->isDynamicGraphStopped()) {
+    rate.sleep();
   }
 
-  struct timeval start, stop;
   ros::NodeHandle nh("/geometric_simu");
   bool paused;
-  unsigned long long dt;
-  while (!aSotLoader->isDynamicGraphStopped()) {
+  ros::Time timeOrigin = ros::Time::now();
+  ros::Time time;
+  while (ros::ok() && !aSotLoader->isDynamicGraphStopped()) {
     nh.param<bool>("paused", paused, false);
 
     if (!paused) {
-      gettimeofday(&start, 0);
+      time = ros::Time::now();
       aSotLoader->oneIteration();
-      gettimeofday(&stop, 0);
 
-      dt = 1000000 * (stop.tv_sec - start.tv_sec) +
-           (stop.tv_usec - start.tv_usec);
-      dataToLog.record((double)dt * 1e-6);
-    } else
-      dt = 0;
-    if (period > dt) {
-      usleep(period - (unsigned)dt);
+      ros::Duration d = ros::Time::now() - time;
+      dataToLog.record((time - timeOrigin).toSec(), d.toSec());
     }
+    rate.sleep();
   }
   dataToLog.save("/tmp/geometric_simu");
   cond.notify_all();

@@ -16,15 +16,21 @@
  * have received a copy of the GNU Lesser General Public License along
  * with dynamic_graph_bridge.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <iostream>
+#include <ros/console.h>
 
 #define ENABLE_RT_LOG
 #include <dynamic-graph/real-time-logger.h>
 
 #include <dynamic_graph_bridge/sot_loader.hh>
 
+class LoggerROSStream : public ::dynamicgraph::LoggerStream {
+public:
+  void write(const char *c) { ROS_ERROR(c); }
+};
+
 int main(int argc, char *argv[]) {
-  dgADD_OSTREAM_TO_RTLOG(std::cerr);
+  ::dynamicgraph::RealTimeLogger::instance()
+    .addOutputStream(::dynamicgraph::LoggerStreamPtr_t(new LoggerROSStream()));
 
   ros::init(argc, argv, "sot_ros_encapsulator");
   SotLoader aSotLoader;
