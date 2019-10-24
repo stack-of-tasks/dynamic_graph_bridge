@@ -28,11 +28,6 @@
 // POSIX.1-2001
 #include <dlfcn.h>
 
-#include <boost/thread/thread.hpp>
-#include <boost/thread/condition.hpp>
-
-boost::mutex mut;
-
 using namespace std;
 using namespace dynamicgraph::sot;
 namespace po = boost::program_options;

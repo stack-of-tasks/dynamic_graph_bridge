@@ -87,9 +87,9 @@ Value Add::doExecute() {
   else if (type == "unsigned")
     entity.add<unsigned int>(type, signal, topic);
   else if (type == "matrix")
-    entity.add<dg::Matrix>(type, signal, topic);
+    entity.add<Matrix>(type, signal, topic);
   else if (type == "vector")
-    entity.add<dg::Vector>(type, signal, topic);
+    entity.add<Vector>(type, signal, topic);
   else if (type == "vector3")
     entity.add<specific::Vector3>(type, signal, topic);
   else if (type == "matrixHomo")

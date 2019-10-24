@@ -32,9 +32,6 @@
 # include "dynamic_graph_bridge_msgs/Matrix.h"
 # include "dynamic_graph_bridge_msgs/Vector.h"
 
-namespace dg = dynamicgraph;
-typedef boost::mutex::scoped_lock scoped_lock;
-
 namespace dynamicgraph
 {
   namespace internal
@@ -111,7 +108,7 @@ namespace dynamicgraph
     {
       // synchronize with method clear:
       // If reading from the list cannot be done, then return last value.
-      scoped_lock lock(rmutex, boost::try_to_lock);
+      boost::mutex::scoped_lock lock(rmutex, boost::try_to_lock);
       if (!lock.owns_lock() || entity->readQueue_ == -1 || time < entity->readQueue_) {
         data = last;
       } else {
