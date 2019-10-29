@@ -1,48 +1,68 @@
-# Please don't edit this file, and use the version generated at
-# http://rainboard.laas.fr/project/dynamic_graph_bridge/.gitlab-ci.yml
+# http://rainboard.laas.fr/project/dynamic-graph-bridge/.gitlab-ci.yml
 
 variables:
   GIT_SUBMODULE_STRATEGY: "recursive"
   CCACHE_BASEDIR: "${CI_PROJECT_DIR}"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
+  CTEST_PARALLEL_LEVEL: 4
 
 cache:
   paths:
     - ccache
 
-.robotpkg-py-dynamic-graph-bridge-v3: &robotpkg-py-dynamic-graph-bridge-v3
+.robotpkg-dynamic-graph-bridge: &robotpkg-dynamic-graph-bridge
   except:
     - gh-pages
   script:
     - mkdir -p ccache
-    - cd /root/robotpkg/wip
+    - cd /root/robotpkg/motion
     - git pull
-    - cd py-dynamic-graph-bridge-v3
-    - make checkout MASTER_REPOSITORY="dir ${CI_PROJECT_DIR}"
+    - cd dynamic-graph-bridge
+    - make checkout MASTER_REPOSITORY="git ${CI_PROJECT_DIR}/.git"
+    - /ci_deps.sh
     - make install
-    - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
+    - cd $(make show-var VARNAME=WRKSRC)
     - make test
 
-robotpkg-py-dynamic-graph-bridge-v3-14.04-release:
-  <<: *robotpkg-py-dynamic-graph-bridge-v3
-  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic_graph_bridge/py-dynamic-graph-bridge-v3:14.04
+robotpkg-dynamic-graph-bridge-14.04-release:
+  <<: *robotpkg-dynamic-graph-bridge
+  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic-graph-bridge/dynamic-graph-bridge:14.04
 
-robotpkg-py-dynamic-graph-bridge-v3-16.04-release:
-  <<: *robotpkg-py-dynamic-graph-bridge-v3
-  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic_graph_bridge/py-dynamic-graph-bridge-v3:16.04
+robotpkg-dynamic-graph-bridge-14.04-debug:
+  <<: *robotpkg-dynamic-graph-bridge
+  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic-graph-bridge/dynamic-graph-bridge:14.04
+  before_script:
+    - echo PKG_OPTIONS.dynamic-graph-bridge=debug >> /opt/openrobots/etc/robotpkg.conf
 
-robotpkg-py-dynamic-graph-bridge-v3-18.04-release:
-  <<: *robotpkg-py-dynamic-graph-bridge-v3
-  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic_graph_bridge/py-dynamic-graph-bridge-v3:18.04
+robotpkg-dynamic-graph-bridge-16.04-release:
+  <<: *robotpkg-dynamic-graph-bridge
+  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic-graph-bridge/dynamic-graph-bridge:16.04
+
+robotpkg-dynamic-graph-bridge-16.04-debug:
+  <<: *robotpkg-dynamic-graph-bridge
+  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic-graph-bridge/dynamic-graph-bridge:16.04
+  before_script:
+    - echo PKG_OPTIONS.dynamic-graph-bridge=debug >> /opt/openrobots/etc/robotpkg.conf
+
+robotpkg-dynamic-graph-bridge-18.04-release:
+  <<: *robotpkg-dynamic-graph-bridge
+  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic-graph-bridge/dynamic-graph-bridge:18.04
+
+robotpkg-dynamic-graph-bridge-18.04-debug:
+  <<: *robotpkg-dynamic-graph-bridge
+  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic-graph-bridge/dynamic-graph-bridge:18.04
+  before_script:
+    - echo PKG_OPTIONS.dynamic-graph-bridge=debug >> /opt/openrobots/etc/robotpkg.conf
 
 doc-coverage:
-  <<: *robotpkg-py-dynamic-graph-bridge-v3
-  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic_graph_bridge/py-dynamic-graph-bridge-v3:16.04
+  <<: *robotpkg-dynamic-graph-bridge
+  image: eur0c.laas.fr:5000/stack-of-tasks/dynamic-graph-bridge/dynamic-graph-bridge:16.04
   before_script:
     - echo -e 'CXXFLAGS+= --coverage\nLDFLAGS+= --coverage\nPKG_DEFAULT_OPTIONS= debug' >> /opt/openrobots/etc/robotpkg.conf
   after_script:
-    - cd /root/robotpkg/wip/py-dynamic-graph-bridge-v3
-    - cd work.$(hostname)/$(make show-var VARNAME=DISTNAME)
+    - cd /root/robotpkg/motion/dynamic-graph-bridge
+    - /ci_deps.sh
+    - cd $(make show-var VARNAME=WRKSRC)
     - make doc
     - mv doc/doxygen-html ${CI_PROJECT_DIR}
     - mkdir -p ${CI_PROJECT_DIR}/coverage/
