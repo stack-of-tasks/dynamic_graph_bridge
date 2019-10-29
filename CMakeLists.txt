@@ -18,7 +18,6 @@ include(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/eigen.cmake)
 include(cmake/ros.cmake)
-include(cmake/GNUInstallDirs.cmake)
 include(cmake/python.cmake)
 include(cmake/test.cmake)
 
@@ -62,8 +61,6 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 
 SEARCH_FOR_EIGEN()
 SEARCH_FOR_BOOST()
-
-SETUP_PROJECT()
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
