@@ -22,6 +22,7 @@ include(cmake/GNUInstallDirs.cmake)
 include(cmake/python.cmake)
 include(cmake/test.cmake)
 
+CMAKE_POLICY(SET CMP0048 OLD)
 project(${PROJECT_NAME} CXX)
 
 SET(CATKIN_REQUIRED_COMPONENTS roscpp std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf)
