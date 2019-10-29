@@ -18,7 +18,13 @@
 # Catkin part
 
 
-cmake_minimum_required(VERSION 2.4.6)
+cmake_minimum_required(VERSION 2.8.0)
+
+set(PROJECT_NAMESPACE stack-of-tasks)
+set(PROJECT_NAME dynamic_graph_bridge)
+set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
+set(PROJECT_URL "https://github.com/${PROJECT_NAMESPACE}/${PROJECT_NAME}")
+set(PROJECT_SUFFIX "-v3")
 
 include(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
@@ -28,16 +34,12 @@ include(cmake/GNUInstallDirs.cmake)
 include(cmake/python.cmake)
 include(cmake/test.cmake)
 
-project(dynamic_graph_bridge)
+project(${PROJECT_NAME} CXX)
 
 SET(CATKIN_REQUIRED_COMPONENTS roscpp std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf)
 SET(CATKIN_DEPENDS_LIBRARIES ros_bridge sot_loader)
 
 ## LAAS cmake submodule part
-set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
-set(PROJECT_NAME dynamic_graph_bridge)
-set(PROJECT_URL "https://github.com/stack-of-tasks/dynamic_graph_bridge")
-set(PROJECT_SUFFIX "-v3")
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
@@ -226,6 +228,3 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 message(cmake_install_bindir " is ${CMAKE_INSTALL_BINDIR} ")
 install(TARGETS geometric_simu DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/)
-
-
-SETUP_PROJECT_FINALIZE()
