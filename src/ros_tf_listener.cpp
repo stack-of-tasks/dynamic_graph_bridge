@@ -5,8 +5,7 @@
 
 namespace dynamicgraph {
 namespace internal {
-sot::MatrixHomogeneous& TransformListenerData::getTransform(
-    sot::MatrixHomogeneous& res, int time) {
+sot::MatrixHomogeneous& TransformListenerData::getTransform(sot::MatrixHomogeneous& res, int time) {
   static const ros::Time rosTime(0);
   try {
     listener.lookupTransform(toFrame, fromFrame, rosTime, transform);
@@ -18,8 +17,7 @@ sot::MatrixHomogeneous& TransformListenerData::getTransform(
     return res;
   }
   for (int r = 0; r < 3; ++r) {
-    for (int c = 0; c < 3; ++c)
-      res.linear()(r, c) = transform.getBasis().getRow(r)[c];
+    for (int c = 0; c < 3; ++c) res.linear()(r, c) = transform.getBasis().getRow(r)[c];
     res.translation()[r] = transform.getOrigin()[r];
   }
   return res;

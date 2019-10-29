@@ -3,8 +3,7 @@
 #include <ros/ros.h>
 
 namespace dynamicgraph {
-ros::NodeHandle& rosInit(bool createAsyncSpinner = false,
-                         bool createMultiThreadSpinner = true);
+ros::NodeHandle& rosInit(bool createAsyncSpinner = false, bool createMultiThreadSpinner = true);
 
 /// \brief Return spinner or throw an exception if spinner
 /// creation has been disabled at startup.

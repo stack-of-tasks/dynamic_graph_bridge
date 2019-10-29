@@ -22,38 +22,31 @@ RosRobotModel::RosRobotModel(const std::string& name)
       "  This is the recommended method.\n"
       "\n";
   addCommand("loadFromParameterServer",
-             command::makeCommandVoid0(
-                 *this, &RosRobotModel::loadFromParameterServer, docstring));
+             command::makeCommandVoid0(*this, &RosRobotModel::loadFromParameterServer, docstring));
 
   docstring =
       "\n"
       "  Load the robot model from an URDF file.\n"
       "\n";
-  addCommand("loadUrdf", command::makeCommandVoid1(
-                             *this, &RosRobotModel::loadUrdf, docstring));
+  addCommand("loadUrdf", command::makeCommandVoid1(*this, &RosRobotModel::loadUrdf, docstring));
 
   docstring =
       "\n"
       "  Set the controller namespace."
       "\n";
-  addCommand("setNamespace",
-             command::makeCommandVoid1(*this, &RosRobotModel::setNamespace,
-                                       docstring));
+  addCommand("setNamespace", command::makeCommandVoid1(*this, &RosRobotModel::setNamespace, docstring));
 
   docstring =
       "\n"
       "  Get current configuration of the robot.\n"
       "\n";
-  addCommand("curConf", new command::Getter<RosRobotModel, Vector>(
-                            *this, &RosRobotModel::curConf, docstring));
+  addCommand("curConf", new command::Getter<RosRobotModel, Vector>(*this, &RosRobotModel::curConf, docstring));
 
   docstring =
       "\n"
       "  Maps a link name in the URDF parser to actual robot link name.\n"
       "\n";
-  addCommand("addJointMapping",
-             command::makeCommandVoid2(*this, &RosRobotModel::addJointMapping,
-                                       docstring));
+  addCommand("addJointMapping", command::makeCommandVoid2(*this, &RosRobotModel::addJointMapping, docstring));
 }
 
 RosRobotModel::~RosRobotModel() {}
@@ -72,10 +65,8 @@ void RosRobotModel::loadUrdf(const std::string& filename) {
   XmlRpc::XmlRpcValue JointsNamesByRank_;
   JointsNamesByRank_.setSize(m_model.names.size());
   std::vector<std::string>::const_iterator it =
-      m_model.names.begin() +
-      2;  // first joint is universe, second is freeflyer
-  for (int i = 0; it != m_model.names.end(); ++it, ++i)
-    JointsNamesByRank_[i] = (*it);
+      m_model.names.begin() + 2;  // first joint is universe, second is freeflyer
+  for (int i = 0; it != m_model.names.end(); ++it, ++i) JointsNamesByRank_[i] = (*it);
   nh.setParam(jointsParameterName_, JointsNamesByRank_);
 }
 
@@ -85,15 +76,12 @@ void RosRobotModel::loadFromParameterServer() {
   rosInit(false);
   std::string robotDescription;
   ros::param::param<std::string>("/robot_description", robotDescription, "");
-  if (robotDescription.empty())
-    throw std::runtime_error("No model available as ROS parameter. Fail.");
+  if (robotDescription.empty()) throw std::runtime_error("No model available as ROS parameter. Fail.");
   ::urdf::ModelInterfacePtr urdfTree = ::urdf::parseURDF(robotDescription);
   if (urdfTree)
-    se3::urdf::parseTree(urdfTree->getRoot(), this->m_model,
-                         se3::SE3::Identity(), false);
+    se3::urdf::parseTree(urdfTree->getRoot(), this->m_model, se3::SE3::Identity(), false);
   else {
-    const std::string exception_message(
-        "robot_description not parsed correctly.");
+    const std::string exception_message("robot_description not parsed correctly.");
     throw std::invalid_argument(exception_message);
   }
 
@@ -107,8 +95,7 @@ void RosRobotModel::loadFromParameterServer() {
   JointsNamesByRank_.setSize(m_model.names.size());
   // first joint is universe, second is freeflyer
   std::vector<std::string>::const_iterator it = m_model.names.begin() + 2;
-  for (int i = 0; it != m_model.names.end(); ++it, ++i)
-    JointsNamesByRank_[i] = (*it);
+  for (int i = 0; it != m_model.names.end(); ++it, ++i) JointsNamesByRank_[i] = (*it);
   nh.setParam(jointsParameterName_, JointsNamesByRank_);
 }
 
@@ -137,15 +124,13 @@ Vector RosRobotModel::curConf() const {
   else {
     // TODO: confirm accesscopy is for asynchronous commands
     Vector currConf = jointPositionSIN.accessCopy();
-    for (int32_t i = 0; i < ffpose.size(); ++i)
-      currConf(i) = static_cast<double>(ffpose[i]);
+    for (int32_t i = 0; i < ffpose.size(); ++i) currConf(i) = static_cast<double>(ffpose[i]);
 
     return currConf;
   }
 }
 
-void RosRobotModel::addJointMapping(const std::string& link,
-                                    const std::string& repName) {
+void RosRobotModel::addJointMapping(const std::string& link, const std::string& repName) {
   specialJoints_[link] = repName;
 }
 

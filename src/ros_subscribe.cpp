@@ -37,10 +37,7 @@ Value List::doExecute() {
 }
 
 Add::Add(RosSubscribe& entity, const std::string& docstring)
-    : Command(
-          entity,
-          boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING),
-          docstring) {}
+    : Command(entity, boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING), docstring) {}
 
 Value Add::doExecute() {
   RosSubscribe& entity = static_cast<RosSubscribe&>(owner());
@@ -95,8 +92,7 @@ const std::string RosSubscribe::docstring_(
     "\n"
     "  Use command \"add\" to subscribe to a new signal.\n");
 
-RosSubscribe::RosSubscribe(const std::string& n)
-    : dynamicgraph::Entity(n), nh_(rosInit(true)), bindedSignal_() {
+RosSubscribe::RosSubscribe(const std::string& n) : dynamicgraph::Entity(n), nh_(rosInit(true)), bindedSignal_() {
   std::string docstring =
       "\n"
       "  Add a signal reading data from a ROS topic\n"
@@ -137,9 +133,7 @@ RosSubscribe::RosSubscribe(const std::string& n)
 
 RosSubscribe::~RosSubscribe() {}
 
-void RosSubscribe::display(std::ostream& os) const {
-  os << CLASS_NAME << std::endl;
-}
+void RosSubscribe::display(std::ostream& os) const { os << CLASS_NAME << std::endl; }
 
 void RosSubscribe::rm(const std::string& signal) {
   std::string signalTs = signal + "Timestamp";
@@ -155,9 +149,8 @@ void RosSubscribe::rm(const std::string& signal) {
 
 std::string RosSubscribe::list() {
   std::string result("[");
-  for (std::map<std::string, bindedSignal_t>::const_iterator it =
-           bindedSignal_.begin();
-       it != bindedSignal_.end(); it++) {
+  for (std::map<std::string, bindedSignal_t>::const_iterator it = bindedSignal_.begin(); it != bindedSignal_.end();
+       it++) {
     result += "'" + it->first + "',";
   }
   result += "]";

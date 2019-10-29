@@ -24,12 +24,10 @@ struct TransformListenerData {
   tf::StampedTransform transform;
   signal_t signal;
 
-  TransformListenerData(RosTfListener* e, tf::TransformListener& l,
-                        const std::string& to, const std::string& from,
+  TransformListenerData(RosTfListener* e, tf::TransformListener& l, const std::string& to, const std::string& from,
                         const std::string& signame)
       : entity(e), listener(l), toFrame(to), fromFrame(from), signal(signame) {
-    signal.setFunction(
-        boost::bind(&TransformListenerData::getTransform, this, _1, _2));
+    signal.setFunction(boost::bind(&TransformListenerData::getTransform, this, _1, _2));
   }
 
   sot::MatrixHomogeneous& getTransform(sot::MatrixHomogeneous& res, int time);
@@ -52,28 +50,21 @@ class RosTfListener : public Entity {
         "    - from: frame name,\n"
         "    - signalName: the signal name in dynamic-graph"
         "\n";
-    addCommand("add", command::makeCommandVoid3(*this, &RosTfListener::add,
-                                                docstring));
+    addCommand("add", command::makeCommandVoid3(*this, &RosTfListener::add, docstring));
   }
 
   ~RosTfListener() {
-    for (Map_t::const_iterator _it = listenerDatas.begin();
-         _it != listenerDatas.end(); ++_it)
-      delete _it->second;
+    for (Map_t::const_iterator _it = listenerDatas.begin(); _it != listenerDatas.end(); ++_it) delete _it->second;
   }
 
-  void add(const std::string& to, const std::string& from,
-           const std::string& signame) {
+  void add(const std::string& to, const std::string& from, const std::string& signame) {
     if (listenerDatas.find(signame) != listenerDatas.end())
-      throw std::invalid_argument("A signal " + signame +
-                                  " already exists in RosTfListener " +
-                                  getName());
+      throw std::invalid_argument("A signal " + signame + " already exists in RosTfListener " + getName());
 
     boost::format signalName("RosTfListener(%1%)::output(MatrixHomo)::%2%");
     signalName % getName() % signame;
 
-    TransformListenerData* tld =
-        new TransformListenerData(this, listener, to, from, signalName.str());
+    TransformListenerData* tld = new TransformListenerData(this, listener, to, from, signalName.str());
     signalRegistration(tld->signal);
     listenerDatas[signame] = tld;
   }

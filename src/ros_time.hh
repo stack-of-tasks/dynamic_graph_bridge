@@ -22,8 +22,7 @@ class RosTime : public dynamicgraph::Entity {
   virtual std::string getDocString() const;
 
  protected:
-  boost::posix_time::ptime& update(boost::posix_time::ptime& time,
-                                   const int& t);
+  boost::posix_time::ptime& update(boost::posix_time::ptime& time, const int& t);
 
  private:
   static const std::string docstring_;

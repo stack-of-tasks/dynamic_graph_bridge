@@ -26,8 +26,7 @@ using namespace std;
 using namespace dynamicgraph::sot;
 namespace po = boost::program_options;
 
-SotLoaderBasic::SotLoaderBasic()
-    : dynamic_graph_stopped_(true), sotRobotControllerLibrary_(0) {
+SotLoaderBasic::SotLoaderBasic() : dynamic_graph_stopped_(true), sotRobotControllerLibrary_(0) {
   readSotVectorStateParam();
   initPublication();
 }
@@ -44,16 +43,12 @@ int SotLoaderBasic::initPublication() {
 void SotLoaderBasic::initializeRosNode(int, char* []) {
   ROS_INFO("Ready to start dynamic graph.");
   ros::NodeHandle n;
-  service_start_ = n.advertiseService("start_dynamic_graph",
-                                      &SotLoaderBasic::start_dg, this);
+  service_start_ = n.advertiseService("start_dynamic_graph", &SotLoaderBasic::start_dg, this);
 
-  service_stop_ =
-      n.advertiseService("stop_dynamic_graph", &SotLoaderBasic::stop_dg, this);
+  service_stop_ = n.advertiseService("stop_dynamic_graph", &SotLoaderBasic::stop_dg, this);
 }
 
-void SotLoaderBasic::setDynamicLibraryName(std::string& afilename) {
-  dynamicLibraryName_ = afilename;
-}
+void SotLoaderBasic::setDynamicLibraryName(std::string& afilename) { dynamicLibraryName_ = afilename; }
 
 int SotLoaderBasic::readSotVectorStateParam() {
   std::map<std::string, int> from_state_name_to_state_vector;
@@ -73,16 +68,12 @@ int SotLoaderBasic::readSotVectorStateParam() {
   if (ros::param::has("/sot/joint_state_parallel")) {
     XmlRpc::XmlRpcValue joint_state_parallel;
     n.getParam("/sot/joint_state_parallel", joint_state_parallel);
-    ROS_ASSERT(joint_state_parallel.getType() ==
-               XmlRpc::XmlRpcValue::TypeStruct);
-    std::cout << "Type of joint_state_parallel:"
-              << joint_state_parallel.getType() << std::endl;
+    ROS_ASSERT(joint_state_parallel.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+    std::cout << "Type of joint_state_parallel:" << joint_state_parallel.getType() << std::endl;
 
-    for (XmlRpc::XmlRpcValue::iterator it = joint_state_parallel.begin();
-         it != joint_state_parallel.end(); it++) {
+    for (XmlRpc::XmlRpcValue::iterator it = joint_state_parallel.begin(); it != joint_state_parallel.end(); it++) {
       XmlRpc::XmlRpcValue local_value = it->second;
-      std::string final_expression,
-          map_expression = static_cast<string>(local_value);
+      std::string final_expression, map_expression = static_cast<string>(local_value);
       double final_coefficient = 1.0;
       // deal with sign
       if (map_expression[0] == '-') {
@@ -92,8 +83,7 @@ int SotLoaderBasic::readSotVectorStateParam() {
         final_expression = map_expression;
 
       std::cout << it->first.c_str() << ": " << final_coefficient << std::endl;
-      from_parallel_name_to_state_vector_name[it->first.c_str()] =
-          final_expression;
+      from_parallel_name_to_state_vector_name[it->first.c_str()] = final_expression;
       coefficient_parallel_joints_.push_back(final_coefficient);
     }
     nbOfParallelJoints_ = from_parallel_name_to_state_vector_name.size();
@@ -115,12 +105,10 @@ int SotLoaderBasic::readSotVectorStateParam() {
   // and build map from parallel name to state vector
   int i = 0;
   parallel_joints_to_state_vector_.resize(nbOfParallelJoints_);
-  for (std::map<std::string, std::string>::iterator it =
-           from_parallel_name_to_state_vector_name.begin();
+  for (std::map<std::string, std::string>::iterator it = from_parallel_name_to_state_vector_name.begin();
        it != from_parallel_name_to_state_vector_name.end(); it++, i++) {
     joint_state_.name[i + nbOfJoints_] = it->first.c_str();
-    parallel_joints_to_state_vector_[i] =
-        from_state_name_to_state_vector[it->second];
+    parallel_joints_to_state_vector_[i] = from_state_name_to_state_vector[it->second];
   }
 
   return 0;
@@ -128,8 +116,7 @@ int SotLoaderBasic::readSotVectorStateParam() {
 
 int SotLoaderBasic::parseOptions(int argc, char* argv[]) {
   po::options_description desc("Allowed options");
-  desc.add_options()("help", "produce help message")(
-      "input-file", po::value<string>(), "library to load");
+  desc.add_options()("help", "produce help message")("input-file", po::value<string>(), "library to load");
 
   po::store(po::parse_command_line(argc, argv, desc), vm_);
   po::notify(vm_);
@@ -150,8 +137,7 @@ int SotLoaderBasic::parseOptions(int argc, char* argv[]) {
 
 void SotLoaderBasic::Initialization() {
   // Load the SotRobotBipedController library.
-  sotRobotControllerLibrary_ =
-      dlopen(dynamicLibraryName_.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+  sotRobotControllerLibrary_ = dlopen(dynamicLibraryName_.c_str(), RTLD_LAZY | RTLD_GLOBAL);
   if (!sotRobotControllerLibrary_) {
     std::cerr << "Cannot load library: " << dlerror() << '\n';
     return;
@@ -161,9 +147,8 @@ void SotLoaderBasic::Initialization() {
   dlerror();
 
   // Load the symbols.
-  createSotExternalInterface_t* createSot =
-      reinterpret_cast<createSotExternalInterface_t*>(reinterpret_cast<long>(
-          dlsym(sotRobotControllerLibrary_, "createSotExternalInterface")));
+  createSotExternalInterface_t* createSot = reinterpret_cast<createSotExternalInterface_t*>(
+      reinterpret_cast<long>(dlsym(sotRobotControllerLibrary_, "createSotExternalInterface")));
   const char* dlsym_error = dlerror();
   if (dlsym_error) {
     std::cerr << "Cannot load symbol create: " << dlsym_error << '\n';
@@ -183,9 +168,8 @@ void SotLoaderBasic::CleanUp() {
   // SignalCaster singleton could probably be destroyed.
 
   // Load the symbols.
-  destroySotExternalInterface_t* destroySot =
-      reinterpret_cast<destroySotExternalInterface_t*>(reinterpret_cast<long>(
-          dlsym(sotRobotControllerLibrary_, "destroySotExternalInterface")));
+  destroySotExternalInterface_t* destroySot = reinterpret_cast<destroySotExternalInterface_t*>(
+      reinterpret_cast<long>(dlsym(sotRobotControllerLibrary_, "destroySotExternalInterface")));
   const char* dlsym_error = dlerror();
   if (dlsym_error) {
     std::cerr << "Cannot load symbol destroy: " << dlsym_error << '\n';
@@ -199,14 +183,12 @@ void SotLoaderBasic::CleanUp() {
   dlclose(sotRobotControllerLibrary_);
 }
 
-bool SotLoaderBasic::start_dg(std_srvs::Empty::Request&,
-                              std_srvs::Empty::Response&) {
+bool SotLoaderBasic::start_dg(std_srvs::Empty::Request&, std_srvs::Empty::Response&) {
   dynamic_graph_stopped_ = false;
   return true;
 }
 
-bool SotLoaderBasic::stop_dg(std_srvs::Empty::Request&,
-                             std_srvs::Empty::Response&) {
+bool SotLoaderBasic::stop_dg(std_srvs::Empty::Request&, std_srvs::Empty::Response&) {
   dynamic_graph_stopped_ = true;
   return true;
 }

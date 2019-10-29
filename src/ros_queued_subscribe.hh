@@ -77,11 +77,7 @@ struct BindedSignal : BindedSignalBase {
   typedef typename buffer_t::size_type size_type;
 
   BindedSignal(RosQueuedSubscribe* e)
-      : BindedSignalBase(e),
-        frontIdx(0),
-        backIdx(0),
-        buffer(BufferSize),
-        init(false) {}
+      : BindedSignalBase(e), frontIdx(0), backIdx(0), buffer(BufferSize), init(false) {}
   ~BindedSignal() {
     signal.reset();
     clear();
@@ -153,23 +149,17 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   std::size_t queueSize(const std::string& signal) const;
 
   template <typename T>
-  void add(const std::string& type, const std::string& signal,
-           const std::string& topic);
+  void add(const std::string& type, const std::string& signal, const std::string& topic);
 
-  std::map<std::string, bindedSignal_t>& bindedSignal() {
-    return bindedSignal_;
-  }
+  std::map<std::string, bindedSignal_t>& bindedSignal() { return bindedSignal_; }
 
   ros::NodeHandle& nh() { return nh_; }
 
   template <typename R, typename S>
-  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal,
-                const R& data);
+  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal, const R& data);
 
   template <typename R>
-  void callbackTimestamp(
-      boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal,
-      const R& data);
+  void callbackTimestamp(boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal, const R& data);
 
   template <typename T>
   friend class internal::Add;

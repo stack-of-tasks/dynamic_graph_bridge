@@ -24,9 +24,8 @@
 #include <dynamic-graph/signal-ptr.h>
 #include <sot/core/matrix-geometry.hh>
 
-#define MAKE_SIGNAL_STRING(NAME, IS_INPUT, OUTPUT_TYPE, SIGNAL_NAME)  \
-  makeSignalString(typeid(*this).name(), NAME, IS_INPUT, OUTPUT_TYPE, \
-                   SIGNAL_NAME)
+#define MAKE_SIGNAL_STRING(NAME, IS_INPUT, OUTPUT_TYPE, SIGNAL_NAME) \
+  makeSignalString(typeid(*this).name(), NAME, IS_INPUT, OUTPUT_TYPE, SIGNAL_NAME)
 
 namespace dynamicgraph {
 
@@ -301,14 +300,10 @@ struct SotToRos<std::pair<specific::Twist, Vector> > {
   }
 };
 
-inline std::string makeSignalString(const std::string& className,
-                                    const std::string& instanceName,
-                                    bool isInputSignal,
-                                    const std::string& signalType,
-                                    const std::string& signalName) {
+inline std::string makeSignalString(const std::string& className, const std::string& instanceName, bool isInputSignal,
+                                    const std::string& signalType, const std::string& signalName) {
   boost::format fmt("%s(%s)::%s(%s)::%s");
-  fmt % className % instanceName % (isInputSignal ? "input" : "output") %
-      signalType % signalName;
+  fmt % className % instanceName % (isInputSignal ? "input" : "output") % signalType % signalName;
   return fmt.str();
 }
 }  // end of namespace dynamicgraph.

@@ -51,8 +51,7 @@ class RosSubscribe : public dynamicgraph::Entity {
   typedef boost::posix_time::ptime ptime;
 
  public:
-  typedef std::pair<boost::shared_ptr<dynamicgraph::SignalBase<int> >,
-                    boost::shared_ptr<ros::Subscriber> >
+  typedef std::pair<boost::shared_ptr<dynamicgraph::SignalBase<int> >, boost::shared_ptr<ros::Subscriber> >
       bindedSignal_t;
 
   RosSubscribe(const std::string& n);
@@ -69,20 +68,15 @@ class RosSubscribe : public dynamicgraph::Entity {
   template <typename T>
   void add(const std::string& signal, const std::string& topic);
 
-  std::map<std::string, bindedSignal_t>& bindedSignal() {
-    return bindedSignal_;
-  }
+  std::map<std::string, bindedSignal_t>& bindedSignal() { return bindedSignal_; }
 
   ros::NodeHandle& nh() { return nh_; }
 
   template <typename R, typename S>
-  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal,
-                const R& data);
+  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal, const R& data);
 
   template <typename R>
-  void callbackTimestamp(
-      boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal,
-      const R& data);
+  void callbackTimestamp(boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal, const R& data);
 
   template <typename T>
   friend class internal::Add;

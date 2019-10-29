@@ -76,8 +76,7 @@ void workThreadLoader(SotLoader *aSotLoader) {
       aSotLoader->oneIteration();
       gettimeofday(&stop, 0);
 
-      dt = 1000000 * (stop.tv_sec - start.tv_sec) +
-           (stop.tv_usec - start.tv_usec);
+      dt = 1000000 * (stop.tv_sec - start.tv_sec) + (stop.tv_usec - start.tv_usec);
       dataToLog.record((double)dt * 1e-6);
     } else
       dt = 0;
@@ -110,9 +109,7 @@ SotLoader::~SotLoader() {
   thread_.join();
 }
 
-void SotLoader::startControlLoop() {
-  thread_ = boost::thread(workThreadLoader, this);
-}
+void SotLoader::startControlLoop() { thread_ = boost::thread(workThreadLoader, this); }
 
 void SotLoader::initializeRosNode(int argc, char *argv[]) {
   SotLoaderBasic::initializeRosNode(argc, argv);
@@ -130,8 +127,7 @@ void SotLoader::fillSensors(map<string, dgs::SensorValues> &sensorsIn) {
   assert(angleControl_.size() == angleEncoder_.size());
 
   sensorsIn["joints"].setName("angle");
-  for (unsigned int i = 0; i < angleControl_.size(); i++)
-    angleEncoder_[i] = angleControl_[i];
+  for (unsigned int i = 0; i < angleControl_.size(); i++) angleEncoder_[i] = angleControl_[i];
   sensorsIn["joints"].setValues(angleEncoder_);
 }
 
@@ -140,8 +136,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   angleControl_ = controlValues["control"].getValues();
 
   // Debug
-  std::map<std::string, dgs::ControlValues>::iterator it =
-      controlValues.begin();
+  std::map<std::string, dgs::ControlValues>::iterator it = controlValues.begin();
   sotDEBUG(30) << "ControlValues to be broadcasted:" << std::endl;
   for (; it != controlValues.end(); it++) {
     sotDEBUG(30) << it->first << ":";
@@ -154,8 +149,8 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
 
   // Check if the size if coherent with the robot description.
   if (angleControl_.size() != (unsigned int)nbOfJoints_) {
-    std::cerr << " angleControl_" << angleControl_.size() << " and nbOfJoints"
-              << (unsigned int)nbOfJoints_ << " are different !" << std::endl;
+    std::cerr << " angleControl_" << angleControl_.size() << " and nbOfJoints" << (unsigned int)nbOfJoints_
+              << " are different !" << std::endl;
     exit(-1);
   }
   // Publish the data.
@@ -165,8 +160,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   }
   for (unsigned int i = 0; i < parallel_joints_to_state_vector_.size(); i++) {
     joint_state_.position[i + nbOfJoints_] =
-        coefficient_parallel_joints_[i] *
-        angleControl_[parallel_joints_to_state_vector_[i]];
+        coefficient_parallel_joints_[i] * angleControl_[parallel_joints_to_state_vector_[i]];
   }
 
   joint_pub_.publish(joint_state_);
@@ -175,14 +169,11 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   // get the robot pose values
   std::vector<double> poseValue_ = controlValues["baseff"].getValues();
 
-  freeFlyerPose_.setOrigin(
-      tf::Vector3(poseValue_[0], poseValue_[1], poseValue_[2]));
-  tf::Quaternion poseQ_(poseValue_[4], poseValue_[5], poseValue_[6],
-                        poseValue_[3]);
+  freeFlyerPose_.setOrigin(tf::Vector3(poseValue_[0], poseValue_[1], poseValue_[2]));
+  tf::Quaternion poseQ_(poseValue_[4], poseValue_[5], poseValue_[6], poseValue_[3]);
   freeFlyerPose_.setRotation(poseQ_);
   // Publish
-  freeFlyerPublisher_.sendTransform(tf::StampedTransform(
-      freeFlyerPose_, ros::Time::now(), "odom", "base_link"));
+  freeFlyerPublisher_.sendTransform(tf::StampedTransform(freeFlyerPose_, ros::Time::now(), "odom", "base_link"));
 }
 
 void SotLoader::setup() {

@@ -91,12 +91,10 @@ class SotLoaderBasic {
   virtual void initializeRosNode(int argc, char* argv[]);
 
   // \brief Callback function when starting dynamic graph.
-  bool start_dg(std_srvs::Empty::Request& request,
-                std_srvs::Empty::Response& response);
+  bool start_dg(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
   // \brief Callback function when stopping dynamic graph.
-  bool stop_dg(std_srvs::Empty::Request& request,
-               std_srvs::Empty::Response& response);
+  bool stop_dg(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
   // \brief Read the state vector description based upon the robot links.
   int readSotVectorStateParam();
