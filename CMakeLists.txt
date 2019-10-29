@@ -21,6 +21,8 @@ include(cmake/ros.cmake)
 include(cmake/python.cmake)
 include(cmake/test.cmake)
 
+set(CUSTOM_HEADER_DIR dynamic_graph_bridge)
+
 CMAKE_POLICY(SET CMP0048 OLD)
 project(${PROJECT_NAME} CXX)
 
@@ -47,7 +49,6 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_REQUIRED_COMPONENTS})
 find_package(realtime_tools)
 
 set(CXX_DISABLE_WERROR False)
-set(CUSTOM_HEADER_DIR dynamic_graph_bridge)
 set(${PROJECT_NAME}_HEADERS
   include/dynamic_graph_bridge/ros_init.hh
   include/dynamic_graph_bridge/sot_loader.hh
