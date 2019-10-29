@@ -35,18 +35,17 @@ its input.
 
 """
 
-import __builtin__
-import __main__
 import ast
 
 __all__ = ["DGCompleter"]
+
 
 class DGCompleter:
     def __init__(self, client):
         """Create a new completer for the command line.
 
         Completer([client]) -> completer instance.
-        
+
         Client is a ROS proxy to dynamic_graph run_command service.
 
         Completer instances should be used as the completion mechanism of
@@ -54,18 +53,18 @@ class DGCompleter:
 
         readline.set_completer(Completer(client).complete)
         """
-        self.client=client
-        astr="import readline"
+        self.client = client
+        astr = "import readline"
         self.client(astr)
-        astr="from rlcompleter import Completer"
+        astr = "from rlcompleter import Completer"
         self.client(astr)
-        astr="aCompleter=Completer()"
+        astr = "aCompleter=Completer()"
         self.client(astr)
-        astr="readline.set_completer(aCompleter.complete)"
+        astr = "readline.set_completer(aCompleter.complete)"
         self.client(astr)
-        astr="readline.parse_and_bind(\"tab: complete\")"
+        astr = "readline.parse_and_bind(\"tab: complete\")"
         self.client(astr)
-        
+
     def complete(self, text, state):
         """Return the next possible completion for 'text'.    readline.parse_and_bind("tab: complete")
 
@@ -74,14 +73,7 @@ class DGCompleter:
         returns None.  The completion should begin with 'text'.
 
         """
-        astr="aCompleter.complete(\""+text+"\","+str(state)+")"
-        response=self.client(astr);
-        res2=ast.literal_eval(response.result)
+        astr = "aCompleter.complete(\"" + text + "\"," + str(state) + ")"
+        response = self.client(astr)
+        res2 = ast.literal_eval(response.result)
         return res2
-    
-        
-        
-        
-
-
-
