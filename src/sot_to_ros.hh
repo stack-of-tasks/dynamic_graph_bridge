@@ -5,6 +5,8 @@
 
 #include <boost/format.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC system_header
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/UInt32.h>
@@ -18,6 +20,7 @@
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/Vector3Stamped.h"
+#pragma GCC diagnostic pop
 
 #include <dynamic-graph/signal-time-dependent.h>
 #include <dynamic-graph/linear-algebra.h>

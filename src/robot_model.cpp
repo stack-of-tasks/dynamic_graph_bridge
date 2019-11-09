@@ -6,8 +6,10 @@
 #include <pinocchio/multibody/model.hpp>
 
 #include "dynamic_graph_bridge/ros_init.hh"
-
+#pragma GCC diagnostic push
+#pragma GCC system_header
 #include <ros/package.h>
+#pragma GCC diagnostic pop
 
 namespace dynamicgraph {
 

@@ -1,6 +1,10 @@
 #ifndef ROS_INIT_HH
 #define ROS_INIT_HH
+
+#pragma GCC diagnostic push
+#pragma GCC system_header
 #include <ros/ros.h>
+#pragma GCC diagnostic pop
 
 namespace dynamicgraph {
 ros::NodeHandle& rosInit(bool createAsyncSpinner = false,

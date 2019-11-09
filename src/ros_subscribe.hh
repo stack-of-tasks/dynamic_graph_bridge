@@ -10,7 +10,13 @@
 #include <dynamic-graph/command.h>
 #include <sot/core/matrix-geometry.hh>
 
+#pragma GCC diagnostic push
+#pragma GCC system_header
 #include <ros/ros.h>
+
+#include <std_msgs/Float64.h>
+#include <std_msgs/UInt32.h>
+#pragma GCC diagnostic pop
 
 #include "converter.hh"
 #include "sot_to_ros.hh"

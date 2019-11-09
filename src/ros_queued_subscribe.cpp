@@ -23,9 +23,6 @@
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
 
-#include <ros/ros.h>
-#include <std_msgs/Float64.h>
-#include <std_msgs/UInt32.h>
 
 #include <dynamic-graph/factory.h>
 

@@ -36,7 +36,11 @@
 #include <boost/thread/thread.hpp>
 
 // ROS includes
+#pragma GCC diagnostic push
+#pragma GCC system_header
 #include "ros/ros.h"
+#pragma GCC diagnostic pop
+
 #include "std_srvs/Empty.h"
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_broadcaster.h>

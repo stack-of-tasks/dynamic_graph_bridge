@@ -28,9 +28,9 @@
   <build_depend>message_generation</build_depend>
   <build_depend>message_runtime</build_depend>
   <build_depend>tf2_bullet</build_depend>
-  <build_depend>dynamic-graph</build_depend>
-  <build_depend>dynamic-graph-python</build_depend>
-  <build_depend>sot-core</build_depend>
+  <build_depend>dynamic_graph</build_depend>
+  <build_depend>dynamic_graph_python</build_depend>
+  <build_depend>sot_core</build_depend>
   <build_depend>sot-dynamic-pinocchio</build_depend>
   <build_depend>dynamic_graph_bridge_msgs</build_depend>
 
@@ -44,8 +44,8 @@
   <exec_depend>message_generation</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>tf2_bullet</exec_depend>
-  <exec_depend>dynamic-graph</exec_depend>
-  <exec_depend>dynamic-graph-python</exec_depend>
+  <exec_depend>dynamic_graph</exec_depend>
+  <exec_depend>dynamic_graph_python</exec_depend>
   <exec_depend>sot-core</exec_depend>
   <exec_depend>sot-dynamic-pinocchio</exec_depend>
   <exec_depend>dynamic_graph_bridge_msgs</exec_depend>
