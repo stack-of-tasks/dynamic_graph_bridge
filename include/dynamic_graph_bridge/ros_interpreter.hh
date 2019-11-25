@@ -1,6 +1,10 @@
 #ifndef DYNAMIC_GRAPH_BRIDGE_INTERPRETER_HH
 #define DYNAMIC_GRAPH_BRIDGE_INTERPRETER_HH
+#pragma GCC diagnostic push
+#pragma GCC system_header
 #include <ros/ros.h>
+#pragma GCC diagnostic pop
+
 #include <dynamic_graph_bridge_msgs/RunCommand.h>
 #include <dynamic_graph_bridge_msgs/RunPythonFile.h>
 #include <dynamic-graph/python/interpreter.hh>
