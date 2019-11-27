@@ -9,19 +9,21 @@ sot::MatrixHomogeneous& TransformListenerData::getTransform(
     sot::MatrixHomogeneous& res, int time) {
   static const ros::Time rosTime(0);
   try {
-    listener.lookupTransform(toFrame, fromFrame, rosTime, transform);
-  } catch (const tf::TransformException& ex) {
+    transform = buffer.lookupTransform(toFrame, fromFrame, rosTime);
+  } catch (const tf2::TransformException& ex) {
     res.setIdentity();
     std::ostringstream oss;
     oss << "Enable to get transform at time " << time << ": " << ex.what();
     entity->SEND_WARNING_STREAM_MSG(oss.str());
     return res;
   }
-  for (int r = 0; r < 3; ++r) {
-    for (int c = 0; c < 3; ++c)
-      res.linear()(r, c) = transform.getBasis().getRow(r)[c];
-    res.translation()[r] = transform.getOrigin()[r];
-  }
+
+  const geometry_msgs::TransformStamped::_transform_type::_rotation_type&
+    quat = transform.transform.rotation;
+  const geometry_msgs::TransformStamped::_transform_type::_translation_type&
+    trans = transform.transform.translation;
+  res.linear() = sot::Quaternion(quat.w, quat.x, quat.y, quat.z).matrix();
+  res.translation() << trans.x, trans.y, trans.z;
   return res;
 }
 }  // namespace internal

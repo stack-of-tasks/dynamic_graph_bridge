@@ -3,7 +3,8 @@
 
 #include <boost/bind.hpp>
 
-#include <tf/transform_listener.h>
+#include <tf2_ros/transform_listener.h>
+#include <geometry_msgs/TransformStamped.h>
 
 #include <dynamic-graph/entity.h>
 #include <dynamic-graph/signal.h>
@@ -19,15 +20,15 @@ struct TransformListenerData {
   typedef Signal<sot::MatrixHomogeneous, int> signal_t;
 
   RosTfListener* entity;
-  tf::TransformListener& listener;
+  tf2_ros::Buffer& buffer;
   const std::string toFrame, fromFrame;
-  tf::StampedTransform transform;
+  geometry_msgs::TransformStamped transform;
   signal_t signal;
 
-  TransformListenerData(RosTfListener* e, tf::TransformListener& l,
+  TransformListenerData(RosTfListener* e, tf2_ros::Buffer& b,
                         const std::string& to, const std::string& from,
                         const std::string& signame)
-      : entity(e), listener(l), toFrame(to), fromFrame(from), signal(signame) {
+      : entity(e), buffer(b), toFrame(to), fromFrame(from), signal(signame) {
     signal.setFunction(
         boost::bind(&TransformListenerData::getTransform, this, _1, _2));
   }
@@ -42,7 +43,11 @@ class RosTfListener : public Entity {
  public:
   typedef internal::TransformListenerData TransformListenerData;
 
-  RosTfListener(const std::string& name) : Entity(name) {
+  RosTfListener(const std::string& name)
+    : Entity(name)
+    , buffer()
+    , listener(buffer, rosInit(), false)
+  {
     std::string docstring =
         "\n"
         "  Add a signal containing the transform between two frames.\n"
@@ -73,7 +78,7 @@ class RosTfListener : public Entity {
     signalName % getName() % signame;
 
     TransformListenerData* tld =
-        new TransformListenerData(this, listener, to, from, signalName.str());
+        new TransformListenerData(this, buffer, to, from, signalName.str());
     signalRegistration(tld->signal);
     listenerDatas[signame] = tld;
   }
@@ -81,7 +86,8 @@ class RosTfListener : public Entity {
  private:
   typedef std::map<std::string, TransformListenerData*> Map_t;
   Map_t listenerDatas;
-  tf::TransformListener listener;
+  tf2_ros::Buffer buffer;
+  tf2_ros::TransformListener listener;
 };
 }  // end of namespace dynamicgraph.
 

@@ -39,7 +39,7 @@
 #include "ros/ros.h"
 #include "std_srvs/Empty.h"
 #include <sensor_msgs/JointState.h>
-#include <tf/transform_broadcaster.h>
+#include <tf2_ros/transform_broadcaster.h>
 
 // Sot Framework includes
 #include <sot/core/debug.hh>
@@ -83,8 +83,8 @@ class SotLoader : public SotLoaderBasic {
   virtual void startControlLoop();
 
   // Robot Pose Publisher
-  tf::TransformBroadcaster freeFlyerPublisher_;
-  tf::Transform freeFlyerPose_;
+  tf2_ros::TransformBroadcaster freeFlyerPublisher_;
+  geometry_msgs::TransformStamped freeFlyerPose_;
 
  public:
   SotLoader();

@@ -126,6 +126,9 @@ SotLoader::SotLoader()
       thread_() {
   readSotVectorStateParam();
   initPublication();
+
+  freeFlyerPose_.header.frame_id = "odom";
+  freeFlyerPose_.child_frame_id = "base_link";
 }
 
 SotLoader::~SotLoader() {
@@ -198,14 +201,18 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   // get the robot pose values
   std::vector<double> poseValue_ = controlValues["baseff"].getValues();
 
-  freeFlyerPose_.setOrigin(
-      tf::Vector3(poseValue_[0], poseValue_[1], poseValue_[2]));
-  tf::Quaternion poseQ_(poseValue_[4], poseValue_[5], poseValue_[6],
-                        poseValue_[3]);
-  freeFlyerPose_.setRotation(poseQ_);
+  freeFlyerPose_.transform.translation.x = poseValue_[0];
+  freeFlyerPose_.transform.translation.y = poseValue_[1];
+  freeFlyerPose_.transform.translation.z = poseValue_[2];
+
+  freeFlyerPose_.transform.rotation.w = poseValue_[3];
+  freeFlyerPose_.transform.rotation.x = poseValue_[4];
+  freeFlyerPose_.transform.rotation.y = poseValue_[5];
+  freeFlyerPose_.transform.rotation.z = poseValue_[6];
+
+  freeFlyerPose_.header.stamp = joint_state_.header.stamp;
   // Publish
-  freeFlyerPublisher_.sendTransform(tf::StampedTransform(
-      freeFlyerPose_, ros::Time::now(), "odom", "base_link"));
+  freeFlyerPublisher_.sendTransform(freeFlyerPose_);
 }
 
 void SotLoader::setup() {
