@@ -11,10 +11,12 @@ sot::MatrixHomogeneous& TransformListenerData::getTransform(
   try {
     transform = buffer.lookupTransform(toFrame, fromFrame, rosTime);
   } catch (const tf2::TransformException& ex) {
-    res.setIdentity();
     std::ostringstream oss;
     oss << "Enable to get transform at time " << time << ": " << ex.what();
     entity->SEND_WARNING_STREAM_MSG(oss.str());
+
+    failbackSig.recompute(time);
+    res = failbackSig.accessCopy();
     return res;
   }
 

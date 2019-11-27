@@ -8,6 +8,7 @@
 
 #include <dynamic-graph/entity.h>
 #include <dynamic-graph/signal.h>
+#include <dynamic-graph/signal-ptr.h>
 #include <dynamic-graph/command-bind.h>
 
 #include <sot/core/matrix-geometry.hh>
@@ -18,19 +19,28 @@ class RosTfListener;
 namespace internal {
 struct TransformListenerData {
   typedef Signal<sot::MatrixHomogeneous, int> signal_t;
+  typedef SignalPtr<sot::MatrixHomogeneous, int> signalIn_t;
 
   RosTfListener* entity;
   tf2_ros::Buffer& buffer;
   const std::string toFrame, fromFrame;
   geometry_msgs::TransformStamped transform;
   signal_t signal;
+  signalIn_t failbackSig;
 
   TransformListenerData(RosTfListener* e, tf2_ros::Buffer& b,
                         const std::string& to, const std::string& from,
                         const std::string& signame)
-      : entity(e), buffer(b), toFrame(to), fromFrame(from), signal(signame) {
+      : entity(e)
+      , buffer(b)
+      , toFrame(to)
+      , fromFrame(from)
+      , signal(signame)
+      , failbackSig(NULL, signame+"_failback")
+  {
     signal.setFunction(
         boost::bind(&TransformListenerData::getTransform, this, _1, _2));
+    failbackSig.setConstant (sot::MatrixHomogeneous::Identity());
   }
 
   sot::MatrixHomogeneous& getTransform(sot::MatrixHomogeneous& res, int time);
@@ -79,7 +89,7 @@ class RosTfListener : public Entity {
 
     TransformListenerData* tld =
         new TransformListenerData(this, buffer, to, from, signalName.str());
-    signalRegistration(tld->signal);
+    signalRegistration(tld->signal << tld->failbackSig);
     listenerDatas[signame] = tld;
   }
 
