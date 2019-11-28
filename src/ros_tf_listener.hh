@@ -25,6 +25,7 @@ struct TransformListenerData {
   tf2_ros::Buffer& buffer;
   const std::string toFrame, fromFrame;
   geometry_msgs::TransformStamped transform;
+  ros::Duration max_elapsed;
   signal_t signal;
   signalIn_t failbackSig;
 
@@ -35,6 +36,7 @@ struct TransformListenerData {
       , buffer(b)
       , toFrame(to)
       , fromFrame(from)
+      , max_elapsed(0.5)
       , signal(signame)
       , failbackSig(NULL, signame+"_failback")
   {
@@ -68,6 +70,15 @@ class RosTfListener : public Entity {
         "    - signalName: the signal name in dynamic-graph"
         "\n";
     addCommand("add", command::makeCommandVoid3(*this, &RosTfListener::add, docstring));
+    docstring =
+        "\n"
+        "  Set the maximum time delay of the transform obtained from tf.\n"
+        "\n"
+        "  Input:\n"
+        "    - signalName: the signal name,\n"
+        "    - delay  : in seconds\n"
+        "\n";
+    addCommand("setMaximumDelay", command::makeCommandVoid2(*this, &RosTfListener::setMaximumDelay, docstring));
   }
 
   ~RosTfListener() {
@@ -85,6 +96,13 @@ class RosTfListener : public Entity {
         new TransformListenerData(this, buffer, to, from, signalName.str());
     signalRegistration(tld->signal << tld->failbackSig);
     listenerDatas[signame] = tld;
+  }
+
+  void setMaximumDelay(const std::string& signame, const double& max_elapsed)
+  {
+    if (listenerDatas.count(signame) == 0)
+      throw std::invalid_argument("No signal " + signame + " in RosTfListener " + getName());
+    listenerDatas[signame]->max_elapsed = ros::Duration(max_elapsed);
   }
 
  private:
