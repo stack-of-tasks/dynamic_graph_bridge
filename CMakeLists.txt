@@ -2,42 +2,34 @@
 #
 # Author: Florent Lamiraux, Nirmal Giftsun
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Catkin part
 
 
-cmake_minimum_required(VERSION 2.4.6)
+cmake_minimum_required(VERSION 2.8.0)
+
+set(PROJECT_NAMESPACE stack-of-tasks)
+set(PROJECT_NAME dynamic_graph_bridge)
+set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
+set(PROJECT_URL "https://github.com/${PROJECT_NAMESPACE}/${PROJECT_NAME}")
+set(PROJECT_SUFFIX "-v3")
 
 include(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/eigen.cmake)
 include(cmake/ros.cmake)
-include(cmake/GNUInstallDirs.cmake)
 include(cmake/python.cmake)
 include(cmake/test.cmake)
 
-project(dynamic_graph_bridge)
+set(CUSTOM_HEADER_DIR dynamic_graph_bridge)
+
+CMAKE_POLICY(SET CMP0048 OLD)
+project(${PROJECT_NAME} CXX)
 
 SET(CATKIN_REQUIRED_COMPONENTS roscpp std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf2_ros)
 SET(CATKIN_DEPENDS_LIBRARIES ros_bridge sot_loader)
 
 ## LAAS cmake submodule part
-set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
-set(PROJECT_NAME dynamic_graph_bridge)
-set(PROJECT_URL "https://github.com/stack-of-tasks/dynamic_graph_bridge")
-set(PROJECT_SUFFIX "-v3")
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
@@ -57,7 +49,6 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_REQUIRED_COMPONENTS})
 find_package(realtime_tools)
 
 set(CXX_DISABLE_WERROR False)
-set(CUSTOM_HEADER_DIR dynamic_graph_bridge)
 set(${PROJECT_NAME}_HEADERS
   include/dynamic_graph_bridge/ros_init.hh
   include/dynamic_graph_bridge/sot_loader.hh
@@ -71,8 +62,6 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 
 SEARCH_FOR_EIGEN()
 SEARCH_FOR_BOOST()
-
-SETUP_PROJECT()
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
@@ -226,6 +215,3 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 message(cmake_install_bindir " is ${CMAKE_INSTALL_BINDIR} ")
 install(TARGETS geometric_simu DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 install(FILES manifest.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/)
-
-
-SETUP_PROJECT_FINALIZE()

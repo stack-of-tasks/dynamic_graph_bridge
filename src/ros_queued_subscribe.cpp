@@ -3,19 +3,6 @@
 // Authors: Joseph Mirabel
 //
 //
-// This file is part of dynamic_graph_bridge
-// dynamic_graph_bridge is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// dynamic_graph_bridge is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Lesser Public License for more details.  You should have
-// received a copy of the GNU Lesser General Public License along with
-// dynamic_graph_bridge  If not, see
-// <http://www.gnu.org/licenses/>.
 
 #include <boost/assign.hpp>
 #include <boost/bind.hpp>
@@ -69,10 +56,7 @@ Value List::doExecute() {
 }
 
 Add::Add(RosQueuedSubscribe& entity, const std::string& docstring)
-    : Command(
-          entity,
-          boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING),
-          docstring) {}
+    : Command(entity, boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING), docstring) {}
 
 Value Add::doExecute() {
   RosQueuedSubscribe& entity = static_cast<RosQueuedSubscribe&>(owner());
@@ -145,10 +129,7 @@ const std::string RosQueuedSubscribe::docstring_(
     "  Use command \"add\" to subscribe to a new signal.\n");
 
 RosQueuedSubscribe::RosQueuedSubscribe(const std::string& n)
-    : dynamicgraph::Entity(n),
-      nh_(rosInit(true)),
-      bindedSignal_(),
-      readQueue_(-1) {
+    : dynamicgraph::Entity(n), nh_(rosInit(true)), bindedSignal_(), readQueue_(-1) {
   std::string docstring =
       "\n"
       "  Add a signal reading data from a ROS topic\n"
@@ -190,8 +171,7 @@ RosQueuedSubscribe::RosQueuedSubscribe(const std::string& n)
       "  Input is:\n"
       "    - name of the signal (see method list for the list of signals).\n"
       "\n";
-  addCommand("clearQueue",
-             new command::rosQueuedSubscribe::ClearQueue(*this, docstring));
+  addCommand("clearQueue", new command::rosQueuedSubscribe::ClearQueue(*this, docstring));
   docstring =
       "\n"
       "  Return the queue size of a given signal\n"
@@ -199,8 +179,7 @@ RosQueuedSubscribe::RosQueuedSubscribe(const std::string& n)
       "  Input is:\n"
       "    - name of the signal (see method list for the list of signals).\n"
       "\n";
-  addCommand("queueSize",
-             new command::rosQueuedSubscribe::QueueSize(*this, docstring));
+  addCommand("queueSize", new command::rosQueuedSubscribe::QueueSize(*this, docstring));
   docstring =
       "\n"
       "  Whether signals should read values from the queues, and when.\n"
@@ -208,15 +187,12 @@ RosQueuedSubscribe::RosQueuedSubscribe(const std::string& n)
       "  Input is:\n"
       "    - int (dynamic graph time at which the reading begin).\n"
       "\n";
-  addCommand("readQueue",
-             new command::rosQueuedSubscribe::ReadQueue(*this, docstring));
+  addCommand("readQueue", new command::rosQueuedSubscribe::ReadQueue(*this, docstring));
 }
 
 RosQueuedSubscribe::~RosQueuedSubscribe() {}
 
-void RosQueuedSubscribe::display(std::ostream& os) const {
-  os << CLASS_NAME << std::endl;
-}
+void RosQueuedSubscribe::display(std::ostream& os) const { os << CLASS_NAME << std::endl; }
 
 void RosQueuedSubscribe::rm(const std::string& signal) {
   std::string signalTs = signal + "Timestamp";
@@ -232,9 +208,8 @@ void RosQueuedSubscribe::rm(const std::string& signal) {
 
 std::string RosQueuedSubscribe::list() {
   std::string result("[");
-  for (std::map<std::string, bindedSignal_t>::const_iterator it =
-           bindedSignal_.begin();
-       it != bindedSignal_.end(); it++) {
+  for (std::map<std::string, bindedSignal_t>::const_iterator it = bindedSignal_.begin(); it != bindedSignal_.end();
+       it++) {
     result += "'" + it->first + "',";
   }
   result += "]";
@@ -256,8 +231,7 @@ void RosQueuedSubscribe::clearQueue(const std::string& signal) {
 }
 
 std::size_t RosQueuedSubscribe::queueSize(const std::string& signal) const {
-  std::map<std::string, bindedSignal_t>::const_iterator _bs =
-      bindedSignal_.find(signal);
+  std::map<std::string, bindedSignal_t>::const_iterator _bs = bindedSignal_.find(signal);
   if (_bs != bindedSignal_.end()) {
     return _bs->second->size();
   }

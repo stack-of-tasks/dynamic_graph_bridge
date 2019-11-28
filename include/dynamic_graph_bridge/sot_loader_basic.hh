@@ -4,17 +4,6 @@
  *
  * CNRS
  *
- * This file is part of dynamic_graph_bridge.
- * dynamic_graph_bridge is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation, either version 3 of
- * the License, or (at your option) any later version.
- * dynamic_graph_bridge is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.  You should
- * have received a copy of the GNU Lesser General Public License along
- * with sot-core.  If not, see <http://www.gnu.org/licenses/>.
  */
 /* -------------------------------------------------------------------------- */
 /* --- INCLUDES ------------------------------------------------------------- */
@@ -102,12 +91,10 @@ class SotLoaderBasic {
   virtual void initializeRosNode(int argc, char* argv[]);
 
   // \brief Callback function when starting dynamic graph.
-  bool start_dg(std_srvs::Empty::Request& request,
-                std_srvs::Empty::Response& response);
+  bool start_dg(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
   // \brief Callback function when stopping dynamic graph.
-  bool stop_dg(std_srvs::Empty::Request& request,
-               std_srvs::Empty::Response& response);
+  bool stop_dg(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
 
   // \brief Read the state vector description based upon the robot links.
   int readSotVectorStateParam();

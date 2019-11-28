@@ -3,19 +3,6 @@
 // Authors: Joseph Mirabel
 //
 //
-// This file is part of dynamic_graph_bridge
-// dynamic_graph_bridge is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
-//
-// dynamic_graph_bridge is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Lesser Public License for more details.  You should have
-// received a copy of the GNU Lesser General Public License along with
-// dynamic_graph_bridge  If not, see
-// <http://www.gnu.org/licenses/>.
 
 #ifndef DYNAMIC_GRAPH_ROS_QUEUED_SUBSCRIBE_HH
 #define DYNAMIC_GRAPH_ROS_QUEUED_SUBSCRIBE_HH
@@ -90,11 +77,7 @@ struct BindedSignal : BindedSignalBase {
   typedef typename buffer_t::size_type size_type;
 
   BindedSignal(RosQueuedSubscribe* e)
-      : BindedSignalBase(e),
-        frontIdx(0),
-        backIdx(0),
-        buffer(BufferSize),
-        init(false) {}
+      : BindedSignalBase(e), frontIdx(0), backIdx(0), buffer(BufferSize), init(false) {}
   ~BindedSignal() {
     signal.reset();
     clear();
@@ -166,23 +149,17 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   std::size_t queueSize(const std::string& signal) const;
 
   template <typename T>
-  void add(const std::string& type, const std::string& signal,
-           const std::string& topic);
+  void add(const std::string& type, const std::string& signal, const std::string& topic);
 
-  std::map<std::string, bindedSignal_t>& bindedSignal() {
-    return bindedSignal_;
-  }
+  std::map<std::string, bindedSignal_t>& bindedSignal() { return bindedSignal_; }
 
   ros::NodeHandle& nh() { return nh_; }
 
   template <typename R, typename S>
-  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal,
-                const R& data);
+  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal, const R& data);
 
   template <typename R>
-  void callbackTimestamp(
-      boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal,
-      const R& data);
+  void callbackTimestamp(boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal, const R& data);
 
   template <typename T>
   friend class internal::Add;

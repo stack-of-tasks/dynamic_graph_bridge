@@ -67,22 +67,16 @@ class RosTfListener : public Entity {
         "    - from: frame name,\n"
         "    - signalName: the signal name in dynamic-graph"
         "\n";
-    addCommand("add", command::makeCommandVoid3(*this, &RosTfListener::add,
-                                                docstring));
+    addCommand("add", command::makeCommandVoid3(*this, &RosTfListener::add, docstring));
   }
 
   ~RosTfListener() {
-    for (Map_t::const_iterator _it = listenerDatas.begin();
-         _it != listenerDatas.end(); ++_it)
-      delete _it->second;
+    for (Map_t::const_iterator _it = listenerDatas.begin(); _it != listenerDatas.end(); ++_it) delete _it->second;
   }
 
-  void add(const std::string& to, const std::string& from,
-           const std::string& signame) {
+  void add(const std::string& to, const std::string& from, const std::string& signame) {
     if (listenerDatas.find(signame) != listenerDatas.end())
-      throw std::invalid_argument("A signal " + signame +
-                                  " already exists in RosTfListener " +
-                                  getName());
+      throw std::invalid_argument("A signal " + signame + " already exists in RosTfListener " + getName());
 
     boost::format signalName("RosTfListener(%1%)::output(MatrixHomo)::%2%");
     signalName % getName() % signame;

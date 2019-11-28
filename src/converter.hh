@@ -13,15 +13,13 @@
 #include <LinearMath/btMatrix3x3.h>
 #include <LinearMath/btQuaternion.h>
 
-#define SOT_TO_ROS_IMPL(T)                       \
-  template <>                                    \
-  inline void converter(SotToRos<T>::ros_t& dst, \
-                        const SotToRos<T>::sot_t& src)
+#define SOT_TO_ROS_IMPL(T) \
+  template <>              \
+  inline void converter(SotToRos<T>::ros_t& dst, const SotToRos<T>::sot_t& src)
 
-#define ROS_TO_SOT_IMPL(T)                       \
-  template <>                                    \
-  inline void converter(SotToRos<T>::sot_t& dst, \
-                        const SotToRos<T>::ros_t& src)
+#define ROS_TO_SOT_IMPL(T) \
+  template <>              \
+  inline void converter(SotToRos<T>::sot_t& dst, const SotToRos<T>::ros_t& src)
 
 namespace dynamicgraph {
 inline void makeHeader(std_msgs::Header& header) {
@@ -104,8 +102,7 @@ SOT_TO_ROS_IMPL(Matrix) {
 }
 
 ROS_TO_SOT_IMPL(Matrix) {
-  dst.resize(src.width,
-             (unsigned int)src.data.size() / (unsigned int)src.width);
+  dst.resize(src.width, (unsigned int)src.data.size() / (unsigned int)src.width);
   for (unsigned i = 0; i < src.data.size(); ++i) dst.data()[i] = src.data[i];
 }
 
@@ -123,8 +120,7 @@ SOT_TO_ROS_IMPL(sot::MatrixHomogeneous) {
 }
 
 ROS_TO_SOT_IMPL(sot::MatrixHomogeneous) {
-  sot::VectorQuaternion q(src.rotation.w, src.rotation.x, src.rotation.y,
-                          src.rotation.z);
+  sot::VectorQuaternion q(src.rotation.w, src.rotation.x, src.rotation.y, src.rotation.z);
   dst.linear() = q.matrix();
 
   // Copy the translation component.
@@ -135,8 +131,7 @@ ROS_TO_SOT_IMPL(sot::MatrixHomogeneous) {
 
 // Twist.
 SOT_TO_ROS_IMPL(specific::Twist) {
-  if (src.size() != 6)
-    throw std::runtime_error("failed to convert invalid twist");
+  if (src.size() != 6) throw std::runtime_error("failed to convert invalid twist");
   dst.linear.x = src(0);
   dst.linear.y = src(1);
   dst.linear.z = src(2);
@@ -171,8 +166,7 @@ ROS_TO_SOT_IMPL(specific::Twist) {
   struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
 
 DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(specific::Vector3, vector, ;);
-DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(sot::MatrixHomogeneous, transform,
-                                   dst.child_frame_id = "";);
+DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(sot::MatrixHomogeneous, transform, dst.child_frame_id = "";);
 DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(specific::Twist, twist, ;);
 
 /// \brief This macro generates a converter for a shared pointer on
@@ -181,13 +175,11 @@ DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(specific::Twist, twist, ;);
 ///        A converter for the underlying type is required.  I.e. to
 ///        convert a shared_ptr<T> to T', a converter from T to T'
 ///        is required.
-#define DG_BRIDGE_MAKE_SHPTR_IMPL(T)                              \
-  template <>                                                     \
-  inline void converter(                                          \
-      SotToRos<T>::sot_t& dst,                                    \
-      const boost::shared_ptr<SotToRos<T>::ros_t const>& src) {   \
-    converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t>(dst, *src); \
-  }                                                               \
+#define DG_BRIDGE_MAKE_SHPTR_IMPL(T)                                                                       \
+  template <>                                                                                              \
+  inline void converter(SotToRos<T>::sot_t& dst, const boost::shared_ptr<SotToRos<T>::ros_t const>& src) { \
+    converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t>(dst, *src);                                          \
+  }                                                                                                        \
   struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
 
 DG_BRIDGE_MAKE_SHPTR_IMPL(bool);
@@ -224,17 +216,15 @@ DG_BRIDGE_MAKE_STAMPED_IMPL(specific::Twist, twist, ;);
 /// a stamped type.  I.e. A data associated with its timestamp.
 ///
 /// FIXME: the timestamp is not yet forwarded to the dg signal.
-#define DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(T, ATTRIBUTE, EXTRA)               \
-  template <>                                                                \
-  inline void converter(                                                     \
-      SotToRos<std::pair<T, Vector> >::sot_t& dst,                           \
-      const boost::shared_ptr<SotToRos<std::pair<T, Vector> >::ros_t const>& \
-          src) {                                                             \
-    converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t>(dst, src->ATTRIBUTE);  \
-    do {                                                                     \
-      EXTRA                                                                  \
-    } while (0);                                                             \
-  }                                                                          \
+#define DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(T, ATTRIBUTE, EXTRA)                                        \
+  template <>                                                                                         \
+  inline void converter(SotToRos<std::pair<T, Vector> >::sot_t& dst,                                  \
+                        const boost::shared_ptr<SotToRos<std::pair<T, Vector> >::ros_t const>& src) { \
+    converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t>(dst, src->ATTRIBUTE);                           \
+    do {                                                                                              \
+      EXTRA                                                                                           \
+    } while (0);                                                                                      \
+  }                                                                                                   \
   struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
 
 DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(specific::Vector3, vector, ;);
@@ -264,8 +254,7 @@ typedef boost::posix_time::time_duration time_duration;
 typedef boost::gregorian::date date;
 
 boost::posix_time::ptime rosTimeToPtime(const ros::Time& rosTime) {
-  ptime time(date(1970, 1, 1),
-             seconds(rosTime.sec) + microseconds(rosTime.nsec / 1000));
+  ptime time(date(1970, 1, 1), seconds(rosTime.sec) + microseconds(rosTime.nsec / 1000));
   return time;
 }
 
@@ -273,8 +262,7 @@ ros::Time pTimeToRostime(const boost::posix_time::ptime& time) {
   static ptime timeStart(date(1970, 1, 1));
   time_duration diff = time - timeStart;
 
-  uint32_t sec = (unsigned int)diff.ticks() /
-                 (unsigned int)time_duration::rep_type::res_adjust();
+  uint32_t sec = (unsigned int)diff.ticks() / (unsigned int)time_duration::rep_type::res_adjust();
   uint32_t nsec = (unsigned int)diff.fractional_seconds();
 
   return ros::Time(sec, nsec);

@@ -4,17 +4,6 @@
  *
  * CNRS
  *
- * This file is part of sot-core.
- * sot-core is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License
- * as published by the Free Software Foundation, either version 3 of
- * the License, or (at your option) any later version.
- * sot-core is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.  You should
- * have received a copy of the GNU Lesser General Public License along
- * with sot-core.  If not, see <http://www.gnu.org/licenses/>.
  */
 /* -------------------------------------------------------------------------- */
 /* --- INCLUDES ------------------------------------------------------------- */
@@ -136,9 +125,7 @@ SotLoader::~SotLoader() {
   thread_.join();
 }
 
-void SotLoader::startControlLoop() {
-  thread_ = boost::thread(workThreadLoader, this);
-}
+void SotLoader::startControlLoop() { thread_ = boost::thread(workThreadLoader, this); }
 
 void SotLoader::initializeRosNode(int argc, char *argv[]) {
   SotLoaderBasic::initializeRosNode(argc, argv);
@@ -156,8 +143,7 @@ void SotLoader::fillSensors(map<string, dgs::SensorValues> &sensorsIn) {
   assert(angleControl_.size() == angleEncoder_.size());
 
   sensorsIn["joints"].setName("angle");
-  for (unsigned int i = 0; i < angleControl_.size(); i++)
-    angleEncoder_[i] = angleControl_[i];
+  for (unsigned int i = 0; i < angleControl_.size(); i++) angleEncoder_[i] = angleControl_[i];
   sensorsIn["joints"].setValues(angleEncoder_);
 }
 
@@ -166,8 +152,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   angleControl_ = controlValues["control"].getValues();
 
   // Debug
-  std::map<std::string, dgs::ControlValues>::iterator it =
-      controlValues.begin();
+  std::map<std::string, dgs::ControlValues>::iterator it = controlValues.begin();
   sotDEBUG(30) << "ControlValues to be broadcasted:" << std::endl;
   for (; it != controlValues.end(); it++) {
     sotDEBUG(30) << it->first << ":";
@@ -180,8 +165,8 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
 
   // Check if the size if coherent with the robot description.
   if (angleControl_.size() != (unsigned int)nbOfJoints_) {
-    std::cerr << " angleControl_" << angleControl_.size() << " and nbOfJoints"
-              << (unsigned int)nbOfJoints_ << " are different !" << std::endl;
+    std::cerr << " angleControl_" << angleControl_.size() << " and nbOfJoints" << (unsigned int)nbOfJoints_
+              << " are different !" << std::endl;
     exit(-1);
   }
   // Publish the data.
@@ -191,8 +176,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   }
   for (unsigned int i = 0; i < parallel_joints_to_state_vector_.size(); i++) {
     joint_state_.position[i + nbOfJoints_] =
-        coefficient_parallel_joints_[i] *
-        angleControl_[parallel_joints_to_state_vector_[i]];
+        coefficient_parallel_joints_[i] * angleControl_[parallel_joints_to_state_vector_[i]];
   }
 
   joint_pub_.publish(joint_state_);

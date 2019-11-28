@@ -5,8 +5,7 @@
 
 namespace dynamicgraph {
 namespace internal {
-sot::MatrixHomogeneous& TransformListenerData::getTransform(
-    sot::MatrixHomogeneous& res, int time) {
+sot::MatrixHomogeneous& TransformListenerData::getTransform(sot::MatrixHomogeneous& res, int time) {
   static const ros::Time rosTime(0);
   try {
     transform = buffer.lookupTransform(toFrame, fromFrame, rosTime);
