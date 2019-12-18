@@ -8,13 +8,24 @@ namespace internal {
 sot::MatrixHomogeneous& TransformListenerData::getTransform(sot::MatrixHomogeneous& res, int time) {
   static const ros::Time origin(0);
   bool useFailback = false;
-  try {
+  ros::Duration elapsed;
+  std::string msg;
+
+  if (buffer.canTransform(toFrame, fromFrame, origin, &msg)) {
     transform = buffer.lookupTransform(toFrame, fromFrame, origin);
-    ros::Duration elapsed (ros::Time::now() - transform.header.stamp);
+    elapsed = ros::Time::now() - transform.header.stamp;
     useFailback = elapsed > max_elapsed;
-  } catch (const tf2::TransformException& ex) {
+
+    if (useFailback) {
+      std::ostringstream oss;
+      oss << "Use failback " << signal.getName() << " at time " << time
+        << ". Time since last update of the transform: " << elapsed;
+      entity->SEND_INFO_STREAM_MSG(oss.str());
+    }
+  } else {
     std::ostringstream oss;
-    oss << "Enable to get transform at time " << time << ": " << ex.what();
+    oss << "Unable to get transform " << signal.getName() << " at time "
+      << time << ": " << msg;
     entity->SEND_WARNING_STREAM_MSG(oss.str());
     useFailback = true;
   }
