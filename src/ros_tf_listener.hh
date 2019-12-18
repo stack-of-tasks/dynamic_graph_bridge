@@ -7,7 +7,7 @@
 #include <geometry_msgs/TransformStamped.h>
 
 #include <dynamic-graph/entity.h>
-#include <dynamic-graph/signal.h>
+#include <dynamic-graph/signal-time-dependent.h>
 #include <dynamic-graph/signal-ptr.h>
 #include <dynamic-graph/command-bind.h>
 
@@ -18,7 +18,7 @@ class RosTfListener;
 
 namespace internal {
 struct TransformListenerData {
-  typedef Signal<sot::MatrixHomogeneous, int> signal_t;
+  typedef SignalTimeDependent<sot::MatrixHomogeneous, int> signal_t;
   typedef SignalPtr<sot::MatrixHomogeneous, int> signalIn_t;
 
   RosTfListener* entity;
@@ -43,6 +43,7 @@ struct TransformListenerData {
     signal.setFunction(
         boost::bind(&TransformListenerData::getTransform, this, _1, _2));
     failbackSig.setConstant (sot::MatrixHomogeneous::Identity());
+    signal.addDependency(failbackSig);
   }
 
   sot::MatrixHomogeneous& getTransform(sot::MatrixHomogeneous& res, int time);

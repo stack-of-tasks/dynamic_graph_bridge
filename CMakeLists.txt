@@ -143,6 +143,7 @@ IF(BUILD_PYTHON_INTERFACE)
     PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph)
     PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap sot-core)
     PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap dynamic_graph_bridge_msgs)
+    PKG_CONFIG_USE_DEPENDENCY(ros/${NAME}/wrap tf2_ros)
   endforeach()
 
   # ros_interperter library.
