@@ -211,8 +211,8 @@ void SotLoader::oneIteration() {
   try {
     sotController_->nominalSetSensors(sensorsIn_);
     sotController_->getControl(controlValues_);
-  } catch (std::exception &e) {
-    throw e;
+  } catch (std::exception &) {
+    throw;
   }
 
   readControl(controlValues_);
