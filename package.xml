@@ -27,7 +27,6 @@
   <build_depend>realtime_tools</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>message_runtime</build_depend>
-  <build_depend>tf2_bullet</build_depend>
   <build_depend>dynamic-graph</build_depend>
   <build_depend>dynamic-graph-python</build_depend>
   <build_depend>sot-core</build_depend>
@@ -43,7 +42,6 @@
   <exec_depend>realtime_tools</exec_depend>
   <exec_depend>message_generation</exec_depend>
   <exec_depend>message_runtime</exec_depend>
-  <exec_depend>tf2_bullet</exec_depend>
   <exec_depend>dynamic-graph</exec_depend>
   <exec_depend>dynamic-graph-python</exec_depend>
   <exec_depend>sot-core</exec_depend>
