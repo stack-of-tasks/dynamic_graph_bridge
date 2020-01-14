@@ -27,6 +27,6 @@ int main(int argc, char *argv[]) {
 
   aSotLoader.initializeRosNode(argc, argv);
 
-  ros::spin();
+  ros::waitForShutdown ();
   return 0;
 }
