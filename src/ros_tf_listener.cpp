@@ -5,33 +5,13 @@
 
 namespace dynamicgraph {
 namespace internal {
-sot::MatrixHomogeneous& TransformListenerData::getTransform(sot::MatrixHomogeneous& res, int time) {
-  static const ros::Time origin(0);
-  bool useFailback = false;
-  ros::Duration elapsed;
-  std::string msg;
+sot::MatrixHomogeneous& TransformListenerData::getTransform(sot::MatrixHomogeneous& res, int time)
+{
+  availableSig.recompute(time);
 
-  if (buffer.canTransform(toFrame, fromFrame, origin, &msg)) {
-    transform = buffer.lookupTransform(toFrame, fromFrame, origin);
-    elapsed = ros::Time::now() - transform.header.stamp;
-    useFailback = elapsed > max_elapsed;
+  bool available = availableSig.accessCopy();
 
-    if (useFailback) {
-      std::ostringstream oss;
-      oss << "Use failback " << signal.getName() << " at time " << time
-        << ". Time since last update of the transform: " << elapsed;
-      entity->SEND_INFO_STREAM_MSG(oss.str());
-    }
-  } else {
-    std::ostringstream oss;
-    oss << "Unable to get transform " << signal.getName() << " at time "
-      << time << ": " << msg;
-    entity->SEND_WARNING_STREAM_MSG(oss.str());
-    useFailback = true;
-  }
-
-  if (useFailback)
-  {
+  if (!available) {
     failbackSig.recompute(time);
     res = failbackSig.accessCopy();
     return res;
@@ -45,6 +25,40 @@ sot::MatrixHomogeneous& TransformListenerData::getTransform(sot::MatrixHomogeneo
   res.translation() << trans.x, trans.y, trans.z;
   return res;
 }
+
+bool& TransformListenerData::isAvailable(bool& available, int time)
+{
+  static const ros::Time origin(0);
+  available = false;
+  ros::Duration elapsed;
+  std::string msg;
+
+  if (buffer.canTransform(toFrame, fromFrame, origin, &msg)) {
+    transform = buffer.lookupTransform(toFrame, fromFrame, origin);
+    if (transform.header.stamp == origin) {
+      // This is likely a TF2 static transform.
+      available = true;
+    } else {
+      elapsed = ros::Time::now() - transform.header.stamp;
+      available = (elapsed <= max_elapsed);
+    }
+
+    if (!available) {
+      std::ostringstream oss;
+      oss << "Use failback " << signal.getName() << " at time " << time
+        << ". Time since last update of the transform: " << elapsed;
+      entity->SEND_INFO_STREAM_MSG(oss.str());
+    }
+  } else {
+    std::ostringstream oss;
+    oss << "Unable to get transform " << signal.getName() << " at time "
+      << time << ": " << msg;
+    entity->SEND_WARNING_STREAM_MSG(oss.str());
+    available = false;
+  }
+  return available;
+}
+
 }  // namespace internal
 
 DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosTfListener, "RosTfListener");
