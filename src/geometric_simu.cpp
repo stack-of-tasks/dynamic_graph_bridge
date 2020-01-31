@@ -5,6 +5,7 @@
  * CNRS
  *
  */
+#include <iostream>
 #include <ros/console.h>
 
 #define ENABLE_RT_LOG
@@ -12,14 +13,9 @@
 
 #include <dynamic_graph_bridge/sot_loader.hh>
 
-class LoggerROSStream : public ::dynamicgraph::LoggerStream {
-public:
-  void write(const char *c) { ROS_ERROR(c); }
-};
-
 int main(int argc, char *argv[]) {
   ::dynamicgraph::RealTimeLogger::instance()
-    .addOutputStream(::dynamicgraph::LoggerStreamPtr_t(new LoggerROSStream()));
+    .addOutputStream(::dynamicgraph::LoggerStreamPtr_t(new dynamicgraph::LoggerIOStream(std::cout)));
 
   ros::init(argc, argv, "sot_ros_encapsulator");
   SotLoader aSotLoader;
