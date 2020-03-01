@@ -18,6 +18,9 @@
 // STL includes
 #include <map>
 
+// Pinocchio includes
+#include <pinocchio/fwd.hpp>
+
 // Boost includes
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
