@@ -1,3 +1,4 @@
+#include <pinocchio/fwd.hpp>
 #include "dynamic_graph_bridge/ros_init.hh"
 #include "ros_tf_listener.hh"
 
