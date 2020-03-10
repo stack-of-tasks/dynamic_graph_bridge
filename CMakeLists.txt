@@ -1,27 +1,27 @@
-# Copyright (C) 2008-2013 LAAS-CNRS, JRL AIST-CNRS.
+# Copyright (C) 2008-2020 LAAS-CNRS, JRL AIST-CNRS.
 #
 # Author: Florent Lamiraux, Nirmal Giftsun
 #
 
-# Catkin part
+cmake_minimum_required(VERSION 3.1)
 
-
-cmake_minimum_required(VERSION 2.8.0)
-
-set(PROJECT_NAMESPACE stack-of-tasks)
+set(PROJECT_ORG stack-of-tasks)
 set(PROJECT_NAME dynamic_graph_bridge)
 set(PROJECT_DESCRIPTION "Dynamic graph bridge library")
-set(PROJECT_URL "https://github.com/${PROJECT_NAMESPACE}/${PROJECT_NAME}")
+set(PROJECT_URL "https://github.com/${PROJECT_ORG}/${PROJECT_NAME}")
 set(PROJECT_SUFFIX "-v3")
 
-include(cmake/base.cmake)
-INCLUDE(cmake/boost.cmake)
-INCLUDE(cmake/eigen.cmake)
-include(cmake/ros.cmake)
-include(cmake/python.cmake)
-include(cmake/test.cmake)
+OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 
 set(CUSTOM_HEADER_DIR dynamic_graph_bridge)
+SET(DOXYGEN_USE_MATHJAX YES)
+SET(CATKIN_ENABLE_TESTING OFF)
+set(CXX_DISABLE_WERROR False)
+
+include(cmake/base.cmake)
+include(cmake/boost.cmake)
+include(cmake/ros.cmake)
+include(cmake/python.cmake)
 
 CMAKE_POLICY(SET CMP0048 OLD)
 project(${PROJECT_NAME} CXX)
@@ -29,11 +29,6 @@ project(${PROJECT_NAME} CXX)
 SET(CATKIN_REQUIRED_COMPONENTS roscpp std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf2_ros)
 SET(CATKIN_DEPENDS_LIBRARIES ros_bridge sot_loader)
 
-## LAAS cmake submodule part
-
-SET(DOXYGEN_USE_MATHJAX YES)
-
-OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 IF(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
   STRING(REGEX REPLACE "-" "_" PY_NAME ${PROJECT_NAME})
@@ -43,12 +38,9 @@ IF(BUILD_PYTHON_INTERFACE)
   SET(CATKIN_DEPENDS_LIBRARIES ${CATKIN_DEPENDS_LIBRARIES} ros_interpreter)
 ENDIF(BUILD_PYTHON_INTERFACE)
 
-SET(CATKIN_ENABLE_TESTING OFF)
-
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_REQUIRED_COMPONENTS})
 find_package(realtime_tools)
 
-set(CXX_DISABLE_WERROR False)
 set(${PROJECT_NAME}_HEADERS
   include/dynamic_graph_bridge/ros_init.hh
   include/dynamic_graph_bridge/sot_loader.hh
@@ -60,18 +52,12 @@ IF(BUILD_PYTHON_INTERFACE)
     include/dynamic_graph_bridge/ros_interpreter.hh )
 ENDIF(BUILD_PYTHON_INTERFACE)
 
-SEARCH_FOR_EIGEN()
 SEARCH_FOR_BOOST()
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_INSTALL_RPATH "${LIBRARY_OUTPUT_PATH}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${LIBRARY_OUTPUT_PATH}")
-set(PKG_CONFIG_ADDITIONAL_VARIABLES
-  ${PKG_CONFIG_ADDITIONAL_VARIABLES}
-  plugindirname
-  plugindir
-  )
 
 # Add dependency to SoT specific packages.
 SET(SOT_PKGNAMES
