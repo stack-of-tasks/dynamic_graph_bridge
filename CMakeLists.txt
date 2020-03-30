@@ -33,7 +33,8 @@ COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
 # Project dependencies
-SET(CATKIN_REQUIRED_COMPONENTS roscpp std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf2_ros)
+SET(CATKIN_REQUIRED_COMPONENTS roscpp std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf2_ros
+    realtime_tools)
 
 IF(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
@@ -45,13 +46,8 @@ IF(BUILD_PYTHON_INTERFACE)
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_REQUIRED_COMPONENTS})
-find_package(realtime_tools)
 
 SEARCH_FOR_BOOST()
-
-add_required_dependency(roscpp)
-add_required_dependency(tf2_ros)
-add_required_dependency("realtime_tools >= 1.8")
 
 ADD_PROJECT_DEPENDENCY(sot-core REQUIRED PKG_CONFIG_REQUIRES sot-core)
 
