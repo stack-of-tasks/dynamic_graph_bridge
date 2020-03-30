@@ -14,7 +14,7 @@ FOREACH(plugin ${plugins})
     SET_TARGET_PROPERTIES(${LIBRARY_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION})
   ENDIF(SUFFIX_SO_VERSION)
 
-  TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ros_bridge ${${LIBRARY_NAME}_deps})
+  TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${${LIBRARY_NAME}_deps} ${catkin_LIBRARIES} ros_bridge)
 
   IF(NOT INSTALL_PYTHON_INTERFACE_ONLY)
     INSTALL(TARGETS ${LIBRARY_NAME} EXPORT ${TARGETS_EXPORT_NAME}
@@ -25,9 +25,6 @@ FOREACH(plugin ${plugins})
     STRING(REPLACE - _ PYTHON_LIBRARY_NAME ${LIBRARY_NAME})
     DYNAMIC_GRAPH_PYTHON_MODULE("ros/${PYTHON_LIBRARY_NAME}"
       ${LIBRARY_NAME} ${PROJECT_NAME}-${PYTHON_LIBRARY_NAME}-wrap)
-
-    PKG_CONFIG_USE_DEPENDENCY(${PROJECT_NAME}-${PYTHON_LIBRARY_NAME}-wrap realtime_tools)
-    PKG_CONFIG_USE_DEPENDENCY(${PROJECT_NAME}-${PYTHON_LIBRARY_NAME}-wrap tf2_ros)
   ENDIF(BUILD_PYTHON_INTERFACE)
 ENDFOREACH(plugin)
 
@@ -40,9 +37,8 @@ IF(BUILD_PYTHON_INTERFACE)
 
   # ros_interperter library.
   add_library(ros_interpreter ros_interpreter.cpp)
-  TARGET_LINK_LIBRARIES(ros_interpreter ros_bridge
+  TARGET_LINK_LIBRARIES(ros_interpreter ros_bridge ${catkin_LIBRARIES}
     dynamic-graph-python::dynamic-graph-python)
-  pkg_config_use_dependency(ros_interpreter roscpp)
 
   install(TARGETS ros_interpreter
     EXPORT ${TARGETS_EXPORT_NAME}
@@ -51,12 +47,11 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 
 # Stand alone embedded intepreter with a robot controller.
 add_executable(geometric_simu geometric_simu.cpp sot_loader.cpp sot_loader_basic.cpp)
-pkg_config_use_dependency(geometric_simu roscpp)
-target_link_libraries(geometric_simu ros_bridge tf2_ros ${Boost_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(geometric_simu ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${catkin_LIBRARIES} ros_bridge)
 install(TARGETS geometric_simu EXPORT ${TARGETS_EXPORT_NAME}
   DESTINATION bin)
 
 # Sot loader library
 add_library(sot_loader sot_loader.cpp sot_loader_basic.cpp)
-target_link_libraries(sot_loader ${Boost_LIBRARIES} roscpp ros_bridge tf2_ros)
+target_link_libraries(sot_loader ${Boost_LIBRARIES} ${catkin_LIBRARIES} ros_bridge)
 install(TARGETS sot_loader EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
