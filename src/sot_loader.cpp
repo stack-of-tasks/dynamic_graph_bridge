@@ -118,6 +118,11 @@ SotLoader::SotLoader()
 
   freeFlyerPose_.header.frame_id = "odom";
   freeFlyerPose_.child_frame_id = "base_link";
+  if (ros::param::get("/sot/tf_base_link",
+                      freeFlyerPose_.child_frame_id)) {
+    ROS_INFO_STREAM("Publishing " << freeFlyerPose_.child_frame_id << " wrt "
+                                  << freeFlyerPose_.header.frame_id);
+  }
 }
 
 SotLoader::~SotLoader() {
