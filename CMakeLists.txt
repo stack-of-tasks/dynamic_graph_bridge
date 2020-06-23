@@ -66,13 +66,15 @@ set(${PROJECT_NAME}_HEADERS
 SET(${PROJECT_NAME}_SOURCES
   src/ros_init.cpp
   src/sot_to_ros.cpp
+  src/ros_parameter.cpp
   )
 
 ADD_LIBRARY(ros_bridge SHARED
   ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 TARGET_INCLUDE_DIRECTORIES(ros_bridge SYSTEM PUBLIC ${catkin_INCLUDE_DIRS})
 TARGET_INCLUDE_DIRECTORIES(ros_bridge PUBLIC $<INSTALL_INTERFACE:include>)
-TARGET_LINK_LIBRARIES(ros_bridge ${catkin_LIBRARIES} sot-core::sot-core)
+TARGET_LINK_LIBRARIES(ros_bridge ${catkin_LIBRARIES}
+  sot-core::sot-core pinocchio::pinocchio)
 pkg_config_use_dependency(ros_bridge dynamic_graph_bridge_msgs)
 
 IF(SUFFIX_SO_VERSION)
