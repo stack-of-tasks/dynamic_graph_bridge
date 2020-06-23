@@ -11,6 +11,7 @@
 
 #include <dynamic_graph_bridge/sot_loader.hh>
 #include "dynamic_graph_bridge/ros_init.hh"
+#include "dynamic_graph_bridge/ros_parameter.hh"
 
 #include <dynamic-graph/pool.h>
 
@@ -41,6 +42,8 @@ void SotLoaderBasic::initializeRosNode(int, char* []) {
   service_start_ = n.advertiseService("start_dynamic_graph", &SotLoaderBasic::start_dg, this);
 
   service_stop_ = n.advertiseService("stop_dynamic_graph", &SotLoaderBasic::stop_dg, this);
+
+  dynamicgraph::parameter_server_read_robot_description();
 }
 
 void SotLoaderBasic::setDynamicLibraryName(std::string& afilename) { dynamicLibraryName_ = afilename; }
