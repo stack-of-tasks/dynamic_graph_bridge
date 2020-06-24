@@ -25,17 +25,15 @@ bool parameter_server_read_robot_description()
   std::string parameter_name("/robot_description");
   nh.getParam(parameter_name,robot_description);
 
-  pinocchio::Model model;
-  pinocchio::urdf::buildModelFromXML(robot_description, model);
+  std::string model_name("robot");
 
-  ROS_INFO("Robot name : %s.",model.name.c_str());
   // Search for the robot util related to robot_name.
-  sot::RobotUtilShrPtr aRobotUtil = sot::getRobotUtil(model.name);
+  sot::RobotUtilShrPtr aRobotUtil = sot::getRobotUtil(model_name);
   // If does not exist then it is created.
   if (aRobotUtil != sot::RefVoidRobotUtil())
-    aRobotUtil = sot::createRobotUtil(model.name);
+    aRobotUtil = sot::createRobotUtil(model_name);
 
-  // If the creation is fine 
+  // If the creation is fine
   if (aRobotUtil != sot::RefVoidRobotUtil())
   {
     // Then set the robot model.
@@ -49,7 +47,7 @@ bool parameter_server_read_robot_description()
 
   // Otherwise something went wrong.
   return false;
-  
+
 }
 
 };
