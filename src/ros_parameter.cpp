@@ -1,3 +1,5 @@
+#include <sot/core/robot-utils.hh>
+
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
@@ -7,7 +9,6 @@
 
 #include <urdf_parser/urdf_parser.h>
 
-#include <sot/core/robot-utils.hh>
 #include <ros/ros.h>
 #include "dynamic_graph_bridge/ros_parameter.hh"
 
@@ -50,4 +51,4 @@ bool parameter_server_read_robot_description()
 
 }
 
-};
+}
