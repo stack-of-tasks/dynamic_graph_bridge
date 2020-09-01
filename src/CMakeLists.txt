@@ -50,13 +50,13 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 
 # Stand alone embedded intepreter with a robot controller.
 add_executable(geometric_simu geometric_simu.cpp sot_loader.cpp sot_loader_basic.cpp)
-target_link_libraries(geometric_simu ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${catkin_LIBRARIES} ros_bridge)
+target_link_libraries(geometric_simu Boost::program_options ${CMAKE_DL_LIBS} ${catkin_LIBRARIES} ros_bridge)
 pkg_config_use_dependency(geometric_simu dynamic_graph_bridge_msgs)
 install(TARGETS geometric_simu
   DESTINATION lib/${PROJECT_NAME})
 
 # Sot loader library
 add_library(sot_loader sot_loader.cpp sot_loader_basic.cpp)
-target_link_libraries(sot_loader ${Boost_LIBRARIES} ${catkin_LIBRARIES} ros_bridge)
+target_link_libraries(sot_loader Boost::program_options ${catkin_LIBRARIES} ros_bridge)
 pkg_config_use_dependency(sot_loader dynamic_graph_bridge_msgs)
 install(TARGETS sot_loader EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
