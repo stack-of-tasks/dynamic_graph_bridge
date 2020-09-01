@@ -13,6 +13,8 @@
 
 #include <sot/core/matrix-geometry.hh>
 
+#include <dynamic_graph_bridge/ros_init.hh>
+
 namespace dynamicgraph {
 class RosTfListener;
 

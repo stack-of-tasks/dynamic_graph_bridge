@@ -28,6 +28,8 @@ class RosTime : public dynamicgraph::Entity {
   static const std::string docstring_;
 };  // class RosTime
 
+template <> struct signal_io<boost::posix_time::ptime> : signal_io_unimplemented<boost::posix_time::ptime> {};
+
 }  // namespace dynamicgraph
 
 #endif  // DYNAMIC_GRAPH_ROS_TIME_HH
