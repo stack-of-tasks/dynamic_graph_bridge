@@ -31,7 +31,7 @@ bool parameter_server_read_robot_description()
   // Search for the robot util related to robot_name.
   sot::RobotUtilShrPtr aRobotUtil = sot::getRobotUtil(model_name);
   // If does not exist then it is created.
-  if (aRobotUtil != sot::RefVoidRobotUtil())
+  if (aRobotUtil == sot::RefVoidRobotUtil())
     aRobotUtil = sot::createRobotUtil(model_name);
 
   // If the creation is fine
