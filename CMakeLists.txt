@@ -35,7 +35,7 @@ PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 # Project dependencies
 SET(CATKIN_REQUIRED_COMPONENTS roscpp std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf2_ros
     realtime_tools)
-FIND_PACKAGE(Boost REQUIRED COMPONENTS program_options)
+ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS program_options)
 
 IF(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
