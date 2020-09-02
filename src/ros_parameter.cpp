@@ -1,3 +1,5 @@
+#include <sot/core/robot-utils.hh>
+
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
@@ -7,7 +9,6 @@
 
 #include <urdf_parser/urdf_parser.h>
 
-#include <sot/core/robot-utils.hh>
 #include <ros/ros.h>
 #include "dynamic_graph_bridge/ros_parameter.hh"
 
@@ -30,7 +31,7 @@ bool parameter_server_read_robot_description()
   // Search for the robot util related to robot_name.
   sot::RobotUtilShrPtr aRobotUtil = sot::getRobotUtil(model_name);
   // If does not exist then it is created.
-  if (aRobotUtil != sot::RefVoidRobotUtil())
+  if (aRobotUtil == sot::RefVoidRobotUtil())
     aRobotUtil = sot::createRobotUtil(model_name);
 
   // If the creation is fine
@@ -50,4 +51,4 @@ bool parameter_server_read_robot_description()
 
 }
 
-};
+}
