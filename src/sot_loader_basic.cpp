@@ -129,7 +129,6 @@ int SotLoaderBasic::parseOptions(int argc, char* argv[]) {
   } else
     dynamicLibraryName_ = vm_["input-file"].as<string>();
 
-  Initialization();
   return 0;
 }
 
