@@ -22,8 +22,8 @@ const std::string RosTime::docstring_(
     "  Signal \"time\" provides time as given by ros::time as\n"
     "  boost::posix_time::ptime type.\n");
 
-RosTime::RosTime(const std::string& name)
-    : Entity(name), now_("RosTime(" + name + ")::output(boost::posix_time::ptime)::time") {
+RosTime::RosTime(const std::string& _name)
+    : Entity(_name), now_("RosTime(" + _name + ")::output(boost::posix_time::ptime)::time") {
   signalRegistration(now_);
   now_.setConstant(rosTimeToPtime(ros::Time::now()));
   now_.setFunction(boost::bind(&RosTime::update, this, _1, _2));

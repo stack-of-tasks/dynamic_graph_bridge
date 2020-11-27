@@ -68,8 +68,8 @@ class RosTfListener : public Entity {
  public:
   typedef internal::TransformListenerData TransformListenerData;
 
-  RosTfListener(const std::string& name)
-    : Entity(name)
+  RosTfListener(const std::string& _name)
+    : Entity(_name)
     , buffer()
     , listener(buffer, rosInit(), false)
   {
