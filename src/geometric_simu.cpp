@@ -21,7 +21,11 @@ int main(int argc, char *argv[]) {
   SotLoader aSotLoader;
   if (aSotLoader.parseOptions(argc, argv) < 0) return -1;
 
+  // Advertize service "(start|stop)_dynamic_graph" and
+  // load parameter "robot_description in SoT.
   aSotLoader.initializeRosNode(argc, argv);
+  // Load dynamic library and run python prologue.
+  aSotLoader.Initialization();
 
   ros::waitForShutdown ();
   return 0;
