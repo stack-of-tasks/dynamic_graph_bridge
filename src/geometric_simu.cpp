@@ -19,9 +19,9 @@ int main(int argc, char *argv[]) {
 
   ros::init(argc, argv, "sot_ros_encapsulator");
   SotLoader aSotLoader;
-  if (aSotLoader.parseOptions(argc, argv) < 0) return -1;
-
   aSotLoader.initializeRosNode(argc, argv);
+  
+  if (aSotLoader.parseOptions(argc, argv) < 0) return -1;
 
   ros::waitForShutdown ();
   return 0;
