@@ -28,23 +28,6 @@ const double RosPublish::ROS_JOINT_STATE_PUBLISHER_RATE = 0.01;
 
 namespace command {
 namespace rosPublish {
-Clear::Clear(RosPublish& entity, const std::string& docstring)
-    : Command(entity, std::vector<Value::Type>(), docstring) {}
-
-Value Clear::doExecute() {
-  RosPublish& entity = static_cast<RosPublish&>(owner());
-
-  entity.clear();
-  return Value();
-}
-
-List::List(RosPublish& entity, const std::string& docstring)
-    : Command(entity, std::vector<Value::Type>(), docstring) {}
-
-Value List::doExecute() {
-  RosPublish& entity = static_cast<RosPublish&>(owner());
-  return Value(entity.list());
-}
 
 Add::Add(RosPublish& entity, const std::string& docstring)
     : Command(entity, boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING), docstring) {}
@@ -88,16 +71,6 @@ Value Add::doExecute() {
   return Value();
 }
 
-Rm::Rm(RosPublish& entity, const std::string& docstring)
-    : Command(entity, boost::assign::list_of(Value::STRING), docstring) {}
-
-Value Rm::doExecute() {
-  RosPublish& entity = static_cast<RosPublish&>(owner());
-  std::vector<Value> values = getParameterValues();
-  const std::string& signal = values[0].value();
-  entity.rm(signal);
-  return Value();
-}
 }  // namespace rosPublish
 }  // end of namespace command.
 
@@ -143,29 +116,6 @@ RosPublish::RosPublish(const std::string& n)
       "    - topic:  the topic name in ROS.\n"
       "\n";
   addCommand("add", new command::rosPublish::Add(*this, docstring));
-  docstring =
-      "\n"
-      "  Remove a signal writing data to a ROS topic\n"
-      "\n"
-      "  Input:\n"
-      "    - name of the signal to remove (see method list for the list of "
-      "signals).\n"
-      "\n";
-  addCommand("rm", new command::rosPublish::Rm(*this, docstring));
-  docstring =
-      "\n"
-      "  Remove all signals writing data to a ROS topic\n"
-      "\n"
-      "  No input:\n"
-      "\n";
-  addCommand("clear", new command::rosPublish::Clear(*this, docstring));
-  docstring =
-      "\n"
-      "  List signals writing data to a ROS topic\n"
-      "\n"
-      "  No input:\n"
-      "\n";
-  addCommand("list", new command::rosPublish::List(*this, docstring));
 }
 
 RosPublish::~RosPublish() { aofs_.close(); }
@@ -187,13 +137,10 @@ void RosPublish::rm(const std::string& signal) {
   bindedSignal_.erase(signal);
 }
 
-std::string RosPublish::list() const {
-  std::string result("[");
-  for (std::map<std::string, bindedSignal_t>::const_iterator it = bindedSignal_.begin(); it != bindedSignal_.end();
-       it++) {
-    result += "'" + it->first + "',";
-  }
-  result += "]";
+std::vector<std::string> RosPublish::list() const {
+  std::vector<std::string> result(bindedSignal_.size());
+  std::transform(bindedSignal_.begin(), bindedSignal_.end(),
+      result.begin(), [](const auto& pair) { return pair.first; });
   return result;
 }
 
