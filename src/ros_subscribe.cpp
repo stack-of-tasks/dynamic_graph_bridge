@@ -18,24 +18,6 @@ DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosSubscribe, "RosSubscribe");
 
 namespace command {
 namespace rosSubscribe {
-Clear::Clear(RosSubscribe& entity, const std::string& docstring)
-    : Command(entity, std::vector<Value::Type>(), docstring) {}
-
-Value Clear::doExecute() {
-  RosSubscribe& entity = static_cast<RosSubscribe&>(owner());
-
-  entity.clear();
-  return Value();
-}
-
-List::List(RosSubscribe& entity, const std::string& docstring)
-    : Command(entity, std::vector<Value::Type>(), docstring) {}
-
-Value List::doExecute() {
-  RosSubscribe& entity = static_cast<RosSubscribe&>(owner());
-  return Value(entity.list());
-}
-
 Add::Add(RosSubscribe& entity, const std::string& docstring)
     : Command(entity, boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING), docstring) {}
 
@@ -73,17 +55,6 @@ Value Add::doExecute() {
     throw std::runtime_error("bad type");
   return Value();
 }
-
-Rm::Rm(RosSubscribe& entity, const std::string& docstring)
-    : Command(entity, boost::assign::list_of(Value::STRING), docstring) {}
-
-Value Rm::doExecute() {
-  RosSubscribe& entity = static_cast<RosSubscribe&>(owner());
-  std::vector<Value> values = getParameterValues();
-  const std::string& signal = values[0].value();
-  entity.rm(signal);
-  return Value();
-}
 }  // namespace rosSubscribe
 }  // end of namespace command.
 
@@ -106,29 +77,6 @@ RosSubscribe::RosSubscribe(const std::string& n) : dynamicgraph::Entity(n), nh_(
       "    - topic:  the topic name in ROS.\n"
       "\n";
   addCommand("add", new command::rosSubscribe::Add(*this, docstring));
-  docstring =
-      "\n"
-      "  Remove a signal reading data from a ROS topic\n"
-      "\n"
-      "  Input:\n"
-      "    - name of the signal to remove (see method list for the list of "
-      "signals).\n"
-      "\n";
-  addCommand("rm", new command::rosSubscribe::Rm(*this, docstring));
-  docstring =
-      "\n"
-      "  Remove all signals reading data from a ROS topic\n"
-      "\n"
-      "  No input:\n"
-      "\n";
-  addCommand("clear", new command::rosSubscribe::Clear(*this, docstring));
-  docstring =
-      "\n"
-      "  List signals reading data from a ROS topic\n"
-      "\n"
-      "  No input:\n"
-      "\n";
-  addCommand("list", new command::rosSubscribe::List(*this, docstring));
 }
 
 RosSubscribe::~RosSubscribe() {}
@@ -147,13 +95,10 @@ void RosSubscribe::rm(const std::string& signal) {
   }
 }
 
-std::string RosSubscribe::list() {
-  std::string result("[");
-  for (std::map<std::string, bindedSignal_t>::const_iterator it = bindedSignal_.begin(); it != bindedSignal_.end();
-       it++) {
-    result += "'" + it->first + "',";
-  }
-  result += "]";
+std::vector<std::string> RosSubscribe::list() {
+  std::vector<std::string> result(bindedSignal_.size());
+  std::transform(bindedSignal_.begin(), bindedSignal_.end(),
+      result.begin(), [](const auto& pair) { return pair.first; });
   return result;
 }
 
