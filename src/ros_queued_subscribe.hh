@@ -38,12 +38,6 @@ using ::dynamicgraph::command::Value;
   }
 
 ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND(Add);
-ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND(Clear);
-ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND(List);
-ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND(Rm);
-ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND(ClearQueue);
-ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND(QueueSize);
-ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND(ReadQueue);
 
 #undef ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND
 
@@ -142,7 +136,7 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   void display(std::ostream& os) const;
 
   void rm(const std::string& signal);
-  std::string list();
+  std::vector<std::string> list();
   void clear();
   void clearQueue(const std::string& signal);
   void readQueue(int beginReadingAt);
