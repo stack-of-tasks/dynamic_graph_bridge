@@ -72,31 +72,11 @@ class RosTfListener : public Entity {
     : Entity(_name)
     , buffer()
     , listener(buffer, rosInit(), false)
-  {
-    std::string docstring =
-        "\n"
-        "  Add a signal containing the transform between two frames.\n"
-        "\n"
-        "  Input:\n"
-        "    - to  : frame name\n"
-        "    - from: frame name,\n"
-        "    - signalName: the signal name in dynamic-graph"
-        "\n";
-    addCommand("add", command::makeCommandVoid3(*this, &RosTfListener::add, docstring));
-    docstring =
-        "\n"
-        "  Set the maximum time delay of the transform obtained from tf.\n"
-        "\n"
-        "  Input:\n"
-        "    - signalName: the signal name,\n"
-        "    - delay  : in seconds\n"
-        "\n";
-    addCommand("setMaximumDelay", command::makeCommandVoid2(*this, &RosTfListener::setMaximumDelay, docstring));
-  }
+  {}
 
   ~RosTfListener()
   {
-    for (Map_t::const_iterator _it = listenerDatas.begin(); _it != listenerDatas.end(); ++_it) delete _it->second;
+    for (const auto& pair : listenerDatas) delete pair.second;
   }
 
   void add(const std::string& to, const std::string& from, const std::string& signame)
