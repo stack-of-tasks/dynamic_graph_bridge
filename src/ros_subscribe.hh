@@ -31,9 +31,6 @@ using ::dynamicgraph::command::Value;
   }
 
 ROS_SUBSCRIBE_MAKE_COMMAND(Add);
-ROS_SUBSCRIBE_MAKE_COMMAND(Clear);
-ROS_SUBSCRIBE_MAKE_COMMAND(List);
-ROS_SUBSCRIBE_MAKE_COMMAND(Rm);
 
 #undef ROS_SUBSCRIBE_MAKE_COMMAND
 
@@ -62,7 +59,7 @@ class RosSubscribe : public dynamicgraph::Entity {
 
   void add(const std::string& signal, const std::string& topic);
   void rm(const std::string& signal);
-  std::string list();
+  std::vector<std::string> list();
   void clear();
 
   template <typename T>

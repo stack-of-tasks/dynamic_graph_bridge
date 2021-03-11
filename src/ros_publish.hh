@@ -34,9 +34,6 @@ using ::dynamicgraph::command::Value;
   }
 
 ROS_PUBLISH_MAKE_COMMAND(Add);
-ROS_PUBLISH_MAKE_COMMAND(Clear);
-ROS_PUBLISH_MAKE_COMMAND(List);
-ROS_PUBLISH_MAKE_COMMAND(Rm);
 
 #undef ROS_PUBLISH_MAKE_COMMAND
 
@@ -62,7 +59,7 @@ class RosPublish : public dynamicgraph::Entity {
 
   void add(const std::string& signal, const std::string& topic);
   void rm(const std::string& signal);
-  std::string list() const;
+  std::vector<std::string> list() const;
   void clear();
 
   int& trigger(int&, int);
