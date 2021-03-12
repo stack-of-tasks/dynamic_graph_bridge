@@ -10,7 +10,6 @@ SET(PROJECT_ORG stack-of-tasks)
 SET(PROJECT_NAME dynamic_graph_bridge)
 SET(PROJECT_DESCRIPTION "Dynamic graph bridge library")
 SET(PROJECT_URL "https://github.com/${PROJECT_ORG}/${PROJECT_NAME}")
-SET(PROJECT_SUFFIX "-v3")
 
 # Project options
 OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
@@ -36,29 +35,26 @@ PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 SET(CATKIN_REQUIRED_COMPONENTS roscpp std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf2_ros
     realtime_tools)
 ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS program_options)
+ADD_PROJECT_DEPENDENCY(dynamic_graph_bridge_msgs 0.3.0 REQUIRED)
 
 IF(BUILD_PYTHON_INTERFACE)
   FINDPYTHON()
   SEARCH_FOR_BOOST_PYTHON()
   STRING(REGEX REPLACE "-" "_" PY_NAME ${PROJECT_NAME})
-  ADD_PROJECT_DEPENDENCY(dynamic-graph-python 4.0.0 REQUIRED
-    PKG_CONFIG_REQUIRES dynamic-graph-python)
+  ADD_PROJECT_DEPENDENCY(dynamic-graph-python 4.0.0 REQUIRED)
   SET(CATKIN_REQUIRED_COMPONENTS ${CATKIN_REQUIRED_COMPONENTS} rospy)
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_REQUIRED_COMPONENTS})
 
-
-ADD_PROJECT_DEPENDENCY(sot-core REQUIRED PKG_CONFIG_REQUIRES sot-core)
-
-add_required_dependency(dynamic_graph_bridge_msgs)
+ADD_PROJECT_DEPENDENCY(sot-core REQUIRED)
 
 # Main Library
 set(${PROJECT_NAME}_HEADERS
-  include/dynamic_graph_bridge/ros_init.hh
-  include/dynamic_graph_bridge/sot_loader.hh
-  include/dynamic_graph_bridge/sot_loader_basic.hh
-  include/dynamic_graph_bridge/ros_interpreter.hh
+  include/${PROJECT_NAME}/ros_init.hh
+  include/${PROJECT_NAME}/sot_loader.hh
+  include/${PROJECT_NAME}/sot_loader_basic.hh
+  include/${PROJECT_NAME}/ros_interpreter.hh
   src/converter.hh
   src/sot_to_ros.hh
   )
@@ -75,7 +71,6 @@ TARGET_INCLUDE_DIRECTORIES(ros_bridge SYSTEM PUBLIC ${catkin_INCLUDE_DIRS})
 TARGET_INCLUDE_DIRECTORIES(ros_bridge PUBLIC $<INSTALL_INTERFACE:include>)
 TARGET_LINK_LIBRARIES(ros_bridge ${catkin_LIBRARIES}
   sot-core::sot-core pinocchio::pinocchio)
-pkg_config_use_dependency(ros_bridge dynamic_graph_bridge_msgs)
 
 IF(SUFFIX_SO_VERSION)
   SET_TARGET_PROPERTIES(ros_bridge PROPERTIES SOVERSION ${PROJECT_VERSION})
@@ -98,4 +93,3 @@ install(PROGRAMS
 
 # Install package information
 install(FILES manifest.xml package.xml DESTINATION share/${PROJECT_NAME})
-PKG_CONFIG_APPEND_LIBS(ros_bridge sot_loader)
