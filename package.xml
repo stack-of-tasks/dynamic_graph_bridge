@@ -1,12 +1,12 @@
 <package format="2">
   <name>dynamic_graph_bridge</name>
-  <version>3.4.0</version>
+  <version>3.4.1</version>
   <description>
 
      ROS bindings for dynamic graph.
 
   </description>
-  <maintainer email="hpp@laas.fr">hpp@laas.fr</maintainer>
+  <maintainer email="guilhem.saurel@laas.fr">guilhem.saurel@laas.fr</maintainer>
   <author email="hpp@laas.fr">hpp@laas.fr</author>
 
   <license>LGPL</license>
