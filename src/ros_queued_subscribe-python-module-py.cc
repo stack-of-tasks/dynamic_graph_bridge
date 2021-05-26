@@ -18,7 +18,7 @@ BOOST_PYTHON_MODULE(wrap)
         "Empty the queue of a given signal", bp::args("signal_name"))
     .def("queueSize", &dg::RosQueuedSubscribe::queueSize,
         "Return the queue size of a given signal", bp::args("signal_name"))
-    .def("readQueue", &dg::RosQueuedSubscribe::queueSize,
+    .def("readQueue", &dg::RosQueuedSubscribe::readQueue,
         "Whether signals should read values from the queues, and when.",
         bp::args("start_time"))
     ;
