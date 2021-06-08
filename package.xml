@@ -47,5 +47,5 @@
   <exec_depend>sot-core</exec_depend>
   <exec_depend>sot-dynamic-pinocchio</exec_depend>
   <exec_depend>dynamic_graph_bridge_msgs</exec_depend>
-
+  
 </package>
