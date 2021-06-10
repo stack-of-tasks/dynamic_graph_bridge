@@ -57,6 +57,7 @@ ADD_PROJECT_DEPENDENCY(sot-core REQUIRED)
 
 # Main Library
 set(${PROJECT_NAME}_HEADERS
+  include/${PROJECT_NAME}/fwd.hh
   include/${PROJECT_NAME}/ros_init.hh
   include/${PROJECT_NAME}/sot_loader.hh
   include/${PROJECT_NAME}/sot_loader_basic.hh

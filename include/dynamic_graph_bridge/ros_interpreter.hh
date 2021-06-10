@@ -5,6 +5,7 @@
 #include <ros/ros.h>
 #pragma GCC diagnostic pop
 
+#include <dynamic_graph_bridge/fwd.hh>
 #include <dynamic_graph_bridge_msgs/RunCommand.h>
 #include <dynamic_graph_bridge_msgs/RunPythonFile.h>
 #include <dynamic-graph/python/interpreter.hh>
