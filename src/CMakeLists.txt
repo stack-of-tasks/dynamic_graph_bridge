@@ -17,6 +17,8 @@ FOREACH(plugin ${plugins})
   TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${${LIBRARY_NAME}_deps} ${catkin_LIBRARIES} ros_bridge
     dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp)
 
+  ament_target_dependencies(${LIBRARY_NAME} realtime_tools)
+
   IF(NOT INSTALL_PYTHON_INTERFACE_ONLY)
     INSTALL(TARGETS ${LIBRARY_NAME} EXPORT ${TARGETS_EXPORT_NAME}
       DESTINATION ${DYNAMIC_GRAPH_PLUGINDIR})
@@ -43,15 +45,15 @@ IF(BUILD_PYTHON_INTERFACE)
   PYTHON_INSTALL_ON_SITE("dynamic_graph/ros" "ros.py")
   PYTHON_INSTALL_ON_SITE("dynamic_graph/ros" "dgcompleter.py")
 
-  # ros_interperter library.
-  add_library(ros_interpreter ros_interpreter.cpp)
-  TARGET_LINK_LIBRARIES(ros_interpreter ros_bridge ${catkin_LIBRARIES}
-    dynamic-graph-python::dynamic-graph-python
-    dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp)
+  # # ros_interperter library.
+  # add_library(ros_interpreter ros_interpreter.cpp)
+  # TARGET_LINK_LIBRARIES(ros_interpreter ros_bridge ${catkin_LIBRARIES}
+  #   dynamic-graph-python::dynamic-graph-python
+  #   dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp)
 
-  install(TARGETS ros_interpreter
-    EXPORT ${TARGETS_EXPORT_NAME}
-    DESTINATION lib)
+  # install(TARGETS ros_interpreter
+  #   EXPORT ${TARGETS_EXPORT_NAME}
+  #   DESTINATION lib)
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 # Stand alone embedded intepreter with a robot controller.
