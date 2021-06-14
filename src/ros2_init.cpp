@@ -3,6 +3,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/node.hpp"
 #include "dynamic_graph_bridge/ros2_init.hh"
 
 #include "dynamic_graph_bridge_msgs/msg/matrix.hpp"
@@ -12,13 +13,13 @@
 #include <dynamic-graph/python/interpreter.hh>
 
 namespace dynamicgraph {
-  
+
 struct GlobalRos {
-  
-  boost::shared_ptr<rclcpp::Node> nodeHandle;
-  boost::shared_ptr<rclcpp::executors::MultiThreadedExecutor> mtExecutor;
+
+  std::shared_ptr<rclcpp::Node> nodeHandle;
+  std::shared_ptr<rclcpp::executors::MultiThreadedExecutor> mtExecutor;
 };
-  
+
 GlobalRos ros;
 
 class DualThreadedNode : public rclcpp::Node
@@ -46,28 +47,32 @@ public:
 
     srv_run_cmd_ = this->create_service<dynamic_graph_bridge_msgs::srv::RunCommand>(
       "run_command",
-      rclcpp::QoS(10),
       // std::bind is sort of C++'s way of passing a function
       // If you're used to function-passing, skip these comments
       std::bind(
         &DualThreadedNode::run_command_cb,  // First parameter is a reference to the function
         this,                               // What the function should be bound to
-        std::placeholders::_1),             // At this point we're not positive of all the
+        std::placeholders::_1,
+        std::placeholders::_2),             // At this point we're not positive of all the
                                             // parameters being passed
                                             // So we just put a generic placeholder
                                             // into the binder
                                             // (since we know we need ONE parameter)
-      sub1_opt);                  // This is where we set the callback group.
+      //rclcpp::QoS(10),
+      rmw_qos_profile_services_default,
+      sub1_opt.callback_group);                  // This is where we set the callback group.
                                   // This subscription will run with callback group subscriber1
 
     srv_run_py_file_ = this->create_service<dynamic_graph_bridge_msgs::srv::RunPythonFile>(
       "run_script",
-      rclcpp::QoS(10),
       std::bind(
         &DualThreadedNode::run_script_cb,
         this,
-        std::placeholders::_1),
-      sub2_opt);
+        std::placeholders::_1,
+        std::placeholders::_2),
+      //rclcpp::QoS(10),
+      rmw_qos_profile_services_default,      
+      sub2_opt.callback_group);
   }
 
 private:
@@ -86,10 +91,10 @@ private:
    * This function gets called when Subscriber1 is poked (due to the std::bind we used when defining it)
    */
   void run_command_cb
-  (const std::shared_ptr<dynamic_graph_bridge_msgs::srv::RunCommand::Request> request,
-   std::shared_ptr<dynamic_graph_bridge_msgs::srv::RunCommand::Response> response)
+  (const std::shared_ptr<dynamic_graph_bridge_msgs::srv::RunCommand::Request> req,
+   std::shared_ptr<dynamic_graph_bridge_msgs::srv::RunCommand::Response> res)
   {
-    interpreter_.python(req.input, res.result, res.standardoutput, res.standarderror);
+    interpreter_.python(req->input, res->result, res->standardoutput, res->standarderror);
   }
 
   /**
@@ -97,11 +102,11 @@ private:
    * Since it's running on a separate thread than Subscriber 1, it will run at (more-or-less) the same time!
    */
   void run_script_cb
-  (const std::shared_ptr<dynamic_graph_bridge_msgs::srv::RunPythonFile::Request> request,
-   std::shared_ptr<dynamic_graph_bridge_msgs::srv::RunPythonFile::Response> response)
+  (const std::shared_ptr<dynamic_graph_bridge_msgs::srv::RunPythonFile::Request> req,
+   std::shared_ptr<dynamic_graph_bridge_msgs::srv::RunPythonFile::Response> res)
   {
-      interpreter_.runPythonFile(req.input);
-      res.result = "File parsed";  // FIX: It is just an echo, is there a way to
+      interpreter_.runPythonFile(req->input);
+      res->result = "File parsed";  // FIX: It is just an echo, is there a way to
       // have a feedback?
   }
 
@@ -119,15 +124,15 @@ rclcpp::Node& rosInit(int argc, char * argv[])
   rclcpp::init(argc, argv);
 
   // You MUST use the MultiThreadedExecutor to use, well, multiple threads
-  rclcpp::executors::MultiThreadedExecutor executor;
   auto subnode = std::make_shared<DualThreadedNode>();  // This contains BOTH subscriber callbacks.
                                                         // They will still run on different threads
                                                         // One Node. Two callbacks. Two Threads
-  executor.add_node(subnode);
-  executor.spin();
+  ros.nodeHandle=subnode;
+  ros.mtExecutor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
+  ros.mtExecutor->add_node(subnode);
+  ros.mtExecutor->spin();
   rclcpp::shutdown();
-  return 0;
+
 }
 
 }  // end of namespace dynamicgraph.
-
