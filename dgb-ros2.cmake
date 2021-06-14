@@ -29,15 +29,14 @@ set(${PROJECT_NAME}_HEADERS
   include/${PROJECT_NAME}/ros2_init.hh
   include/${PROJECT_NAME}/sot_loader.hh
   include/${PROJECT_NAME}/sot_loader_basic.hh
-  include/${PROJECT_NAME}/ros_interpreter.hh
   src/converter.hh
-  src/sot_to_ros.hh
+  src/sot_to_ros2.hh
   )
 
 SET(${PROJECT_NAME}_SOURCES
   src/ros2_init.cpp
-  src/sot_to_ros.cpp
-  src/ros_parameter.cpp
+  src/sot_to_ros2.cpp
+  src/ros2_parameter.cpp
   )
 
 ADD_LIBRARY(ros_bridge SHARED
@@ -56,6 +55,8 @@ find_package(std_srvs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(realtime_tools REQUIRED)
+
 ament_target_dependencies(ros_bridge
   ament_index_cpp
   std_msgs std_srvs geometry_msgs sensor_msgs tf2_ros rcutils)
