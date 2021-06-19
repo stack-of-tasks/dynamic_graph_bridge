@@ -1,5 +1,5 @@
 #include <pinocchio/fwd.hpp>
-#include "dynamic_graph_bridge/ros_init.hh"
+#include "dynamic_graph_bridge/ros2_init.hh"
 #include "ros_tf_listener.hh"
 
 #include <dynamic-graph/factory.h>

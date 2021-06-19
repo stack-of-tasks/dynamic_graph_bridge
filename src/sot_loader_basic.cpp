@@ -10,7 +10,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include <dynamic_graph_bridge/sot_loader.hh>
-#include "dynamic_graph_bridge/ros_init.hh"
+#include "dynamic_graph_bridge/ros2_init.hh"
 #include "dynamic_graph_bridge/ros_parameter.hh"
 
 #include <dynamic-graph/pool.h>
@@ -28,7 +28,7 @@ SotLoaderBasic::SotLoaderBasic() : dynamic_graph_stopped_(true), sotRobotControl
 }
 
 int SotLoaderBasic::initPublication() {
-  ros::NodeHandle& n = dynamicgraph::rosInit(false);
+  nh_ = dynamicgraph::rosInit();
 
   // Prepare message to be published
   joint_pub_ = n.advertise<sensor_msgs::JointState>("joint_states", 1);
@@ -38,10 +38,10 @@ int SotLoaderBasic::initPublication() {
 
 void SotLoaderBasic::initializeRosNode(int, char* []) {
   ROS_INFO("Ready to start dynamic graph.");
-  ros::NodeHandle n;
-  service_start_ = n.advertiseService("start_dynamic_graph", &SotLoaderBasic::start_dg, this);
 
-  service_stop_ = n.advertiseService("stop_dynamic_graph", &SotLoaderBasic::stop_dg, this);
+  service_start_ = nh_.advertiseService("start_dynamic_graph", &SotLoaderBasic::start_dg, this);
+
+  service_stop_ = nh_.advertiseService("stop_dynamic_graph", &SotLoaderBasic::stop_dg, this);
 
   dynamicgraph::parameter_server_read_robot_description();
 }
@@ -51,7 +51,7 @@ void SotLoaderBasic::setDynamicLibraryName(std::string& afilename) { dynamicLibr
 int SotLoaderBasic::readSotVectorStateParam() {
   std::map<std::string, int> from_state_name_to_state_vector;
   std::map<std::string, std::string> from_parallel_name_to_state_vector_name;
-  ros::NodeHandle n;
+  rclcpp::Node n;
 
   if (!ros::param::has("/sot/state_vector_map")) {
     std::cerr << " Read Sot Vector State Param " << std::endl;

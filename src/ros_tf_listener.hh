@@ -4,7 +4,7 @@
 #include <boost/bind.hpp>
 
 #include <tf2_ros/transform_listener.h>
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/transform_stamped.h>
 
 #include <dynamic-graph/entity.h>
 #include <dynamic-graph/signal-time-dependent.h>
@@ -13,7 +13,7 @@
 
 #include <sot/core/matrix-geometry.hh>
 
-#include <dynamic_graph_bridge/ros_init.hh>
+#include <dynamic_graph_bridge/ros2_init.hh>
 
 namespace dynamicgraph {
 class RosTfListener;

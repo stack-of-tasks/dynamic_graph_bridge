@@ -28,9 +28,9 @@
 #include <boost/thread/thread.hpp>
 
 // ROS includes
-#include "ros/ros.h"
-#include "std_srvs/Empty.h"
-#include <sensor_msgs/JointState.h>
+//#include "ros/ros.h"
+#include "std_srvs/srv/empty.hpp"
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 
 // Sot Framework includes
@@ -76,7 +76,7 @@ class SotLoader : public SotLoaderBasic {
 
   // Robot Pose Publisher
   tf2_ros::TransformBroadcaster freeFlyerPublisher_;
-  geometry_msgs::TransformStamped freeFlyerPose_;
+  geometry_msgs::msg::TransformStamped freeFlyerPose_;
 
  public:
   SotLoader();

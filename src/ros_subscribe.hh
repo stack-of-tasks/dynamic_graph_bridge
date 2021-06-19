@@ -2,20 +2,19 @@
 #define DYNAMIC_GRAPH_ROS_SUBSCRIBE_HH
 #include <map>
 
-#include <boost/shared_ptr.hpp>
-
 #include <dynamic-graph/entity.h>
 #include <dynamic-graph/signal-time-dependent.h>
 #include <dynamic-graph/signal-ptr.h>
 #include <dynamic-graph/command.h>
 #include <sot/core/matrix-geometry.hh>
 
-#include <ros/ros.h>
+//#include <ros/ros.h>
 
 #include "converter.hh"
 #include "sot_to_ros.hh"
 
 namespace dynamicgraph {
+
 class RosSubscribe;
 
 namespace command {
@@ -48,8 +47,10 @@ class RosSubscribe : public dynamicgraph::Entity {
   typedef boost::posix_time::ptime ptime;
 
  public:
-  typedef std::pair<boost::shared_ptr<dynamicgraph::SignalBase<int> >, boost::shared_ptr<ros::Subscriber> >
-      bindedSignal_t;
+
+  typedef std::pair<std::shared_ptr<dynamicgraph::SignalBase<int> >,
+                    rclcpp::SubscriptionBase::SharedPtr  >
+  bindedSignal_t;
 
   RosSubscribe(const std::string& n);
   virtual ~RosSubscribe();
@@ -67,20 +68,22 @@ class RosSubscribe : public dynamicgraph::Entity {
 
   std::map<std::string, bindedSignal_t>& bindedSignal() { return bindedSignal_; }
 
-  ros::NodeHandle& nh() { return nh_; }
+  rclcpp::Node& nh() { return nh_; }
 
-  template <typename R, typename S>
-  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal, const R& data);
+  // RosSubcriptionTypeShrPt Shared pointer to the ros subscription type
+  // SoTType: sot type
+  template <typename RosSubscriptionTypeShrPt, typename SoTType>
+  void callback(std::shared_ptr<dynamicgraph::SignalPtr<SoTType, int> > signal, const RosSubscriptionTypeShrPt data);
 
-  template <typename R>
-  void callbackTimestamp(boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal, const R& data);
+  template <typename RosSubscriptionTypeShrPt>
+  void callbackTimestamp(std::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal, const RosSubscriptionTypeShrPt data);
 
   template <typename T>
   friend class internal::Add;
 
  private:
   static const std::string docstring_;
-  ros::NodeHandle& nh_;
+  rclcpp::Node& nh_;
   std::map<std::string, bindedSignal_t> bindedSignal_;
 };
 }  // end of namespace dynamicgraph.

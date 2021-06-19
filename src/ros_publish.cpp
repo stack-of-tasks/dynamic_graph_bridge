@@ -7,15 +7,15 @@
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
 
-#include <ros/ros.h>
-#include <std_msgs/Float64.h>
-#include <std_msgs/UInt32.h>
+//#include <ros/ros.h>
+#include <std_msgs/msg/float64.hpp>
+#include <std_msgs/msg/u_int32.hpp>
 
 #include <dynamic-graph/factory.h>
 #include <dynamic-graph/command.h>
 #include <dynamic-graph/linear-algebra.h>
 
-#include "dynamic_graph_bridge/ros_init.hh"
+#include "dynamic_graph_bridge/ros2_init.hh"
 #include "ros_publish.hh"
 
 #define ENABLE_RT_LOG
@@ -82,7 +82,7 @@ const std::string RosPublish::docstring_(
 RosPublish::RosPublish(const std::string& n)
     : dynamicgraph::Entity(n),
       // RosPublish do not use callback so do not create a useless spinner.
-      nh_(rosInit(false)),
+      nh_(rosInit()),
       bindedSignal_(),
       trigger_(boost::bind(&RosPublish::trigger, this, _1, _2), sotNOSIGNAL,
                MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
@@ -92,8 +92,8 @@ RosPublish::RosPublish(const std::string& n)
   dgADD_OSTREAM_TO_RTLOG(aofs_);
 
   try {
-    if (ros::Time::isSimTime())
-      nextPublication_ = ros::Time::now();
+    if (rclcpp::Clock().get_clock_type()==RCL_ROS_TIME)
+      nextPublication_ = rclcpp::Clock().now();
     else {
       clock_gettime(CLOCK_REALTIME, &nextPublicationRT_);
     }
@@ -158,17 +158,17 @@ void RosPublish::clear() {
 
 int& RosPublish::trigger(int& dummy, int t) {
   typedef std::map<std::string, bindedSignal_t>::iterator iterator_t;
-  ros::Time aTime;
-  if (ros::Time::isSimTime()) {
-    aTime = ros::Time::now();
+  rclcpp::Time aTime;
+  if (rclcpp::Clock().ros_time_is_active()) {
+    aTime = rclcpp::Clock().now();
     if (aTime <= nextPublication_) return dummy;
 
     nextPublication_ = aTime + rate_;
   } else {
     struct timespec aTimeRT;
     clock_gettime(CLOCK_REALTIME, &aTimeRT);
-    nextPublicationRT_.tv_sec = aTimeRT.tv_sec + rate_.sec;
-    nextPublicationRT_.tv_nsec = aTimeRT.tv_nsec + rate_.nsec;
+    nextPublicationRT_.tv_sec = aTimeRT.tv_sec + rate_.nanoseconds()/1000000;
+    nextPublicationRT_.tv_nsec = aTimeRT.tv_nsec + (long int)fmod(rate_.nanoseconds(),1000000.0);
     if (nextPublicationRT_.tv_nsec > 1000000000) {
       nextPublicationRT_.tv_nsec -= 1000000000;
       nextPublicationRT_.tv_sec += 1;

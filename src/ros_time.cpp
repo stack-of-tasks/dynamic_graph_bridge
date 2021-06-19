@@ -1,7 +1,9 @@
 ///
-/// Copyright 2012 CNRS
+/// Copyright 2012-2021 CNRS
 ///
-/// Author: Florent Lamiraux
+/// Authors: Florent Lamiraux, Olivier Stasse
+
+#include <rclcpp/clock.hpp>
 
 #include <dynamic-graph/factory.h>
 #include <dynamic-graph/signal-caster.h>
@@ -25,12 +27,12 @@ const std::string RosTime::docstring_(
 RosTime::RosTime(const std::string& _name)
     : Entity(_name), now_("RosTime(" + _name + ")::output(boost::posix_time::ptime)::time") {
   signalRegistration(now_);
-  now_.setConstant(rosTimeToPtime(ros::Time::now()));
+  now_.setConstant(rosTimeToPtime(rclcpp::Clock().now()));
   now_.setFunction(boost::bind(&RosTime::update, this, _1, _2));
 }
 
 ptime& RosTime::update(ptime& time, const int&) {
-  time = rosTimeToPtime(ros::Time::now());
+  time = rosTimeToPtime(rclcpp::Clock().now());
   return time;
 }
 

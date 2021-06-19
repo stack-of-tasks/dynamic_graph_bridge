@@ -5,19 +5,19 @@
 
 #include <boost/format.hpp>
 
-#include <std_msgs/Bool.h>
-#include <std_msgs/Float64.h>
-#include <std_msgs/UInt32.h>
-#include <std_msgs/Int32.h>
-#include <std_msgs/String.h>
-#include "dynamic_graph_bridge_msgs/Matrix.h"
-#include "dynamic_graph_bridge_msgs/Vector.h"
+#include <std_msgs/msg/bool.hpp>
+#include <std_msgs/msg/float64.hpp>
+#include <std_msgs/msg/u_int32.hpp>
+#include <std_msgs/msg/int32.hpp>
+#include <std_msgs/msg/string.hpp>
+#include "dynamic_graph_bridge_msgs/msg/matrix.hpp"
+#include "dynamic_graph_bridge_msgs/msg/vector.hpp"
 
-#include "geometry_msgs/Transform.h"
-#include "geometry_msgs/TransformStamped.h"
-#include "geometry_msgs/Twist.h"
-#include "geometry_msgs/TwistStamped.h"
-#include "geometry_msgs/Vector3Stamped.h"
+#include "geometry_msgs/msg/transform.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "geometry_msgs/msg/twist.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "geometry_msgs/msg/vector3_stamped.hpp"
 
 #include <dynamic-graph/signal-time-dependent.h>
 #include <dynamic-graph/linear-algebra.h>
@@ -51,8 +51,8 @@ class SotToRos;
 template <>
 struct SotToRos<bool> {
   typedef bool sot_t;
-  typedef std_msgs::Bool ros_t;
-  typedef std_msgs::BoolConstPtr ros_const_ptr_t;
+  typedef std_msgs::msg::Bool ros_t;
+  typedef std_msgs::msg::Bool::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::Signal<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -70,8 +70,8 @@ struct SotToRos<bool> {
 template <>
 struct SotToRos<double> {
   typedef double sot_t;
-  typedef std_msgs::Float64 ros_t;
-  typedef std_msgs::Float64ConstPtr ros_const_ptr_t;
+  typedef std_msgs::msg::Float64 ros_t;
+  typedef std_msgs::msg::Float64::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::Signal<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -89,8 +89,8 @@ struct SotToRos<double> {
 template <>
 struct SotToRos<unsigned int> {
   typedef unsigned int sot_t;
-  typedef std_msgs::UInt32 ros_t;
-  typedef std_msgs::UInt32ConstPtr ros_const_ptr_t;
+  typedef std_msgs::msg::UInt32 ros_t;
+  typedef std_msgs::msg::UInt32::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::Signal<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -108,8 +108,8 @@ struct SotToRos<unsigned int> {
 template <>
 struct SotToRos<int> {
   typedef int sot_t;
-  typedef std_msgs::Int32 ros_t;
-  typedef std_msgs::Int32ConstPtr ros_const_ptr_t;
+  typedef std_msgs::msg::Int32 ros_t;
+  typedef std_msgs::msg::Int32::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::Signal<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -127,8 +127,8 @@ struct SotToRos<int> {
 template <>
 struct SotToRos<std::string> {
   typedef std::string sot_t;
-  typedef std_msgs::String ros_t;
-  typedef std_msgs::StringConstPtr ros_const_ptr_t;
+  typedef std_msgs::msg::String ros_t;
+  typedef std_msgs::msg::String::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::Signal<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -146,8 +146,8 @@ struct SotToRos<std::string> {
 template <>
 struct SotToRos<Matrix> {
   typedef Matrix sot_t;
-  typedef dynamic_graph_bridge_msgs::Matrix ros_t;
-  typedef dynamic_graph_bridge_msgs::MatrixConstPtr ros_const_ptr_t;
+  typedef dynamic_graph_bridge_msgs::msg::Matrix ros_t;
+  typedef dynamic_graph_bridge_msgs::msg::Matrix::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -167,8 +167,8 @@ struct SotToRos<Matrix> {
 template <>
 struct SotToRos<Vector> {
   typedef Vector sot_t;
-  typedef dynamic_graph_bridge_msgs::Vector ros_t;
-  typedef dynamic_graph_bridge_msgs::VectorConstPtr ros_const_ptr_t;
+  typedef dynamic_graph_bridge_msgs::msg::Vector ros_t;
+  typedef dynamic_graph_bridge_msgs::msg::Vector::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -188,8 +188,8 @@ struct SotToRos<Vector> {
 template <>
 struct SotToRos<specific::Vector3> {
   typedef Vector sot_t;
-  typedef geometry_msgs::Vector3 ros_t;
-  typedef geometry_msgs::Vector3ConstPtr ros_const_ptr_t;
+  typedef geometry_msgs::msg::Vector3 ros_t;
+  typedef geometry_msgs::msg::Vector3::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -208,8 +208,8 @@ struct SotToRos<specific::Vector3> {
 template <>
 struct SotToRos<sot::MatrixHomogeneous> {
   typedef sot::MatrixHomogeneous sot_t;
-  typedef geometry_msgs::Transform ros_t;
-  typedef geometry_msgs::TransformConstPtr ros_const_ptr_t;
+  typedef geometry_msgs::msg::Transform ros_t;
+  typedef geometry_msgs::msg::Transform::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -228,8 +228,8 @@ struct SotToRos<sot::MatrixHomogeneous> {
 template <>
 struct SotToRos<specific::Twist> {
   typedef Vector sot_t;
-  typedef geometry_msgs::Twist ros_t;
-  typedef geometry_msgs::TwistConstPtr ros_const_ptr_t;
+  typedef geometry_msgs::msg::Twist ros_t;
+  typedef geometry_msgs::msg::Twist::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -250,8 +250,8 @@ struct SotToRos<specific::Twist> {
 template <>
 struct SotToRos<std::pair<specific::Vector3, Vector> > {
   typedef Vector sot_t;
-  typedef geometry_msgs::Vector3Stamped ros_t;
-  typedef geometry_msgs::Vector3StampedConstPtr ros_const_ptr_t;
+  typedef geometry_msgs::msg::Vector3Stamped ros_t;
+  typedef geometry_msgs::msg::Vector3Stamped::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -268,8 +268,8 @@ struct SotToRos<std::pair<specific::Vector3, Vector> > {
 template <>
 struct SotToRos<std::pair<sot::MatrixHomogeneous, Vector> > {
   typedef sot::MatrixHomogeneous sot_t;
-  typedef geometry_msgs::TransformStamped ros_t;
-  typedef geometry_msgs::TransformStampedConstPtr ros_const_ptr_t;
+  typedef geometry_msgs::msg::TransformStamped ros_t;
+  typedef geometry_msgs::msg::TransformStamped::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -286,8 +286,8 @@ struct SotToRos<std::pair<sot::MatrixHomogeneous, Vector> > {
 template <>
 struct SotToRos<std::pair<specific::Twist, Vector> > {
   typedef Vector sot_t;
-  typedef geometry_msgs::TwistStamped ros_t;
-  typedef geometry_msgs::TwistStampedConstPtr ros_const_ptr_t;
+  typedef geometry_msgs::msg::TwistStamped ros_t;
+  typedef geometry_msgs::msg::TwistStamped::ConstSharedPtr ros_const_ptr_t;
   typedef dynamicgraph::SignalTimeDependent<sot_t, int> signal_t;
   typedef dynamicgraph::SignalPtr<sot_t, int> signalIn_t;
   typedef boost::function<sot_t&(sot_t&, int)> callback_t;
@@ -300,8 +300,11 @@ struct SotToRos<std::pair<specific::Twist, Vector> > {
   }
 };
 
-inline std::string makeSignalString(const std::string& className, const std::string& instanceName, bool isInputSignal,
-                                    const std::string& signalType, const std::string& signalName) {
+inline std::string makeSignalString(const std::string& className,
+                                    const std::string& instanceName,
+                                    bool isInputSignal,
+                                    const std::string& signalType,
+                                    const std::string& signalName) {
   boost::format fmt("%s(%s)::%s(%s)::%s");
   fmt % className % instanceName % (isInputSignal ? "input" : "output") % signalType % signalName;
   return fmt.str();

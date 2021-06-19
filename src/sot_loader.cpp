@@ -9,9 +9,8 @@
 /* --- INCLUDES ------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-#include <ros/rate.h>
 #include <dynamic_graph_bridge/sot_loader.hh>
-#include "dynamic_graph_bridge/ros_init.hh"
+#include "dynamic_graph_bridge/ros2_init.hh"
 
 // POSIX.1-2001
 #include <dlfcn.h>
@@ -68,38 +67,38 @@ struct DataToLog {
 };
 
 void workThreadLoader(SotLoader *aSotLoader) {
-  ros::Rate rate(1000); // 1 kHz
-  if (ros::param::has("/sot_controller/dt")) {
+  rclcpp::Rate rate(1000); // 1 kHz
+  if (rclcpp::param::has("/sot_controller/dt")) {
     double periodd;
-    ros::param::get("/sot_controller/dt", periodd);
-    rate = ros::Rate(1/periodd);
+    rclcpp::param::get("/sot_controller/dt", periodd);
+    rate = rclcpp::Rate(1/periodd);
   }
   DataToLog dataToLog(5000);
 
   rate.reset();
-  while (ros::ok() && aSotLoader->isDynamicGraphStopped()) {
+  while (rclcpp::ok() && aSotLoader->isDynamicGraphStopped()) {
     rate.sleep();
   }
 
-  ros::NodeHandle nh("/geometric_simu");
+  rclcpp::Node nh("/geometric_simu");
   bool paused;
-  ros::Time timeOrigin = ros::Time::now();
-  ros::Time time;
-  while (ros::ok() && !aSotLoader->isDynamicGraphStopped()) {
+  rclcpp::Time timeOrigin = rclcpp::Clock().now();
+  rclcpp::Time time;
+  while (rclcpp::ok() && !aSotLoader->isDynamicGraphStopped()) {
     nh.param<bool>("paused", paused, false);
 
     if (!paused) {
-      time = ros::Time::now();
+      time = rclcpp::Clock().now();
       aSotLoader->oneIteration();
 
-      ros::Duration d = ros::Time::now() - time;
+      rclcpp::Duration d = rclcpp::Time::now() - time;
       dataToLog.record((time - timeOrigin).toSec(), d.toSec());
     }
     rate.sleep();
   }
   dataToLog.save("/tmp/geometric_simu");
   cond.notify_all();
-  ros::waitForShutdown();
+  rclcpp::waitForShutdown();
 }
 
 SotLoader::SotLoader()
@@ -118,7 +117,7 @@ SotLoader::SotLoader()
 
   freeFlyerPose_.header.frame_id = "odom";
   freeFlyerPose_.child_frame_id = "base_link";
-  if (ros::param::get("/sot/tf_base_link",
+  if (rclcpp::param::get("/sot/tf_base_link",
                       freeFlyerPose_.child_frame_id)) {
     ROS_INFO_STREAM("Publishing " << freeFlyerPose_.child_frame_id << " wrt "
                                   << freeFlyerPose_.header.frame_id);
@@ -135,7 +134,7 @@ void SotLoader::startControlLoop() { thread_ = boost::thread(workThreadLoader, t
 void SotLoader::initializeRosNode(int argc, char *argv[]) {
   SotLoaderBasic::initializeRosNode(argc, argv);
   // Temporary fix. TODO: where should nbOfJoints_ be initialized from?
-  if (ros::param::has("/sot/state_vector_map")) {
+  if (rclcpp::param::has("/sot/state_vector_map")) {
     angleEncoder_.resize(nbOfJoints_);
     angleControl_.resize(nbOfJoints_);
   }
@@ -175,7 +174,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
     exit(-1);
   }
   // Publish the data.
-  joint_state_.header.stamp = ros::Time::now();
+  joint_state_.header.stamp = rclcpp::Clock().now();
   for (int i = 0; i < nbOfJoints_; i++) {
     joint_state_.position[i] = angleControl_[i];
   }

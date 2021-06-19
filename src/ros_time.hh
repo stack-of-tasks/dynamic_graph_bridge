@@ -6,7 +6,7 @@
 #ifndef DYNAMIC_GRAPH_ROS_TIME_HH
 #define DYNAMIC_GRAPH_ROS_TIME_HH
 
-#include <ros/time.h>
+#include <rclcpp/time.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <dynamic-graph/signal.h>
 #include <dynamic-graph/entity.h>

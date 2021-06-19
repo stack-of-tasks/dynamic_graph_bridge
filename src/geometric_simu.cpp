@@ -6,7 +6,7 @@
  *
  */
 #include <iostream>
-#include <ros/console.h>
+//#include <ros/console.h>
 
 #define ENABLE_RT_LOG
 #include <dynamic-graph/real-time-logger.h>

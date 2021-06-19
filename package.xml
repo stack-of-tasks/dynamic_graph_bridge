@@ -32,6 +32,7 @@
   <build_depend>sot-core</build_depend>
   <build_depend>sot-dynamic-pinocchio</build_depend>
   <build_depend>dynamic_graph_bridge_msgs</build_depend>
+  <build_depend>tinyxml_vendor</build_depend>
 
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>std_srvs</exec_depend>
@@ -47,5 +48,6 @@
   <exec_depend>sot-core</exec_depend>
   <exec_depend>sot-dynamic-pinocchio</exec_depend>
   <exec_depend>dynamic_graph_bridge_msgs</exec_depend>
+  <exec_depend>tinyxml_vendor</exec_depend>
   
 </package>
