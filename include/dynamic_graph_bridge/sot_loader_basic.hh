@@ -27,7 +27,7 @@
 #include <boost/format.hpp>
 
 // ROS includes
-//#include "ros/ros.h"
+#include <rclcpp/rclcpp.hpp>
 #include "std_srvs/srv/empty.hpp"
 #include <sensor_msgs/msg/joint_state.hpp>
 
@@ -62,16 +62,16 @@ class SotLoaderBasic {
   /// \brief Coefficient between parallel joints and the state vector.
   std::vector<double> coefficient_parallel_joints_;
   /// Advertises start_dynamic_graph services
-  rclcpp::Service<std_srvs::srv::Empty> service_start_;
+  rclcpp::Service<std_srvs::srv::Empty>::SharedPtr service_start_;
 
   /// Advertises stop_dynamic_graph services
-  rclcpp::Service<std_srvs::srv::Empty> service_stop_;
+  rclcpp::Service<std_srvs::srv::Empty>::SharedPtr service_stop_;
 
   // Joint state publication.
-  rclcpp::Publisher<sensor_msgs::msg::JointState> joint_pub_;
+  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_pub_;
 
   // Node reference
-  rclcpp::Node nh_;
+  rclcpp::Node::SharedPtr nh_;
   
   // Joint state to be published.
   sensor_msgs::msg::JointState joint_state_;
@@ -79,6 +79,10 @@ class SotLoaderBasic {
   // Number of DOFs according to KDL.
   int nbOfJoints_;
   parallel_joints_to_state_vector_t::size_type nbOfParallelJoints_;
+
+  // Ordered list of joint names describing the robot state.
+  std::vector<std::string> stateVectorMap_;
+
 
  public:
   SotLoaderBasic();
@@ -97,10 +101,12 @@ class SotLoaderBasic {
   virtual void initializeRosNode(int argc, char* argv[]);
 
   // \brief Callback function when starting dynamic graph.
-  bool start_dg(std_srvs::srv::Empty::Request& request, std_srvs::srv::Empty::Response& response);
+  void start_dg(const std::shared_ptr<std_srvs::srv::Empty::Request> request,
+                std::shared_ptr<std_srvs::srv::Empty::Response> response);
 
   // \brief Callback function when stopping dynamic graph.
-  bool stop_dg(std_srvs::srv::Empty::Request& request, std_srvs::srv::Empty::Response& response);
+  void stop_dg(const std::shared_ptr<std_srvs::srv::Empty::Request> request,
+               std::shared_ptr<std_srvs::srv::Empty::Response> response);
 
   // \brief Read the state vector description based upon the robot links.
   int readSotVectorStateParam();

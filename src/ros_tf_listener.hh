@@ -27,8 +27,8 @@ struct TransformListenerData {
   RosTfListener* entity;
   tf2_ros::Buffer& buffer;
   const std::string toFrame, fromFrame;
-  geometry_msgs::TransformStamped transform;
-  ros::Duration max_elapsed;
+  geometry_msgs::msg::TransformStamped transform;
+  rclcpp::Duration max_elapsed;
   AvailableSignal_t availableSig;
   MatrixSignal_t signal;
   DefaultSignal_t failbackSig;
@@ -70,7 +70,7 @@ class RosTfListener : public Entity {
 
   RosTfListener(const std::string& _name)
     : Entity(_name)
-    , buffer()
+    , buffer(rosInit()->get_clock())
     , listener(buffer, rosInit(), false)
   {}
 
@@ -97,7 +97,7 @@ class RosTfListener : public Entity {
   {
     if (listenerDatas.count(signame) == 0)
       throw std::invalid_argument("No signal " + signame + " in RosTfListener " + getName());
-    listenerDatas[signame]->max_elapsed = ros::Duration(max_elapsed);
+    listenerDatas[signame]->max_elapsed = rclcpp::Duration(max_elapsed);
   }
 
  private:

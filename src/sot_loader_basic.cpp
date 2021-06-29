@@ -11,7 +11,7 @@
 
 #include <dynamic_graph_bridge/sot_loader.hh>
 #include "dynamic_graph_bridge/ros2_init.hh"
-#include "dynamic_graph_bridge/ros_parameter.hh"
+#include "dynamic_graph_bridge/ros2_parameter.hh"
 
 #include <dynamic-graph/pool.h>
 
@@ -31,19 +31,27 @@ int SotLoaderBasic::initPublication() {
   nh_ = dynamicgraph::rosInit();
 
   // Prepare message to be published
-  joint_pub_ = n.advertise<sensor_msgs::JointState>("joint_states", 1);
+  joint_pub_ = nh_->create_publisher<sensor_msgs::msg::JointState>("joint_states", 1);
 
   return 0;
 }
 
 void SotLoaderBasic::initializeRosNode(int, char* []) {
-  ROS_INFO("Ready to start dynamic graph.");
+  RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+               "Ready to start dynamic graph.");
 
-  service_start_ = nh_.advertiseService("start_dynamic_graph", &SotLoaderBasic::start_dg, this);
-
-  service_stop_ = nh_.advertiseService("stop_dynamic_graph", &SotLoaderBasic::stop_dg, this);
-
-  dynamicgraph::parameter_server_read_robot_description();
+  using namespace std::placeholders;
+  service_start_ = nh_->create_service<std_srvs::srv::Empty>("start_dynamic_graph",
+                                                             std::bind(&SotLoaderBasic::start_dg,
+                                                                       this,std::placeholders::_1,
+                                                                       std::placeholders::_2));
+  
+  service_stop_ = nh_->create_service<std_srvs::srv::Empty>("stop_dynamic_graph",
+                                                            std::bind(&SotLoaderBasic::stop_dg,
+                                                                      this,std::placeholders::_1,
+                                                                      std::placeholders::_2));
+  
+  dynamicgraph::parameter_server_read_robot_description(nh_);
 }
 
 void SotLoaderBasic::setDynamicLibraryName(std::string& afilename) { dynamicLibraryName_ = afilename; }
@@ -51,27 +59,35 @@ void SotLoaderBasic::setDynamicLibraryName(std::string& afilename) { dynamicLibr
 int SotLoaderBasic::readSotVectorStateParam() {
   std::map<std::string, int> from_state_name_to_state_vector;
   std::map<std::string, std::string> from_parallel_name_to_state_vector_name;
-  rclcpp::Node n;
 
-  if (!ros::param::has("/sot/state_vector_map")) {
+  // Read the state vector of the robot
+  // Defines the order in which the actuators are ordered
+  if (!nh_->get_parameter("/sot/state_vector_map",stateVectorMap_)) {
     std::cerr << " Read Sot Vector State Param " << std::endl;
     return 1;
   }
 
-  n.getParam("/sot/state_vector_map", stateVectorMap_);
-  ROS_ASSERT(stateVectorMap_.getType() == XmlRpc::XmlRpcValue::TypeArray);
-  nbOfJoints_ = stateVectorMap_.size();
+  nbOfJoints_ = static_cast<int>(stateVectorMap_.size());
   nbOfParallelJoints_ = 0;
 
-  if (ros::param::has("/sot/joint_state_parallel")) {
-    XmlRpc::XmlRpcValue joint_state_parallel;
-    n.getParam("/sot/joint_state_parallel", joint_state_parallel);
-    ROS_ASSERT(joint_state_parallel.getType() == XmlRpc::XmlRpcValue::TypeStruct);
-    std::cout << "Type of joint_state_parallel:" << joint_state_parallel.getType() << std::endl;
+  // Read the parallel joints.
+  // Specify the constraint between the joints
+  // Currently acts as a mimic or a an inverse mimic joint.
 
-    for (XmlRpc::XmlRpcValue::iterator it = joint_state_parallel.begin(); it != joint_state_parallel.end(); it++) {
-      XmlRpc::XmlRpcValue local_value = it->second;
-      std::string final_expression, map_expression = static_cast<string>(local_value);
+  std::string prefix("/sot/joint_state_parallel");
+  std::map<std::string,rclcpp::Parameter> joint_state_parallel;
+  nh_->get_parameters(prefix,joint_state_parallel);
+
+  // Iterates over the map joint_state_parallel
+  // 
+  for ( std::map<std::string,rclcpp::Parameter>::iterator
+          it_map_expression = joint_state_parallel.begin();
+        it_map_expression != joint_state_parallel.end();
+        ++it_map_expression)
+    {
+      std::string key = it_map_expression->first;
+      std::string map_expression = it_map_expression->second.as_string();
+      std::string final_expression;
       double final_coefficient = 1.0;
       // deal with sign
       if (map_expression[0] == '-') {
@@ -79,13 +95,13 @@ int SotLoaderBasic::readSotVectorStateParam() {
         final_coefficient = -1.0;
       } else
         final_expression = map_expression;
-
-      std::cout << it->first.c_str() << ": " << final_coefficient << std::endl;
-      from_parallel_name_to_state_vector_name[it->first.c_str()] = final_expression;
+      
+      std::cout << key << ": " << final_coefficient << std::endl;
+      from_parallel_name_to_state_vector_name[key] = final_expression;
       coefficient_parallel_joints_.push_back(final_coefficient);
     }
-    nbOfParallelJoints_ = from_parallel_name_to_state_vector_name.size();
-  }
+  nbOfParallelJoints_ = from_parallel_name_to_state_vector_name.size();
+  
 
   // Prepare joint_state according to robot description.
   joint_state_.name.resize(nbOfJoints_ + nbOfParallelJoints_);
@@ -93,8 +109,8 @@ int SotLoaderBasic::readSotVectorStateParam() {
 
   // Fill in the name of the joints from the state vector.
   // and build local map from state name to state vector
-  for (int32_t i = 0; i < stateVectorMap_.size(); ++i) {
-    joint_state_.name[i] = static_cast<string>(stateVectorMap_[i]);
+  for (auto i = 0; i < stateVectorMap_.size(); ++i) {
+    joint_state_.name[i] = stateVectorMap_[i];
 
     from_state_name_to_state_vector[joint_state_.name[i]] = i;
   }
@@ -180,12 +196,12 @@ void SotLoaderBasic::CleanUp() {
   dlclose(sotRobotControllerLibrary_);
 }
 
-bool SotLoaderBasic::start_dg(std_srvs::Empty::Request&, std_srvs::Empty::Response&) {
+void SotLoaderBasic::start_dg(const std::shared_ptr<std_srvs::srv::Empty::Request>,
+                              std::shared_ptr<std_srvs::srv::Empty::Response>) {
   dynamic_graph_stopped_ = false;
-  return true;
 }
 
-bool SotLoaderBasic::stop_dg(std_srvs::Empty::Request&, std_srvs::Empty::Response&) {
+void SotLoaderBasic::stop_dg(const std::shared_ptr<std_srvs::srv::Empty::Request>,
+                             std::shared_ptr<std_srvs::srv::Empty::Response>) {
   dynamic_graph_stopped_ = true;
-  return true;
 }

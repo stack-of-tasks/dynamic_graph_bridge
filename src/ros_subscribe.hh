@@ -8,10 +8,11 @@
 #include <dynamic-graph/command.h>
 #include <sot/core/matrix-geometry.hh>
 
-//#include <ros/ros.h>
+#include <rclcpp/subscription_base.hpp>
+#include <rclcpp/node.hpp>
 
 #include "converter.hh"
-#include "sot_to_ros.hh"
+#include "sot_to_ros2.hh"
 
 namespace dynamicgraph {
 
@@ -68,7 +69,7 @@ class RosSubscribe : public dynamicgraph::Entity {
 
   std::map<std::string, bindedSignal_t>& bindedSignal() { return bindedSignal_; }
 
-  rclcpp::Node& nh() { return nh_; }
+  rclcpp::Node::SharedPtr nh() { return nh_; }
 
   // RosSubcriptionTypeShrPt Shared pointer to the ros subscription type
   // SoTType: sot type
@@ -83,7 +84,7 @@ class RosSubscribe : public dynamicgraph::Entity {
 
  private:
   static const std::string docstring_;
-  rclcpp::Node& nh_;
+  rclcpp::Node::SharedPtr nh_;
   std::map<std::string, bindedSignal_t> bindedSignal_;
 };
 }  // end of namespace dynamicgraph.

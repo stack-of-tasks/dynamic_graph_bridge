@@ -1,13 +1,14 @@
 #ifndef DYNAMIC_GRAPH_ROS_CONVERTER_HH
 #define DYNAMIC_GRAPH_ROS_CONVERTER_HH
 #include <stdexcept>
-#include "sot_to_ros.hh"
+#include "sot_to_ros2.hh"
 
 #include <boost/static_assert.hpp>
 #include <boost/date_time/date.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <rclcpp/time.hpp>
+#include <rclcpp/clock.hpp>
 #include <std_msgs/msg/header.hpp>
 
 #define SOT_TO_ROS_IMPL(T) \
@@ -20,7 +21,8 @@
 
 namespace dynamicgraph {
   inline void makeHeader(std_msgs::msg::Header& header) {
-    header.stamp = rclcpp::Clock().now();
+    rclcpp::Clock aClock;
+    header.stamp = aClock.now();
     header.frame_id = "/dynamic_graph/world";
   }
 

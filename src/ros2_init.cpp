@@ -26,7 +26,7 @@ class DualThreadedNode : public rclcpp::Node
 {
 public:
   DualThreadedNode()
-    : Node("ros2_sot_interpreter_service"),
+    : Node("sot_controller"),
       interpreter_()
   {
     /* These define the callback groups
@@ -119,10 +119,8 @@ private:
   python::Interpreter interpreter_;
 };
 
-rclcpp::Node& rosInit(int argc, char * argv[])
+rclcpp::Node::SharedPtr rosInit()
 {
-  rclcpp::init(argc, argv);
-
   // You MUST use the MultiThreadedExecutor to use, well, multiple threads
   auto subnode = std::make_shared<DualThreadedNode>();  // This contains BOTH subscriber callbacks.
                                                         // They will still run on different threads
@@ -130,9 +128,7 @@ rclcpp::Node& rosInit(int argc, char * argv[])
   ros.nodeHandle=subnode;
   ros.mtExecutor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
   ros.mtExecutor->add_node(subnode);
-  ros.mtExecutor->spin();
-  rclcpp::shutdown();
-
+  return subnode;
 }
 
 }  // end of namespace dynamicgraph.

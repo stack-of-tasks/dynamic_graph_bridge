@@ -75,7 +75,9 @@ class SotLoader : public SotLoaderBasic {
   virtual void startControlLoop();
 
   // Robot Pose Publisher
-  tf2_ros::TransformBroadcaster freeFlyerPublisher_;
+  std::shared_ptr<tf2_ros::TransformBroadcaster> freeFlyerPublisher_;
+
+  // Free flyer pose
   geometry_msgs::msg::TransformStamped freeFlyerPose_;
 
  public:

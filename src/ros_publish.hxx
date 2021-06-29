@@ -6,7 +6,7 @@
 #include "dynamic_graph_bridge_msgs/msg/matrix.hpp"
 #include "dynamic_graph_bridge_msgs/msg/vector.hpp"
 
-#include "sot_to_ros.hh"
+#include "sot_to_ros2.hh"
 
 namespace dynamicgraph {
 template <>
@@ -41,8 +41,12 @@ void RosPublish::add(const std::string& signal, const std::string& topic) {
   bindedSignal_t bindedSignal;
 
   // Initialize the publisher.
+  rclcpp::QoS qos(1);
+  qos.reliable().transient_local();
+  auto pub = nh_->create_publisher<ros_t>(topic, qos);
+  
   std::shared_ptr<realtime_tools::RealtimePublisher<ros_t> > pubPtr =
-      std::make_shared<realtime_tools::RealtimePublisher<ros_t> >(nh_, topic, 1);
+      std::make_shared<realtime_tools::RealtimePublisher<ros_t> >(pub);
 
   // Initialize the signal.
   std::shared_ptr<signal_t> signalPtr(
@@ -52,7 +56,7 @@ void RosPublish::add(const std::string& signal, const std::string& topic) {
   signalRegistration(*boost::get<0>(bindedSignal));
 
   // Initialize the callback.
-  callback_t callback = boost::bind(&RosPublish::sendData<T>, this, pubPtr, signalPtr, _1);
+  callback_t callback = std::bind(&RosPublish::sendData<T>, this, pubPtr, signalPtr, std::placeholders::_1);
   boost::get<1>(bindedSignal) = callback;
 
   bindedSignal_[signal] = bindedSignal;

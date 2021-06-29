@@ -6,18 +6,19 @@
  *
  */
 #include <iostream>
-//#include <ros/console.h>
+
 
 #define ENABLE_RT_LOG
 #include <dynamic-graph/real-time-logger.h>
 
 #include <dynamic_graph_bridge/sot_loader.hh>
+#include <dynamic_graph_bridge/ros2_init.hh>
 
 int main(int argc, char *argv[]) {
   ::dynamicgraph::RealTimeLogger::instance()
     .addOutputStream(::dynamicgraph::LoggerStreamPtr_t(new dynamicgraph::LoggerIOStream(std::cout)));
 
-  ros::init(argc, argv, "sot_ros_encapsulator");
+  rclcpp::init(argc, argv);
   SotLoader aSotLoader;
   if (aSotLoader.parseOptions(argc, argv) < 0) return -1;
 
@@ -27,6 +28,6 @@ int main(int argc, char *argv[]) {
   // Load dynamic library and run python prologue.
   aSotLoader.Initialization();
 
-  ros::waitForShutdown ();
+  rclcpp::spin(dynamicgraph::rosInit());
   return 0;
 }

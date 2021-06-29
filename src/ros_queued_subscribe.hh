@@ -17,10 +17,12 @@
 #include <dynamic-graph/command.h>
 #include <sot/core/matrix-geometry.hh>
 
-//#include <ros/ros.h>
 
 #include "converter.hh"
-#include "sot_to_ros.hh"
+#include "sot_to_ros2.hh"
+
+#include <rclcpp/subscription_base.hpp>
+#include <rclcpp/node.hpp>
 
 namespace dynamicgraph {
 
@@ -149,7 +151,7 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
 
   std::map<std::string, bindedSignal_t>& bindedSignal() { return bindedSignal_; }
 
-  rclcpp::Node& nh() { return nh_; }
+  rclcpp::Node::SharedPtr nh() { return nh_; }
 
   template <typename R, typename S>
   void callback(std::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal, const R& data);
@@ -162,7 +164,7 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
 
  private:
   static const std::string docstring_;
-  rclcpp::Node& nh_;
+  rclcpp::Node::SharedPtr nh_;
   std::map<std::string, bindedSignal_t> bindedSignal_;
 
   int readQueue_;

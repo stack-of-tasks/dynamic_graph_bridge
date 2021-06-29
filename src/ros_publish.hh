@@ -9,12 +9,13 @@
 #include <dynamic-graph/signal-time-dependent.h>
 #include <dynamic-graph/command.h>
 
-//#include <ros/ros.h>
+#include <rclcpp/node.hpp>
 
 #include <realtime_tools/realtime_publisher.h>
 
+
 #include "converter.hh"
-#include "sot_to_ros.hh"
+#include "sot_to_ros2.hh"
 #include <fstream>
 
 namespace dynamicgraph {
@@ -72,7 +73,7 @@ class RosPublish : public dynamicgraph::Entity {
 
  private:
   static const std::string docstring_;
-  rclcpp::Node& nh_;
+  rclcpp::Node::SharedPtr nh_;
   std::map<std::string, bindedSignal_t> bindedSignal_;
   dynamicgraph::SignalTimeDependent<int, int> trigger_;
   rclcpp::Duration rate_;

@@ -10,7 +10,6 @@
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
 
-//#include <ros/ros.h>
 #include <std_msgs/msg/float64.h>
 #include <std_msgs/msg/u_int32.h>
 

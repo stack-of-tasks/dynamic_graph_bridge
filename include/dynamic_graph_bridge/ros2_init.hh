@@ -4,7 +4,7 @@
 #include "rclcpp/node.hpp"
 
 namespace dynamicgraph {
-  rclcpp::Node& rosInit();
+  rclcpp::Node::SharedPtr rosInit();
 
 }  // end of namespace dynamicgraph.
 

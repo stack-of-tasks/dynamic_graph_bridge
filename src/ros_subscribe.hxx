@@ -44,17 +44,17 @@ struct Add {
     boost::format signalName("RosSubscribe(%1%)::%2%");
     signalName % aRosSubscribe.getName() % signal;
 
-    std::shared_ptr<signal_t> signal_(new signal_t(0, signalName.str()));
-    SotToRos<SoTSubscriptionType>::setDefault(*signal_);
-    bindedSignal.first = signal_;
+    std::shared_ptr<signal_t> lsignal(new signal_t(0, signalName.str()));
+    SotToRos<SoTSubscriptionType>::setDefault(*lsignal);
+    bindedSignal.first = lsignal;
     aRosSubscribe.signalRegistration(*bindedSignal.first);
 	
     // Initialize the subscriber.
-    typedef boost::function<void(const ros_const_ptr_t data)> callback_t;
-    callback_t callback = boost::bind(&dg::RosSubscribe::callback<ros_const_ptr_t, sot_t>,
-                                      &aRosSubscribe, signal_, _1);
+    typedef std::function<void(ros_const_ptr_t data)> callback_t;
+    callback_t callback = std::bind(&dg::RosSubscribe::callback<ros_const_ptr_t, sot_t>,
+                                    &aRosSubscribe, lsignal, std::placeholders::_1);
 
-    bindedSignal.second = aRosSubscribe.nh().create_subscription<ros_t>(topic, 1, callback);
+    bindedSignal.second = aRosSubscribe.nh()->create_subscription<ros_t>(topic, 1, callback);
     
     aRosSubscribe.bindedSignal()[signal] = bindedSignal;
   }
@@ -77,16 +77,17 @@ struct Add<std::pair<T, dg::Vector> > {
     boost::format signalName("RosSubscribe(%1%)::%2%");
     signalName % aRosSubscribe.getName() % signal;
 
-    std::shared_ptr<signal_t> signal_(new signal_t(0, signalName.str()));
-    SotToRos<T>::setDefault(*signal_);
-    bindedSignal.first = signal_;
+    std::shared_ptr<signal_t> lsignal(new signal_t(0, signalName.str()));
+    SotToRos<T>::setDefault(*lsignal);
+    bindedSignal.first = lsignal;
     aRosSubscribe.signalRegistration(*bindedSignal.first);
 
     // Initialize the publisher.
-    typedef boost::function<void(const ros_const_ptr_t& data)> callback_t;
-    callback_t callback = boost::bind(&RosSubscribe::callback<ros_const_ptr_t, sot_t>, &aRosSubscribe, signal_, _1);
+    typedef std::function<void(ros_const_ptr_t data)> callback_t;
+    callback_t callback = std::bind(&RosSubscribe::callback<ros_const_ptr_t, sot_t>, &aRosSubscribe, lsignal,
+                                    std::placeholders::_1);
 
-    bindedSignal.second = aRosSubscribe.nh().create_subscription<ros_t>(topic, 1, callback);
+    bindedSignal.second = aRosSubscribe.nh()->create_subscription<ros_t>(topic, 1, callback);
 
     aRosSubscribe.bindedSignal()[signal] = bindedSignal;
 
@@ -109,11 +110,12 @@ struct Add<std::pair<T, dg::Vector> > {
     aRosSubscribe.signalRegistration(*bindedSignalTimestamp.first);
 
     // Initialize the publisher.
-    typedef boost::function<void(const ros_const_ptr_t& data)> callback_t;
+    typedef std::function<void(ros_const_ptr_t data)> callback_t;
     callback_t callbackTimestamp =
-        boost::bind(&RosSubscribe::callbackTimestamp<ros_const_ptr_t>, &aRosSubscribe, signalTimestamp_, _1);
+        std::bind(&RosSubscribe::callbackTimestamp<ros_const_ptr_t>, &aRosSubscribe, signalTimestamp_,
+                  std::placeholders::_1);
   
-    bindedSignalTimestamp.second = aRosSubscribe.nh().create_subscription<ros_t>(topic, 1, callbackTimestamp);
+    bindedSignalTimestamp.second = aRosSubscribe.nh()->create_subscription<ros_t>(topic, 1, callbackTimestamp);
 
     aRosSubscribe.bindedSignal()[signalTimestamp] = bindedSignalTimestamp;
   }
