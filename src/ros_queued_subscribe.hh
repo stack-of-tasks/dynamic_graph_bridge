@@ -137,6 +137,7 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
 
   void rm(const std::string& signal);
   std::vector<std::string> list();
+  std::vector<std::string> listTopics();
   void clear();
   void clearQueue(const std::string& signal);
   void readQueue(int beginReadingAt);
@@ -146,6 +147,7 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   void add(const std::string& type, const std::string& signal, const std::string& topic);
 
   std::map<std::string, bindedSignal_t>& bindedSignal() { return bindedSignal_; }
+  std::map<std::string, std::string>& topics() { return topics_; }
 
   ros::NodeHandle& nh() { return nh_; }
 
@@ -162,6 +164,7 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   static const std::string docstring_;
   ros::NodeHandle& nh_;
   std::map<std::string, bindedSignal_t> bindedSignal_;
+  std::map<std::string, std::string> topics_;
 
   int readQueue_;
   // Signal<bool, int> readQueue_;

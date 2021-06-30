@@ -54,6 +54,7 @@ struct Add {
 
     RosQueuedSubscribe::bindedSignal_t bindedSignal(bs);
     rosSubscribe.bindedSignal()[signal] = bindedSignal;
+    rosSubscribe.topics()[signal] = topic;
   }
 };
 
