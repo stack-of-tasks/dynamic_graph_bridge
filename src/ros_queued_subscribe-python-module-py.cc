@@ -13,7 +13,7 @@ BOOST_PYTHON_MODULE(wrap)
     .def("rm", &dg::RosQueuedSubscribe::rm, "Remove a signal reading data from a ROS topic",
         bp::args("signal_name"))
     .def("list", &dg::RosQueuedSubscribe::list, "List signals reading data from a ROS topic")
-
+    .def("listTopics", &dg::RosQueuedSubscribe::listTopics, "List subscribed topics from ROS in the same order as list command")
     .def("clearQueue", &dg::RosQueuedSubscribe::clearQueue,
         "Empty the queue of a given signal", bp::args("signal_name"))
     .def("queueSize", &dg::RosQueuedSubscribe::queueSize,

@@ -99,6 +99,14 @@ std::vector<std::string> RosQueuedSubscribe::list() {
   return result;
 }
 
+std::vector<std::string> RosQueuedSubscribe::listTopics()
+{
+  std::vector<std::string> result(topics_.size());
+  std::transform(topics_.begin(), topics_.end(),
+      result.begin(), [](const auto& pair) { return pair.second; });
+  return result;
+}
+
 void RosQueuedSubscribe::clear() {
   std::map<std::string, bindedSignal_t>::iterator it = bindedSignal_.begin();
   for (; it != bindedSignal_.end();) {
