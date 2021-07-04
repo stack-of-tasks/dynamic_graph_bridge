@@ -45,3 +45,21 @@ if(DEFINED ENV{ROS_VERSION} )
 
 endif()
 
+if(BUILD_TESTING)
+  find_package(ament_cmake_gmock REQUIRED)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+
+  # Library for sot_external_interface
+  add_library(impl_test_sot_external_interface SHARED
+    tests/impl_test_sot_external_interface)
+  
+  target_link_libraries(impl_test_sot_external_interface PUBLIC sot-core::sot-core)
+  
+  ament_add_gmock(test_sot_loader_basic
+    tests/sot_loader_basic_test.cpp
+  )
+  target_include_directories(test_sot_loader_basic PUBLIC include)
+  target_link_libraries(test_sot_loader_basic sot_loader)
+
+endif()
