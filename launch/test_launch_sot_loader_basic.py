@@ -10,11 +10,11 @@ from launch_ros.utilities import normalize_parameters
 def generate_launch_description():
     ld = LaunchDescription()
 
-    params = { "state_vectormap": ["joint1", "joint2"] };
+    params = { "state_vector_map": [ "joint1", "joint2"] };
     test_sot_loader_basic_node = Node(
         package="dynamic_graph_bridge",
         executable="test_sot_loader_basic",
-        parameters= [params]
+        parameters=[params],
     )
 
     

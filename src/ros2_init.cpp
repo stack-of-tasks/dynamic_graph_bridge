@@ -121,6 +121,9 @@ private:
 
 rclcpp::Node::SharedPtr rosInit()
 {
+  if (ros.nodeHandle)
+    return ros.nodeHandle;
+  
   // You MUST use the MultiThreadedExecutor to use, well, multiple threads
   auto subnode = std::make_shared<DualThreadedNode>();  // This contains BOTH subscriber callbacks.
                                                         // They will still run on different threads
@@ -129,6 +132,14 @@ rclcpp::Node::SharedPtr rosInit()
   ros.mtExecutor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
   ros.mtExecutor->add_node(subnode);
   return subnode;
+}
+  
+rclcpp::executors::MultiThreadedExecutor::SharedPtr rosInitGetExecutor()
+{
+  if (ros.mtExecutor)
+    rclcpp::Node::SharedPtr aNode = rosInit();
+
+  return ros.mtExecutor;
 }
 
 }  // end of namespace dynamicgraph.

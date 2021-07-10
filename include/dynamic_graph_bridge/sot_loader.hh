@@ -25,7 +25,7 @@
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
-#include <boost/thread/thread.hpp>
+#include <thread>
 
 // ROS includes
 //#include "ros/ros.h"
@@ -69,7 +69,7 @@ class SotLoader : public SotLoaderBasic {
   std::string robot_desc_string_;
 
   /// The thread running dynamic graph
-  boost::thread thread_;
+  std::thread thread_;
 
   // \brief Start control loop
   virtual void startControlLoop();

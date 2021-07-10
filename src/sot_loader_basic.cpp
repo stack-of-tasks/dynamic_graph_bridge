@@ -15,6 +15,8 @@
 
 #include <dynamic-graph/pool.h>
 
+#include <exception>
+
 // POSIX.1-2001
 #include <dlfcn.h>
 
@@ -60,12 +62,41 @@ int SotLoaderBasic::readSotVectorStateParam() {
   std::map<std::string, int> from_state_name_to_state_vector;
   std::map<std::string, std::string> from_parallel_name_to_state_vector_name;
 
+  try {
+    nh_ = dynamicgraph::rosInit();
+  }
+  catch (exception &e)
+    {
+      std::throw_with_nested(std::logic_error("SotLoaderBasic::readSotVectorStateParam() Unable to call rosInit_"));
+    }
+
+  if (!nh_)    {
+      throw std::logic_error("SotLoaderBasic::readSotVectorStateParam() nh_ not initialized");
+    }
+
+
+  // It is necessary to declare parameters first
+  // before trying to access them.
+  if (not nh_->has_parameter("state_vector_map"))
+    nh_->declare_parameter("state_vector_map",std::vector<std::string>{});
+  if (not nh_->has_parameter("joint_state_parallel"))
+    nh_->declare_parameter("joint_state_parallel",std::vector<std::string>{});
+  
   // Read the state vector of the robot
   // Defines the order in which the actuators are ordered
-  if (!nh_->get_parameter("/sot/state_vector_map",stateVectorMap_)) {
-    std::cerr << " Read Sot Vector State Param " << std::endl;
-    return 1;
+  try {
+    std::string aParameterName("state_vector_map");
+    std::vector<uint8_t> list_of_types;
+
+    if (!nh_->get_parameter(aParameterName,stateVectorMap_)) {      
+      logic_error aLogicError("SotLoaderBasic::readSotVectorStateParam : State_vector_map is empty");
+      throw aLogicError;
+    }
   }
+  catch (exception &e)
+    {
+      std::throw_with_nested(std::logic_error("Unable to call nh_->get_parameter"));
+    }
 
   nbOfJoints_ = static_cast<int>(stateVectorMap_.size());
   nbOfParallelJoints_ = 0;
@@ -73,13 +104,12 @@ int SotLoaderBasic::readSotVectorStateParam() {
   // Read the parallel joints.
   // Specify the constraint between the joints
   // Currently acts as a mimic or a an inverse mimic joint.
-
-  std::string prefix("/sot/joint_state_parallel");
+  
+  std::string prefix("joint_state_parallel");
   std::map<std::string,rclcpp::Parameter> joint_state_parallel;
   nh_->get_parameters(prefix,joint_state_parallel);
 
   // Iterates over the map joint_state_parallel
-  // 
   for ( std::map<std::string,rclcpp::Parameter>::iterator
           it_map_expression = joint_state_parallel.begin();
         it_map_expression != joint_state_parallel.end();
@@ -109,10 +139,10 @@ int SotLoaderBasic::readSotVectorStateParam() {
 
   // Fill in the name of the joints from the state vector.
   // and build local map from state name to state vector
-  for (auto i = 0; i < stateVectorMap_.size(); ++i) {
+  for (std::size_t i = 0; i < stateVectorMap_.size(); ++i) {
     joint_state_.name[i] = stateVectorMap_[i];
 
-    from_state_name_to_state_vector[joint_state_.name[i]] = i;
+    from_state_name_to_state_vector[joint_state_.name[i]] = static_cast<int>(i);
   }
 
   // Fill in the name of the joints from the parallel joint vector.
@@ -131,7 +161,9 @@ int SotLoaderBasic::readSotVectorStateParam() {
 int SotLoaderBasic::parseOptions(int argc, char* argv[]) {
   po::options_description desc("Allowed options");
   desc.add_options()("help", "produce help message")("input-file", po::value<string>(), "library to load");
-
+  
+  vm_.clear();
+  
   po::store(po::parse_command_line(argc, argv, desc), vm_);
   po::notify(vm_);
 
@@ -164,7 +196,9 @@ void SotLoaderBasic::Initialization() {
       reinterpret_cast<long>(dlsym(sotRobotControllerLibrary_, "createSotExternalInterface")));
   const char* dlsym_error = dlerror();
   if (dlsym_error) {
-    std::cerr << "Cannot load symbol create: " << dlsym_error << '\n';
+    std::cerr << "Cannot load symbol create: " << dlsym_error
+              << " from " << dynamicLibraryName_
+              << '\n';
     return;
   }
 

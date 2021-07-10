@@ -5,6 +5,7 @@
 
 namespace dynamicgraph {
   rclcpp::Node::SharedPtr rosInit();
+  rclcpp::executors::MultiThreadedExecutor::SharedPtr rosInitGetExecutor();
 
 }  // end of namespace dynamicgraph.
 

@@ -27,6 +27,12 @@ void ImplTestSotExternalInterface::cleanupSetSensors
   std::cout << "ImplTestSotExternalInterface::cleanupSetSensors" << std::endl;
 }
 
+void ImplTestSotExternalInterface::getControl
+(std::map<std::string,
+ dynamicgraph::sot::SensorValues> &)
+{
+  std::cout << "ImplTestSotExternalInterface::getControl" << std::endl;
+}
 void ImplTestSotExternalInterface::setSecondOrderIntegration
 (void)
 {
@@ -37,4 +43,13 @@ void ImplTestSotExternalInterface::setNoIntegration
 (void)
 {
   std::cout << "setNoIntegration" << std::endl;
+}
+
+extern "C" {
+  dynamicgraph::sot::AbstractSotExternalInterface *createSotExternalInterface()
+  { return new ImplTestSotExternalInterface; }
+}
+
+extern "C" {
+  void destroySotExternalInterface(dynamicgraph::sot::AbstractSotExternalInterface *p) { delete p; }
 }

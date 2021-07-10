@@ -15,10 +15,6 @@
 // POSIX.1-2001
 #include <dlfcn.h>
 
-#include <boost/thread/condition.hpp>
-
-boost::condition_variable cond;
-
 using namespace std;
 using namespace dynamicgraph::sot;
 namespace po = boost::program_options;
@@ -70,6 +66,13 @@ void workThreadLoader(SotLoader *aSotLoader) {
   double periodd;
   std::shared_ptr<rclcpp::Node> nh = dynamicgraph::rosInit();
 
+  /// Declare parameters
+  if (not nh->has_parameter("dt"))
+    nh->declare_parameter<double>("dt",0.01);
+  if (not nh->has_parameter("paused"))
+    nh->declare_parameter<bool>("paused",false);
+  
+  // 
   nh->get_parameter_or("dt",periodd,0.001);
   rclcpp::Rate rate(1/periodd); // 1 kHz
   
@@ -99,7 +102,6 @@ void workThreadLoader(SotLoader *aSotLoader) {
     rate.sleep();
   }
   dataToLog.save("/tmp/geometric_simu");
-  cond.notify_all();
   rclcpp::spin(nh);
 }
 
@@ -119,7 +121,10 @@ SotLoader::SotLoader()
 
   freeFlyerPose_.header.frame_id = "odom";
   freeFlyerPose_.child_frame_id = "base_link";
-  if (nh_->get_parameter("/sot/tf_base_link",
+  if (not nh_->has_parameter("tf_base_link"))
+    nh_->declare_parameter("tf_base_link",std::string("base_link"));
+  
+  if (nh_->get_parameter("tf_base_link",
                       freeFlyerPose_.child_frame_id)) {
     RCLCPP_INFO_STREAM(rclcpp::get_logger("dynamic_graph_bridge"),
                        "Publishing " << freeFlyerPose_.child_frame_id <<
@@ -132,7 +137,7 @@ SotLoader::~SotLoader() {
   thread_.join();
 }
 
-void SotLoader::startControlLoop() { thread_ = boost::thread(workThreadLoader, this); }
+void SotLoader::startControlLoop() { thread_ = std::thread(workThreadLoader, this); }
 
 void SotLoader::initializeRosNode(int argc, char *argv[]) {
   SotLoaderBasic::initializeRosNode(argc, argv);

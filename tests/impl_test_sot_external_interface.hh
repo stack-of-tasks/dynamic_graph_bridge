@@ -7,7 +7,7 @@
 
 class ImplTestSotExternalInterface : public
 dynamicgraph::sot::AbstractSotExternalInterface {
-
+public:
   ImplTestSotExternalInterface();
   virtual ~ImplTestSotExternalInterface() final;
 
@@ -27,5 +27,6 @@ dynamicgraph::sot::AbstractSotExternalInterface {
   virtual void setNoIntegration(void);
 
 };
+
 
 #endif

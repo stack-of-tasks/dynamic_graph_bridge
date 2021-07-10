@@ -53,13 +53,40 @@ if(BUILD_TESTING)
   # Library for sot_external_interface
   add_library(impl_test_sot_external_interface SHARED
     tests/impl_test_sot_external_interface)
-  
+
   target_link_libraries(impl_test_sot_external_interface PUBLIC sot-core::sot-core)
-  
+
+  # Test for class SotLoaderBasic
   ament_add_gmock(test_sot_loader_basic
-    tests/sot_loader_basic_test.cpp
+    tests/test_sot_loader_basic.cpp
   )
   target_include_directories(test_sot_loader_basic PUBLIC include)
   target_link_libraries(test_sot_loader_basic sot_loader)
 
+  # Test for class SotLoader
+  ament_add_gmock(test_sot_loader
+    tests/test_sot_loader.cpp
+  )
+  target_include_directories(test_sot_loader PUBLIC include)
+  target_link_libraries(test_sot_loader sot_loader)
+
+  # Install tests
+  install(TARGETS test_sot_loader_basic
+    test_sot_loader
+    DESTINATION lib/${PROJECT_NAME}
+    )
+
+  # Install library for tests
+  install(TARGETS impl_test_sot_external_interface
+    DESTINATION lib
+    )
+
+  install(DIRECTORY launch
+    DESTINATION share/${PROJECT_NAME}
+    )
+
 endif()
+
+#ROS 2 packaging
+find_package(ament_cmake REQUIRED)
+ament_package()
