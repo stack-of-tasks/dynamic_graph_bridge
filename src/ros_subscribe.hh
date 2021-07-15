@@ -11,6 +11,7 @@
 #include <rclcpp/subscription_base.hpp>
 #include <rclcpp/node.hpp>
 
+#include "dynamic_graph_bridge/ros2_init.hh"
 #include "converter.hh"
 #include "sot_to_ros2.hh"
 
@@ -39,7 +40,7 @@ ROS_SUBSCRIBE_MAKE_COMMAND(Add);
 
 namespace internal {
 template <typename T>
-struct Add;
+class Add;
 }  // namespace internal
 
 /// \brief Publish ROS information in the dynamic-graph.
@@ -81,6 +82,8 @@ class RosSubscribe : public dynamicgraph::Entity {
 
   template <typename T>
   friend class internal::Add;
+
+  void initializeRosContext(dynamicgraph::RosContext::SharedPtr ros_context);
 
  private:
   static const std::string docstring_;

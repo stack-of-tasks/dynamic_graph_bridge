@@ -24,7 +24,8 @@ namespace internal {
 static const int BUFFER_SIZE = 1 << 10;
 
 template <typename T>
-struct Add {
+class Add {
+public:
   void operator()(RosQueuedSubscribe & rosSubscribe, const std::string& type, const std::string& signal,
                   const std::string& topic) {
     typedef typename SotToRos<T>::sot_t sot_t;

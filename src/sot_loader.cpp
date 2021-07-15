@@ -62,9 +62,9 @@ struct DataToLog {
   }
 };
 
-void workThreadLoader(SotLoader *aSotLoader) {
+void workThreadLoader(SotLoader::SharedPtr aSotLoader) {
   double periodd;
-  std::shared_ptr<rclcpp::Node> nh = dynamicgraph::rosInit();
+  std::shared_ptr<rclcpp::Node> nh = aSotLoader->returnsNodeHandle();
 
   /// Declare parameters
   if (not nh->has_parameter("dt"))
@@ -137,14 +137,15 @@ SotLoader::~SotLoader() {
   thread_.join();
 }
 
-void SotLoader::startControlLoop() { thread_ = std::thread(workThreadLoader, this); }
+void SotLoader::startControlLoop() { thread_ = std::thread(workThreadLoader,
+                                                           std::shared_ptr<SotLoader>(this)); }
 
-void SotLoader::initializeRosNode(int argc, char *argv[]) {
-  SotLoaderBasic::initializeRosNode(argc, argv);
+void SotLoader::initializeServices() {
+  SotLoaderBasic::initializeServices();
   // Temporary fix. TODO: where should nbOfJoints_ be initialized from?
   
-  angleEncoder_.resize(nbOfJoints_);
-  angleControl_.resize(nbOfJoints_);
+  angleEncoder_.resize(static_cast<std::size_t>(nbOfJoints_));
+  angleControl_.resize(static_cast<std::size_t>(nbOfJoints_));
 
   startControlLoop();
 }

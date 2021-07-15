@@ -85,7 +85,7 @@ class SotLoader : public SotLoaderBasic {
   ~SotLoader();
 
   // \brief Create a thread for ROS and start the control loop.
-  void initializeRosNode(int argc, char *argv[]);
+  void initializeServices();
 
   // \brief Compute one iteration of control.
   // Basically calls fillSensors, the SoT and the readControl.
@@ -99,6 +99,8 @@ class SotLoader : public SotLoaderBasic {
 
   // \brief Prepare the SoT framework.
   void setup();
+
+  typedef std::shared_ptr<SotLoader> SharedPtr;
 };
 
 #endif /* SOT_LOADER_HH_ */

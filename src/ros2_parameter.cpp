@@ -15,16 +15,20 @@ namespace dynamicgraph {
   bool parameter_server_read_robot_description(rclcpp::Node::SharedPtr nh)
   {
 
-    if (!nh->has_parameter("/robot_description"))
+    if (!nh->has_parameter("robot_description"))
       {
-        RCLCPP_FATAL(rclcpp::get_logger("dynamic_graph_bridge"),
-                     "No /robot_description parameter");
-        return false;
+        nh->declare_parameter("robot_description",std::string(""));
       }
     
     std::string robot_description;
-    std::string parameter_name("/robot_description");
+    std::string parameter_name("robot_description");
     nh->get_parameter(parameter_name,robot_description);
+    if (robot_description.empty())
+      {
+        RCLCPP_FATAL(rclcpp::get_logger("dynamic_graph_bridge"),
+                     "Parameter robot_description is empty");
+        return false;
+      }
     
     std::string model_name("robot");
     

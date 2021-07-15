@@ -64,7 +64,7 @@ const std::string RosQueuedSubscribe::docstring_(
     "  Use command \"add\" to subscribe to a new signal.\n");
 
 RosQueuedSubscribe::RosQueuedSubscribe(const std::string& n)
-    : dynamicgraph::Entity(n), nh_(rosInit()), bindedSignal_(), readQueue_(-1) {
+    : dynamicgraph::Entity(n), nh_(), bindedSignal_(), readQueue_(-1) {
   std::string docstring =
       "\n"
       "  Add a signal reading data from a ROS topic\n"
@@ -79,6 +79,10 @@ RosQueuedSubscribe::RosQueuedSubscribe(const std::string& n)
 }
 
 RosQueuedSubscribe::~RosQueuedSubscribe() {}
+
+void RosQueuedSubscribe::initializeRosContext( dynamicgraph::RosContext::SharedPtr ros_context) {
+  nh_ = ros_context->nodeHandle;
+}
 
 void RosQueuedSubscribe::display(std::ostream& os) const { os << CLASS_NAME << std::endl; }
 
@@ -120,7 +124,7 @@ std::size_t RosQueuedSubscribe::queueSize(const std::string& signal) const {
   if (_bs != bindedSignal_.end()) {
     return _bs->second->size();
   }
-  return -1;
+  return static_cast<std::size_t>(-1);
 }
 
 void RosQueuedSubscribe::readQueue(int beginReadingAt) {

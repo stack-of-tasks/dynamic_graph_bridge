@@ -3,7 +3,8 @@
 #include "dynamic_graph_bridge/ros2_init.hh"
 #include "dynamic_graph_bridge/sot_loader_basic.hh"
 
-bool CoordinationWithSpin=false;
+int my_argc;
+char ** my_argv;
 
 class MockSotLoaderBasicTest: public ::testing::Test {
 
@@ -11,10 +12,11 @@ public:
 
   class MockSotLoaderBasic: public SotLoaderBasic {
   public:
-    
-    
+
+
     void checkStateVectorMap() {
-      EXPECT_EQ(static_cast<int>(stateVectorMap_.size()),2);
+      readSotVectorStateParam();
+      ASSERT_EQ(static_cast<int>(stateVectorMap_.size()),2);
       std::string aJoint1("joint1");
       EXPECT_TRUE(aJoint1 == stateVectorMap_[0]);
       std::string aJoint2("joint2");
@@ -46,30 +48,36 @@ public:
       EXPECT_TRUE(finalname == dynamicLibraryName_);
     }
 
-    void testInitialization() {
-      
-      // Void call
-      int argc=2;
+    void testInitializeRosNode() {
+      int argc=1;
+      char *argv[1];
       char argv1[30]="mocktest";
+      argv[0] = argv1;
+      parseOptions(argc,argv);
+      initializeServices();
+      EXPECT_TRUE(service_start_ != 0);
+      EXPECT_TRUE(service_stop_ != 0);
+    }
+
+    void testInitialization() {
+
+      // Set input arguments
+      int argc=2;
       char *argv[2];
+
+      char argv1[30]="mocktest";
       argv[0]=argv1;
-      // Test input file
       char argv2[60]="--input-file=libimpl_test_sot_external_interface.so";
       argv[1]=argv2;
       parseOptions(argc,argv);
-      
+
       std::string finalname("libimpl_test_sot_external_interface.so");
       EXPECT_TRUE(finalname == dynamicLibraryName_);
 
       // Performs initializatio of libimpl_test_sot_external_interface.so
-      Initialization();
+      loadController();
       EXPECT_TRUE(sotRobotControllerLibrary_ != 0);
-      std::cout << "sotRobotControllerLibrary_: " << sotRobotControllerLibrary_
-              << std::endl;
       EXPECT_TRUE(sotController_ != nullptr);
-      std::cout << "sotController_: " << sotController_
-                << std::endl;
-
     }
 
     void test_start_stop_dg() {
@@ -87,6 +95,24 @@ public:
       EXPECT_TRUE(sotController_ == NULL);
       std::cout << "sotController_: " << sotController_
                 << std::endl;
+
+      // Set input arguments
+      int argc=2;
+      char *argv[2];
+
+      char argv1[30]="mocktest";
+      argv[0]=argv1;
+      char argv2[60]="--input-file=libimpl_test_sot_external_interface.so";
+      argv[1]=argv2;
+      parseOptions(argc,argv);
+
+      std::string finalname("libimpl_test_sot_external_interface.so");
+      EXPECT_TRUE(finalname == dynamicLibraryName_);
+
+      // Performs initializatio of libimpl_test_sot_external_interface.so
+      loadController();
+      // Remove
+      CleanUp();
     }
   };
 
@@ -95,16 +121,27 @@ public:
   std::shared_ptr<MockSotLoaderBasic> mockSotLoaderBasic_shrPtr_;
 
   void SetUp() {
+    rclcpp::init(my_argc,my_argv);
+
+    dynamicgraph::RosContext::SharedPtr aRosContext=
+       std::make_shared<dynamicgraph::RosContext>();
+    aRosContext->rosInit();
+
     mockSotLoaderBasic_shrPtr_ = std::make_shared<MockSotLoaderBasic>();
+    mockSotLoaderBasic_shrPtr_->initializeFromRosContext(aRosContext);
+
+  }
+
+  void TearDown() {
+    rclcpp::shutdown();
   }
 
 };
 
-TEST_F(MockSotLoaderBasicTest,CheckStateVectorMap)
-{
-  mockSotLoaderBasic_shrPtr_->readSotVectorStateParam();
-  mockSotLoaderBasic_shrPtr_->checkStateVectorMap();
 
+TEST_F(MockSotLoaderBasicTest,)
+{
+  mockSotLoaderBasic_shrPtr_->checkStateVectorMap();
 }
 
 TEST_F(MockSotLoaderBasicTest,ParseOptions)
@@ -114,32 +151,31 @@ TEST_F(MockSotLoaderBasicTest,ParseOptions)
 
 TEST_F(MockSotLoaderBasicTest,TestInitialization)
 {
-    mockSotLoaderBasic_shrPtr_->testInitialization();
+  mockSotLoaderBasic_shrPtr_->testInitialization();
 }
 
 TEST_F(MockSotLoaderBasicTest,TestStartStopDG)
 {
-    mockSotLoaderBasic_shrPtr_->test_start_stop_dg();
+  mockSotLoaderBasic_shrPtr_->test_start_stop_dg();
+}
+
+TEST_F(MockSotLoaderBasicTest,TestInitializeRosNode)
+{
+  mockSotLoaderBasic_shrPtr_->testInitializeRosNode();
 }
 
 TEST_F(MockSotLoaderBasicTest,CleanUp)
 {
   mockSotLoaderBasic_shrPtr_->test_cleanup();
-  CoordinationWithSpin=true;
 }
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
-  rclcpp::init(argc,argv);
+
+  my_argc=argc;
+  my_argv=argv;
 
   int r=RUN_ALL_TESTS();
-
-  while (!CoordinationWithSpin) {
-    dynamicgraph::rosInitGetExecutor()->spin_once();
-    usleep(5000);
-  }
-
-  rclcpp::shutdown();
 
   return r;
 }

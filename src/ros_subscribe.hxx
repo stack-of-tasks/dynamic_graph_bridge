@@ -30,7 +30,8 @@ void RosSubscribe::callbackTimestamp(std::shared_ptr<dynamicgraph::SignalPtr<pti
 
 namespace internal {
 template <typename SoTSubscriptionType>
-struct Add {
+class Add {
+public:
   void operator()(dg::RosSubscribe& aRosSubscribe, const std::string& signal, const std::string& topic) {
     typedef typename SotToRos<SoTSubscriptionType>::sot_t sot_t;
     typedef typename SotToRos<SoTSubscriptionType>::ros_const_ptr_t ros_const_ptr_t;
@@ -61,7 +62,8 @@ struct Add {
 };
 
 template <typename T>
-struct Add<std::pair<T, dg::Vector> > {
+class Add<std::pair<T, dg::Vector> > {
+public:
   void operator()(RosSubscribe& aRosSubscribe, const std::string& signal, const std::string& topic) {
     typedef std::pair<T, dg::Vector> type_t;
 

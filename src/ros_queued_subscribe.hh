@@ -18,6 +18,7 @@
 #include <sot/core/matrix-geometry.hh>
 
 
+#include "dynamic_graph_bridge/ros2_init.hh"
 #include "converter.hh"
 #include "sot_to_ros2.hh"
 
@@ -51,10 +52,11 @@ ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND(Add);
 
 namespace internal {
 template <typename T>
-struct Add;
+class Add;
 
 
-struct BindedSignalBase {
+class BindedSignalBase {
+public:
   typedef typename rclcpp::SubscriptionBase::SharedPtr Subscriber_t;
 
   BindedSignalBase(RosQueuedSubscribe* e) : entity(e) {}
@@ -68,7 +70,8 @@ struct BindedSignalBase {
 };
 
 template <typename T, int BufferSize>
-struct BindedSignal : BindedSignalBase {
+class BindedSignal : public BindedSignalBase {
+public:
   typedef dynamicgraph::Signal<T, int> Signal_t;
   typedef std::shared_ptr<Signal_t> SignalPtr_t;
   typedef std::vector<T> buffer_t;
@@ -162,6 +165,8 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   template <typename T>
   friend class internal::Add;
 
+  void initializeRosContext(dynamicgraph::RosContext::SharedPtr ros_context);
+  
  private:
   static const std::string docstring_;
   rclcpp::Node::SharedPtr nh_;
@@ -170,7 +175,7 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   int readQueue_;
   // Signal<bool, int> readQueue_;
 
-  template <typename T>
+  template <typename T, int BufferSize>
   friend class internal::BindedSignal;
 };
 }  // end of namespace dynamicgraph.

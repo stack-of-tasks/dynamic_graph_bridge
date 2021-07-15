@@ -15,6 +15,7 @@
 
 
 #include "converter.hh"
+#include "dynamic_graph_bridge/ros2_init.hh"
 #include "sot_to_ros2.hh"
 #include <fstream>
 
@@ -70,6 +71,8 @@ class RosPublish : public dynamicgraph::Entity {
 
   template <typename T>
   void add(const std::string& signal, const std::string& topic);
+
+  void initializeRosContext(dynamicgraph::RosContext::SharedPtr ros_context);
 
  private:
   static const std::string docstring_;

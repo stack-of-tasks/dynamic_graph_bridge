@@ -79,10 +79,10 @@ const std::string RosPublish::docstring_(
     "\n"
     "  Use command \"add\" to publish a new ROS topic.\n");
 
-RosPublish::RosPublish(const std::string& n)
+  RosPublish::RosPublish(const std::string& n)
     : dynamicgraph::Entity(n),
       // RosPublish do not use callback so do not create a useless spinner.
-      nh_(rosInit()),
+      nh_(),
       bindedSignal_(),
       trigger_(boost::bind(&RosPublish::trigger, this, _1, _2), sotNOSIGNAL,
                MAKE_SIGNAL_STRING(name, true, "int", "trigger")),
@@ -119,6 +119,10 @@ RosPublish::RosPublish(const std::string& n)
 }
 
 RosPublish::~RosPublish() { aofs_.close(); }
+
+void RosPublish::initializeRosContext( dynamicgraph::RosContext::SharedPtr ros_context) {
+  nh_ = ros_context->nodeHandle;
+}
 
 void RosPublish::display(std::ostream& os) const { os << CLASS_NAME << std::endl; }
 

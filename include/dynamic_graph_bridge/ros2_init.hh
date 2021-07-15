@@ -4,8 +4,17 @@
 #include "rclcpp/node.hpp"
 
 namespace dynamicgraph {
-  rclcpp::Node::SharedPtr rosInit();
-  rclcpp::executors::MultiThreadedExecutor::SharedPtr rosInitGetExecutor();
+  class RosContext {
+  public:
+
+    rclcpp::Node::SharedPtr rosInit();
+    rclcpp::executors::MultiThreadedExecutor::SharedPtr rosInitGetExecutor();
+
+    std::shared_ptr<rclcpp::Node> nodeHandle;
+    std::shared_ptr<rclcpp::executors::MultiThreadedExecutor> mtExecutor;
+
+    typedef std::shared_ptr<RosContext> SharedPtr;
+  };
 
 }  // end of namespace dynamicgraph.
 

@@ -13,7 +13,7 @@ SET(PROJECT_URL "https://github.com/${PROJECT_ORG}/${PROJECT_NAME}")
 
 # Project options
 OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
-
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 # Project configuration
 SET(PROJECT_USE_CMAKE_EXPORT TRUE)
 SET(CUSTOM_HEADER_DIR ${PROJECT_NAME})
@@ -48,7 +48,25 @@ endif()
 if(BUILD_TESTING)
   find_package(ament_cmake_gmock REQUIRED)
   find_package(ament_lint_auto REQUIRED)
+  _ament_cmake_gmock_find_gmock()
+  find_package(launch_testing_ament_cmake)
   ament_lint_auto_find_test_dependencies()
+
+  add_executable(aNodeExample tests/aNodeExample.cpp)
+  ament_target_dependencies(aNodeExample rclcpp std_msgs)
+
+  install(TARGETS
+    aNodeExample
+    DESTINATION lib/${PROJECT_NAME}
+    )
+
+  add_executable(aNodeExampleGood tests/aNodeExampleGood.cpp)
+  ament_target_dependencies(aNodeExampleGood rclcpp std_msgs)
+
+  install(TARGETS
+    aNodeExampleGood
+    DESTINATION lib/${PROJECT_NAME}
+    )
 
   # Library for sot_external_interface
   add_library(impl_test_sot_external_interface SHARED
@@ -56,12 +74,14 @@ if(BUILD_TESTING)
 
   target_link_libraries(impl_test_sot_external_interface PUBLIC sot-core::sot-core)
 
-  # Test for class SotLoaderBasic
-  ament_add_gmock(test_sot_loader_basic
+  # Executable for SotLoaderBasic test
+  add_executable(test_sot_loader_basic
     tests/test_sot_loader_basic.cpp
   )
-  target_include_directories(test_sot_loader_basic PUBLIC include)
-  target_link_libraries(test_sot_loader_basic sot_loader)
+  target_include_directories(test_sot_loader_basic PUBLIC include "${GMOCK_INCLUDE_DIRS}")
+  target_link_libraries(test_sot_loader_basic sot_loader "${GMOCK_LIBRARIES}" )
+
+  add_launch_test(tests/launching_test_sot_loader_basic.py)
 
   # Test for class SotLoader
   ament_add_gmock(test_sot_loader
@@ -81,7 +101,7 @@ if(BUILD_TESTING)
     DESTINATION lib
     )
 
-  install(DIRECTORY launch
+  install(DIRECTORY launch urdf
     DESTINATION share/${PROJECT_NAME}
     )
 

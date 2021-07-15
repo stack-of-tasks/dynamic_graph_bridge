@@ -34,6 +34,7 @@
 // Sot Framework includes
 #include <sot/core/debug.hh>
 #include <sot/core/abstract-sot-external-interface.hh>
+#include "dynamic_graph_bridge/ros2_init.hh"
 
 namespace po = boost::program_options;
 namespace dgs = dynamicgraph::sot;
@@ -92,13 +93,19 @@ class SotLoaderBasic {
   int parseOptions(int argc, char* argv[]);
 
   /// \brief Load the SoT device corresponding to the robot.
-  void Initialization();
+  void loadController();
 
+  // Initialize ROS Context
+  void initializeFromRosContext(dynamicgraph::RosContext::SharedPtr aRosCtxt);
+
+  // Returns nodeHandle
+  rclcpp::Node::SharedPtr returnsNodeHandle();
+  
   /// \brief Unload the library which handles the robot device.
   void CleanUp();
 
-  // \brief Create a thread for ROS.
-  virtual void initializeRosNode(int argc, char* argv[]);
+  // \brief Create ROS services start_dg and stop_dg.
+  virtual void initializeServices();
 
   // \brief Callback function when starting dynamic graph.
   void start_dg(const std::shared_ptr<std_srvs::srv::Empty::Request> request,

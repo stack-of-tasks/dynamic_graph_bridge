@@ -1,6 +1,7 @@
 #ifndef DYNAMIC_GRAPH_ROS_CONVERTER_HH
 #define DYNAMIC_GRAPH_ROS_CONVERTER_HH
 #include <stdexcept>
+#include <vector>
 #include "sot_to_ros2.hh"
 
 #include <boost/static_assert.hpp>
@@ -63,12 +64,13 @@ ROS_TO_SOT_IMPL(std::string) { dst = src.data; }
 
 // Vector
 SOT_TO_ROS_IMPL(Vector) {
-  dst.data.resize(src.size());
-  for (int i = 0; i < src.size(); ++i) dst.data[i] = src(i);
+  dst.data.resize(static_cast<std::size_t>(src.size()));
+  for (std::size_t i = 0; i < static_cast<std::size_t>(src.size()); ++i)
+    dst.data[i] = src(static_cast<Eigen::Index>(i));
 }
 
 ROS_TO_SOT_IMPL(Vector) {
-  dst.resize(src.data.size());
+  dst.resize(static_cast<Eigen::Index>(src.data.size()));
   for (unsigned int i = 0; i < src.data.size(); ++i) dst(i) = src.data[i];
 }
 
@@ -95,8 +97,9 @@ SOT_TO_ROS_IMPL(Matrix) {
   // TODO: Confirm Ros Matrix Storage order. It changes the RosMatrix to
   // ColMajor.
   dst.width = (unsigned int)src.rows();
-  dst.data.resize(src.cols() * src.rows());
-  for (int i = 0; i < src.cols() * src.rows(); ++i) dst.data[i] = src.data()[i];
+  dst.data.resize(static_cast<std::size_t>(src.cols() * src.rows()));
+  for (int i = 0; i < src.cols() * src.rows(); ++i)
+    dst.data[static_cast<std::size_t>(i)] = src.data()[i];
 }
 
 ROS_TO_SOT_IMPL(Matrix) {
@@ -240,7 +243,7 @@ DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(specific::Twist, twist, ;);
 /// conversion.  You can either fix your code or provide the wanted
 /// conversion by updating this header.
 template <typename U, typename V>
-inline void converter(U& dst, V& src) {
+inline void converter(U& , V& ) {
   // This will always fail if instantiated.
   BOOST_STATIC_ASSERT(sizeof(U) == 0);
 }
@@ -263,7 +266,7 @@ rclcpp::Time pTimeToRostime(const boost::posix_time::ptime& time) {
   uint32_t sec = (unsigned int)diff.ticks() / (unsigned int)time_duration::rep_type::res_adjust();
   uint32_t nsec = (unsigned int)diff.fractional_seconds();
 
-  return rclcpp::Time(sec, nsec);
+  return rclcpp::Time(static_cast<int32_t>(sec), nsec);
 }
 }  // end of namespace dynamicgraph.
 

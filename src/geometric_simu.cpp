@@ -19,15 +19,24 @@ int main(int argc, char *argv[]) {
     .addOutputStream(::dynamicgraph::LoggerStreamPtr_t(new dynamicgraph::LoggerIOStream(std::cout)));
 
   rclcpp::init(argc, argv);
+
+  dynamicgraph::RosContext::SharedPtr aRosContext =
+    std::make_shared<dynamicgraph::RosContext>();
+
+  aRosContext->rosInit();
+
   SotLoader aSotLoader;
   if (aSotLoader.parseOptions(argc, argv) < 0) return -1;
 
   // Advertize service "(start|stop)_dynamic_graph" and
   // load parameter "robot_description in SoT.
-  aSotLoader.initializeRosNode(argc, argv);
-  // Load dynamic library and run python prologue.
-  aSotLoader.Initialization();
+  aSotLoader.initializeFromRosContext(aRosContext);
 
-  rclcpp::spin(dynamicgraph::rosInit());
+  // Load dynamic library and run python prologue.
+  aSotLoader.initPublication();
+
+  aSotLoader.initializeServices();
+
+  aRosContext->mtExecutor->spin();
   return 0;
 }
