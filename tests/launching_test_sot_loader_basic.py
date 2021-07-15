@@ -49,18 +49,6 @@ def generate_test_description():
     params = { "state_vector_map": [ "joint1", "joint2"],
                "robot_description": robot_description_content};
 
-    # terminating_process = launch.actions.ExecuteProcess(
-    #     cmd=[
-    #         os.path.join(
-    #             ament_index_python.get_package_prefix('dynamic_graph_bridge'),
-    #             'lib/dynamic_graph_bridge',
-    #             'test_sot_loader_basic',
-    #         ),
-    #         # Use the parameter passed to generate_test_description as an argument
-    #         # to the terminating_proc
-    #         '--{}'.format(params),
-    #     ]
-    # )
     terminating_process = Node(
          package="dynamic_graph_bridge",
          executable="test_sot_loader_basic",
@@ -68,9 +56,6 @@ def generate_test_description():
     )
 
     
-    # ld.add_action(test_sot_loader_basic_node)
-    # ld.add_action(launch_testing.actions.ReadyToTest())
-    # return ld,{'sot_loader_basic_process':test_sot_loader_basic_node}
     return (
         launch.LaunchDescription([
             terminating_process,

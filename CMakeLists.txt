@@ -13,7 +13,7 @@ SET(PROJECT_URL "https://github.com/${PROJECT_ORG}/${PROJECT_NAME}")
 
 # Project options
 OPTION(BUILD_PYTHON_INTERFACE "Build the python bindings" ON)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 # Project configuration
 SET(PROJECT_USE_CMAKE_EXPORT TRUE)
 SET(CUSTOM_HEADER_DIR ${PROJECT_NAME})
@@ -84,15 +84,15 @@ if(BUILD_TESTING)
   add_launch_test(tests/launching_test_sot_loader_basic.py)
 
   # Test for class SotLoader
-  ament_add_gmock(test_sot_loader
-    tests/test_sot_loader.cpp
-  )
-  target_include_directories(test_sot_loader PUBLIC include)
-  target_link_libraries(test_sot_loader sot_loader)
+  # ament_add_gmock(test_sot_loader
+  #   tests/test_sot_loader.cpp
+  # )
+  # target_include_directories(test_sot_loader PUBLIC include)
+  # target_link_libraries(test_sot_loader sot_loader)
 
   # Install tests
   install(TARGETS test_sot_loader_basic
-    test_sot_loader
+    #test_sot_loader
     DESTINATION lib/${PROJECT_NAME}
     )
 
