@@ -16,10 +16,6 @@
 // POSIX.1-2001
 #include <dlfcn.h>
 
-#include <boost/thread/condition.hpp>
-
-boost::condition_variable cond;
-
 using namespace std;
 using namespace dynamicgraph::sot;
 namespace po = boost::program_options;
@@ -98,7 +94,6 @@ void workThreadLoader(SotLoader *aSotLoader) {
     rate.sleep();
   }
   dataToLog.save("/tmp/geometric_simu");
-  cond.notify_all();
   ros::waitForShutdown();
 }
 
