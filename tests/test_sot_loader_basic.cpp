@@ -57,6 +57,17 @@ public:
       initializeServices();
       EXPECT_TRUE(service_start_ != 0);
       EXPECT_TRUE(service_stop_ != 0);
+      initPublication();
+      EXPECT_TRUE(joint_pub_ != 0);
+    }
+
+    void testJointStatesPublication() {
+      int argc=1;
+      char *argv[1];
+      char argv1[30]="mocktest";
+      argv[0] = argv1;
+      parseOptions(argc,argv);
+
     }
 
     void testInitialization() {

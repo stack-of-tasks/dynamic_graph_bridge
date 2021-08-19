@@ -11,6 +11,7 @@
 
 #include <dynamic_graph_bridge/sot_loader.hh>
 #include "dynamic_graph_bridge/ros2_init.hh"
+#include <std_msgs/msg/string.hpp>
 
 // POSIX.1-2001
 #include <dlfcn.h>
@@ -102,25 +103,44 @@ void workThreadLoader(SotLoader::SharedPtr aSotLoader) {
     rate.sleep();
   }
   dataToLog.save("/tmp/geometric_simu");
-  rclcpp::spin(nh);
+  //  rclcpp::spin(nh);
 }
 
 SotLoader::SotLoader()
     : sensorsIn_(),
       controlValues_(),
       angleEncoder_(),
-      angleControl_(),
+      control_(),
       forces_(),
       torques_(),
       baseAtt_(),
       accelerometer_(3),
       gyrometer_(3),
       thread_() {
-  readSotVectorStateParam();
-  initPublication();
+}
 
+
+SotLoader::~SotLoader() {
+  dynamic_graph_stopped_ = true;
+  if (thread_.joinable())
+    thread_.join();
+
+}
+
+void SotLoader::startControlLoop() { thread_ = std::thread(workThreadLoader,
+                                                           std::shared_ptr<SotLoader>(this)); }
+
+void SotLoader::initializeServices() {
+  SotLoaderBasic::initializeServices();
+  
   freeFlyerPose_.header.frame_id = "odom";
   freeFlyerPose_.child_frame_id = "base_link";
+
+  if (nh_==0) {
+    logic_error aLogicError("SotLoaderBasic::initializeFromRosContext aRosCtxt is empty !");
+    throw aLogicError;
+  }
+    
   if (not nh_->has_parameter("tf_base_link"))
     nh_->declare_parameter("tf_base_link",std::string("base_link"));
   
@@ -130,39 +150,34 @@ SotLoader::SotLoader()
                        "Publishing " << freeFlyerPose_.child_frame_id <<
                        " wrt " << freeFlyerPose_.header.frame_id);
   }
-}
 
-SotLoader::~SotLoader() {
-  dynamic_graph_stopped_ = true;
-  thread_.join();
-}
-
-void SotLoader::startControlLoop() { thread_ = std::thread(workThreadLoader,
-                                                           std::shared_ptr<SotLoader>(this)); }
-
-void SotLoader::initializeServices() {
-  SotLoaderBasic::initializeServices();
   // Temporary fix. TODO: where should nbOfJoints_ be initialized from?
   
   angleEncoder_.resize(static_cast<std::size_t>(nbOfJoints_));
-  angleControl_.resize(static_cast<std::size_t>(nbOfJoints_));
-
-  startControlLoop();
+  control_.resize(static_cast<std::size_t>(nbOfJoints_));
 }
 
 void SotLoader::fillSensors(map<string, dgs::SensorValues> &sensorsIn) {
   // Update joint values.w
-  assert(angleControl_.size() == angleEncoder_.size());
+  assert(control_.size() == angleEncoder_.size());
 
   sensorsIn["joints"].setName("angle");
-  for (unsigned int i = 0; i < angleControl_.size(); i++) angleEncoder_[i] = angleControl_[i];
+  for (unsigned int i = 0; i < control_.size(); i++) angleEncoder_[i] = control_[i];
   sensorsIn["joints"].setValues(angleEncoder_);
 }
 
 void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   // Update joint values.
-  angleControl_ = controlValues["control"].getValues();
+  std::map<std::string, dgs::ControlValues>::iterator it_ctrl_map;
+  it_ctrl_map = controlValues.find("control");
+  if (it_ctrl_map == controlValues.end())
+    {
+      invalid_argument anInvalidArgument("control is not present in controlValues !");
+      throw anInvalidArgument;
+    }   
+  control_ = controlValues["control"].getValues();
 
+#ifdef NDEBUG
   // Debug
   std::map<std::string, dgs::ControlValues>::iterator it = controlValues.begin();
   sotDEBUG(30) << "ControlValues to be broadcasted:" << std::endl;
@@ -174,37 +189,61 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
     sotDEBUG(30) << std::endl;
   }
   sotDEBUG(30) << "End ControlValues" << std::endl;
-
+#endif
   // Check if the size if coherent with the robot description.
-  if (angleControl_.size() != (unsigned int)nbOfJoints_) {
-    std::cerr << " angleControl_" << angleControl_.size() << " and nbOfJoints" << (unsigned int)nbOfJoints_
-              << " are different !" << std::endl;
-    exit(-1);
+  if (control_.size() != (unsigned int)nbOfJoints_) {
+    nbOfJoints_ = control_.size();
+    angleEncoder_.resize(nbOfJoints_);
   }
+  
   // Publish the data.
+  std::vector<string> joint_state_names;
+  joint_state_.name = joint_state_names;
   joint_state_.header.stamp = rclcpp::Clock().now();
+
+  if (joint_state_.position.size()!=nbOfJoints_+parallel_joints_to_state_vector_.size())
+    {
+      joint_state_.position.resize(nbOfJoints_+parallel_joints_to_state_vector_.size());
+      joint_state_.velocity.resize(nbOfJoints_+parallel_joints_to_state_vector_.size());
+      joint_state_.effort.resize(nbOfJoints_+parallel_joints_to_state_vector_.size());
+    }
+  
   for (int i = 0; i < nbOfJoints_; i++) {
-    joint_state_.position[i] = angleControl_[i];
+    joint_state_.position[i] = angleEncoder_[i];
   }
+
+  std::cerr << "parallel_joints_to_state_vector_.size(): "
+            << parallel_joints_to_state_vector_.size()
+            << std::endl;
+
   for (unsigned int i = 0; i < parallel_joints_to_state_vector_.size(); i++) {
     joint_state_.position[i + nbOfJoints_] =
-        coefficient_parallel_joints_[i] * angleControl_[parallel_joints_to_state_vector_[i]];
+        coefficient_parallel_joints_[i] * angleEncoder_[parallel_joints_to_state_vector_[i]];
   }
 
+  std::cerr << "Before joint_pub_" << joint_pub_ << std::endl;
   joint_pub_->publish(joint_state_);
 
-  // Publish robot pose
-  // get the robot pose values
-  std::vector<double> poseValue_ = controlValues["baseff"].getValues();
+  std::cerr << "Reached joint_pub_" << std::endl;  
+  // Get the estimation of the robot base.
+  it_ctrl_map = controlValues.find("baseff");
+  if (it_ctrl_map == controlValues.end())
+    {
+      invalid_argument anInvalidArgument("baseff is not present in controlValues !");
+      throw anInvalidArgument;
+    }   
 
-  freeFlyerPose_.transform.translation.x = poseValue_[0];
-  freeFlyerPose_.transform.translation.y = poseValue_[1];
-  freeFlyerPose_.transform.translation.z = poseValue_[2];
+  std::cerr << "Reached poseValue_" << std::endl;    
+  std::vector<double> poseValue = controlValues["baseff"].getValues();
 
-  freeFlyerPose_.transform.rotation.w = poseValue_[3];
-  freeFlyerPose_.transform.rotation.x = poseValue_[4];
-  freeFlyerPose_.transform.rotation.y = poseValue_[5];
-  freeFlyerPose_.transform.rotation.z = poseValue_[6];
+  freeFlyerPose_.transform.translation.x = poseValue[0];
+  freeFlyerPose_.transform.translation.y = poseValue[1];
+  freeFlyerPose_.transform.translation.z = poseValue[2];
+
+  freeFlyerPose_.transform.rotation.w = poseValue[3];
+  freeFlyerPose_.transform.rotation.x = poseValue[4];
+  freeFlyerPose_.transform.rotation.y = poseValue[5];
+  freeFlyerPose_.transform.rotation.z = poseValue[6];
 
   freeFlyerPose_.header.stamp = joint_state_.header.stamp;
   // Publish
@@ -228,4 +267,9 @@ void SotLoader::oneIteration() {
   }
 
   readControl(controlValues_);
+}
+
+void SotLoader::join()  {
+  if (thread_.joinable())
+    thread_.join();
 }

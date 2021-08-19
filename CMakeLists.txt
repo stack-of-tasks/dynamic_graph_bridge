@@ -78,21 +78,23 @@ if(BUILD_TESTING)
   add_executable(test_sot_loader_basic
     tests/test_sot_loader_basic.cpp
   )
-  target_include_directories(test_sot_loader_basic PUBLIC include "${GMOCK_INCLUDE_DIRS}")
+  target_include_directories(test_sot_loader_basic PUBLIC include  "${GMOCK_INCLUDE_DIRS}")
   target_link_libraries(test_sot_loader_basic sot_loader "${GMOCK_LIBRARIES}" )
 
   add_launch_test(tests/launching_test_sot_loader_basic.py)
 
   # Test for class SotLoader
-  # ament_add_gmock(test_sot_loader
-  #   tests/test_sot_loader.cpp
-  # )
-  # target_include_directories(test_sot_loader PUBLIC include)
-  # target_link_libraries(test_sot_loader sot_loader)
+  add_executable(test_sot_loader
+    tests/test_sot_loader.cpp
+  )
+  target_include_directories(test_sot_loader PUBLIC include "${GMOCK_INCLUDE_DIRS}")
+  target_link_libraries(test_sot_loader sot_loader "${GMOCK_LIBRARIES}")
+
+  add_launch_test(tests/launching_test_sot_loader.py)
 
   # Install tests
   install(TARGETS test_sot_loader_basic
-    #test_sot_loader
+    test_sot_loader
     DESTINATION lib/${PROJECT_NAME}
     )
 

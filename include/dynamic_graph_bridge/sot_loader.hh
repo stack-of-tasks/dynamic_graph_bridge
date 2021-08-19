@@ -53,7 +53,7 @@ class SotLoader : public SotLoaderBasic {
   /// Angular values read by encoders
   std::vector<double> angleEncoder_;
   /// Angular values sent to motors
-  std::vector<double> angleControl_;
+  std::vector<double> control_;
   /// Forces read by force sensors
   std::vector<double> forces_;
   /// Torques
@@ -82,7 +82,7 @@ class SotLoader : public SotLoaderBasic {
 
  public:
   SotLoader();
-  ~SotLoader();
+  virtual ~SotLoader();
 
   // \brief Create a thread for ROS and start the control loop.
   void initializeServices();
@@ -100,6 +100,8 @@ class SotLoader : public SotLoaderBasic {
   // \brief Prepare the SoT framework.
   void setup();
 
+  // \brief Join the thread.
+  void join();
   typedef std::shared_ptr<SotLoader> SharedPtr;
 };
 

@@ -1,7 +1,27 @@
 #include "impl_test_sot_external_interface.hh"
 
 ImplTestSotExternalInterface::ImplTestSotExternalInterface()
-{}
+{
+  std::vector<double> ctrl_vector;
+  ctrl_vector.resize(2);
+
+  // Dummy values for the control vector
+  ctrl_vector[0] = 0.0;
+  ctrl_vector[1] = 0.0;
+
+  // Creates the named control vector
+  named_ctrl_vec_.setName("control");
+  named_ctrl_vec_.setValues(ctrl_vector);
+
+  // Creates the base eff vector
+  named_base_eff_vec_.setName("baseff");
+
+  ctrl_vector.resize(7);
+  for( auto i=0;i<6;i++)
+    ctrl_vector[i] = 0.0;
+  ctrl_vector[6] = 0.0;
+  named_base_eff_vec_.setValues(ctrl_vector);
+}
 
 ImplTestSotExternalInterface::~ImplTestSotExternalInterface()
 {}
@@ -29,9 +49,10 @@ void ImplTestSotExternalInterface::cleanupSetSensors
 
 void ImplTestSotExternalInterface::getControl
 (std::map<std::string,
- dynamicgraph::sot::SensorValues> &)
+ dynamicgraph::sot::ControlValues> & controlValues)
 {
-  std::cout << "ImplTestSotExternalInterface::getControl" << std::endl;
+  // Put the default named_ctrl_vec inside the map controlValues.
+  controlValues["control"] = named_ctrl_vec_;
 }
 void ImplTestSotExternalInterface::setSecondOrderIntegration
 (void)

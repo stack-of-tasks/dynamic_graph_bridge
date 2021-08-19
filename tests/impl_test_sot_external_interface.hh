@@ -9,7 +9,7 @@ class ImplTestSotExternalInterface : public
 dynamicgraph::sot::AbstractSotExternalInterface {
 public:
   ImplTestSotExternalInterface();
-  virtual ~ImplTestSotExternalInterface() final;
+  virtual ~ImplTestSotExternalInterface();
 
   virtual void setupSetSensors(std::map<std::string,
                                dynamicgraph::sot::SensorValues> &) final;
@@ -20,11 +20,18 @@ public:
   virtual void cleanupSetSensors(std::map<std::string,
                                  dynamicgraph::sot::SensorValues> &) final;
   virtual void getControl(std::map<std::string,
-                          dynamicgraph::sot::SensorValues> &) final;
+                          dynamicgraph::sot::ControlValues> &) final;
   
   virtual void setSecondOrderIntegration(void);
   
   virtual void setNoIntegration(void);
+
+protected:
+  // Named ctrl vector
+  dynamicgraph::sot::ControlValues named_ctrl_vec_;
+
+  // Named base free flyer vector
+  dynamicgraph::sot::ControlValues named_base_eff_vec_;
 
 };
 
