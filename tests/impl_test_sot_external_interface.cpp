@@ -14,13 +14,13 @@ ImplTestSotExternalInterface::ImplTestSotExternalInterface()
   named_ctrl_vec_.setValues(ctrl_vector);
 
   // Creates the base eff vector
-  named_base_eff_vec_.setName("baseff");
+  named_base_ff_vec_.setName("baseff");
 
   ctrl_vector.resize(7);
   for( auto i=0;i<6;i++)
     ctrl_vector[i] = 0.0;
   ctrl_vector[6] = 0.0;
-  named_base_eff_vec_.setValues(ctrl_vector);
+  named_base_ff_vec_.setValues(ctrl_vector);
 }
 
 ImplTestSotExternalInterface::~ImplTestSotExternalInterface()
@@ -53,6 +53,7 @@ void ImplTestSotExternalInterface::getControl
 {
   // Put the default named_ctrl_vec inside the map controlValues.
   controlValues["control"] = named_ctrl_vec_;
+  controlValues["baseff"] = named_base_ff_vec_;
 }
 void ImplTestSotExternalInterface::setSecondOrderIntegration
 (void)

@@ -31,7 +31,7 @@ protected:
   dynamicgraph::sot::ControlValues named_ctrl_vec_;
 
   // Named base free flyer vector
-  dynamicgraph::sot::ControlValues named_base_eff_vec_;
+  dynamicgraph::sot::ControlValues named_base_ff_vec_;
 
 };
 
