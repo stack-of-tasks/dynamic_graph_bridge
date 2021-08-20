@@ -69,7 +69,7 @@ class SotLoader : public SotLoaderBasic {
   std::string robot_desc_string_;
 
   /// The thread running dynamic graph
-  std::thread thread_;
+  std::shared_ptr<std::thread> thread_;
 
   // \brief Start control loop
   virtual void startControlLoop();
@@ -100,8 +100,11 @@ class SotLoader : public SotLoaderBasic {
   // \brief Prepare the SoT framework.
   void setup();
 
+  // \brief Method for the thread implementing the starting and stopping part of dynamic_graph
+  void workThreadLoader();
+  
   // \brief Join the thread.
-  void join();
+  void lthread_join();
   typedef std::shared_ptr<SotLoader> SharedPtr;
 };
 

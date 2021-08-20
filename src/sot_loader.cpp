@@ -63,48 +63,6 @@ struct DataToLog {
   }
 };
 
-void workThreadLoader(SotLoader::SharedPtr aSotLoader) {
-  double periodd;
-  std::shared_ptr<rclcpp::Node> nh = aSotLoader->returnsNodeHandle();
-
-  /// Declare parameters
-  if (not nh->has_parameter("dt"))
-    nh->declare_parameter<double>("dt",0.01);
-  if (not nh->has_parameter("paused"))
-    nh->declare_parameter<bool>("paused",false);
-  
-  // 
-  nh->get_parameter_or("dt",periodd,0.001);
-  rclcpp::Rate rate(1/periodd); // 1 kHz
-  
-  DataToLog dataToLog(5000);
-
-  rate.reset();
-  while (rclcpp::ok() && aSotLoader->isDynamicGraphStopped()) {
-    rate.sleep();
-  }
-
-  bool paused;
-  rclcpp::Clock aClock;
-  rclcpp::Time timeOrigin = aClock.now();
-  rclcpp::Time time;
-  while (rclcpp::ok() && !aSotLoader->isDynamicGraphStopped()) {
-    
-    // Check if the user did not paused geometric_simu
-    nh->get_parameter_or("paused", paused, false);
-
-    if (!paused) {
-      time = aClock.now();
-      aSotLoader->oneIteration();
-
-      rclcpp::Duration d = aClock.now() - time;
-      dataToLog.record((time - timeOrigin).nanoseconds()*1.0e9, d.nanoseconds()*1.0e9);
-    }
-    rate.sleep();
-  }
-  dataToLog.save("/tmp/geometric_simu");
-  //  rclcpp::spin(nh);
-}
 
 SotLoader::SotLoader()
     : sensorsIn_(),
@@ -115,24 +73,22 @@ SotLoader::SotLoader()
       torques_(),
       baseAtt_(),
       accelerometer_(3),
-      gyrometer_(3),
-      thread_() {
+      gyrometer_(3) {
 }
 
 
 SotLoader::~SotLoader() {
   dynamic_graph_stopped_ = true;
-  if (thread_.joinable())
-    thread_.join();
-
+  lthread_join();
 }
 
-void SotLoader::startControlLoop() { thread_ = std::thread(workThreadLoader,
-                                                           std::shared_ptr<SotLoader>(this)); }
+void SotLoader::startControlLoop() {
+  thread_ = std::make_shared<std::thread>(&SotLoader::workThreadLoader,this);
+}
 
 void SotLoader::initializeServices() {
   SotLoaderBasic::initializeServices();
-  
+
   freeFlyerPose_.header.frame_id = "odom";
   freeFlyerPose_.child_frame_id = "base_link";
 
@@ -140,10 +96,10 @@ void SotLoader::initializeServices() {
     logic_error aLogicError("SotLoaderBasic::initializeFromRosContext aRosCtxt is empty !");
     throw aLogicError;
   }
-    
+
   if (not nh_->has_parameter("tf_base_link"))
     nh_->declare_parameter("tf_base_link",std::string("base_link"));
-  
+
   if (nh_->get_parameter("tf_base_link",
                       freeFlyerPose_.child_frame_id)) {
     RCLCPP_INFO_STREAM(rclcpp::get_logger("dynamic_graph_bridge"),
@@ -152,9 +108,13 @@ void SotLoader::initializeServices() {
   }
 
   // Temporary fix. TODO: where should nbOfJoints_ be initialized from?
-  
+
   angleEncoder_.resize(static_cast<std::size_t>(nbOfJoints_));
   control_.resize(static_cast<std::size_t>(nbOfJoints_));
+
+  // Creates a publisher for the free flyer transform.
+  freeFlyerPublisher_ = std::make_shared<tf2_ros::TransformBroadcaster>
+    (nh_);
 }
 
 void SotLoader::fillSensors(map<string, dgs::SensorValues> &sensorsIn) {
@@ -174,7 +134,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
     {
       invalid_argument anInvalidArgument("control is not present in controlValues !");
       throw anInvalidArgument;
-    }   
+    }
   control_ = controlValues["control"].getValues();
 
 #ifdef NDEBUG
@@ -195,7 +155,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
     nbOfJoints_ = control_.size();
     angleEncoder_.resize(nbOfJoints_);
   }
-  
+
   // Publish the data.
   std::vector<string> joint_state_names;
   joint_state_.name = joint_state_names;
@@ -207,7 +167,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
       joint_state_.velocity.resize(nbOfJoints_+parallel_joints_to_state_vector_.size());
       joint_state_.effort.resize(nbOfJoints_+parallel_joints_to_state_vector_.size());
     }
-  
+
   for (int i = 0; i < nbOfJoints_; i++) {
     joint_state_.position[i] = angleEncoder_[i];
   }
@@ -221,19 +181,17 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
         coefficient_parallel_joints_[i] * angleEncoder_[parallel_joints_to_state_vector_[i]];
   }
 
-  std::cerr << "Before joint_pub_" << joint_pub_ << std::endl;
   joint_pub_->publish(joint_state_);
 
-  std::cerr << "Reached joint_pub_" << std::endl;  
   // Get the estimation of the robot base.
   it_ctrl_map = controlValues.find("baseff");
   if (it_ctrl_map == controlValues.end())
     {
       invalid_argument anInvalidArgument("baseff is not present in controlValues !");
       throw anInvalidArgument;
-    }   
+    }
 
-  std::cerr << "Reached poseValue_" << std::endl;    
+  std::cerr << "Reached poseValue_" << std::endl;
   std::vector<double> poseValue = controlValues["baseff"].getValues();
 
   freeFlyerPose_.transform.translation.x = poseValue[0];
@@ -248,6 +206,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   freeFlyerPose_.header.stamp = joint_state_.header.stamp;
   // Publish
   freeFlyerPublisher_->sendTransform(freeFlyerPose_);
+  std::cerr << "end of readControl" << std::endl;
 }
 
 void SotLoader::setup() {
@@ -269,7 +228,53 @@ void SotLoader::oneIteration() {
   readControl(controlValues_);
 }
 
-void SotLoader::join()  {
-  if (thread_.joinable())
-    thread_.join();
+void SotLoader::lthread_join()  {
+  if (thread_!=0)
+    if (thread_->joinable())
+      thread_->join();
+}
+
+void SotLoader::workThreadLoader() {
+  double periodd;
+
+  /// Declare parameters
+  if (not nh_->has_parameter("dt"))
+    nh_->declare_parameter<double>("dt",0.01);
+  if (not nh_->has_parameter("paused"))
+    nh_->declare_parameter<bool>("paused",false);
+
+  //
+  nh_->get_parameter_or("dt",periodd,0.001);
+  rclcpp::Rate rate(1/periodd); // 1 kHz
+
+  DataToLog dataToLog(5000);
+
+  rate.reset();
+  while (rclcpp::ok() && isDynamicGraphStopped()) {
+    rate.sleep();
+  }
+
+  bool paused;
+  rclcpp::Clock aClock;
+  rclcpp::Time timeOrigin = aClock.now();
+  rclcpp::Time time;
+  while (rclcpp::ok() && !isDynamicGraphStopped()) {
+
+    // Check if the user did not paused geometric_simu
+    nh_->get_parameter_or("paused", paused, false);
+
+    if (!paused) {
+      time = aClock.now();
+      oneIteration();
+
+      rclcpp::Duration d = aClock.now() - time;
+      dataToLog.record((time - timeOrigin).nanoseconds()*1.0e9, d.nanoseconds()*1.0e9);
+    }
+    rate.sleep();
+  }
+  dataToLog.save("/tmp/geometric_simu");
+  std::cerr << "End of this thread: "
+            << std::this_thread::get_id()
+            << std::endl;
+    
 }
