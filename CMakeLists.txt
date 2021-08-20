@@ -52,22 +52,6 @@ if(BUILD_TESTING)
   find_package(launch_testing_ament_cmake)
   ament_lint_auto_find_test_dependencies()
 
-  add_executable(aNodeExample tests/aNodeExample.cpp)
-  ament_target_dependencies(aNodeExample rclcpp std_msgs)
-
-  install(TARGETS
-    aNodeExample
-    DESTINATION lib/${PROJECT_NAME}
-    )
-
-  add_executable(aNodeExampleGood tests/aNodeExampleGood.cpp)
-  ament_target_dependencies(aNodeExampleGood rclcpp std_msgs)
-
-  install(TARGETS
-    aNodeExampleGood
-    DESTINATION lib/${PROJECT_NAME}
-    )
-
   # Library for sot_external_interface
   add_library(impl_test_sot_external_interface SHARED
     tests/impl_test_sot_external_interface)
