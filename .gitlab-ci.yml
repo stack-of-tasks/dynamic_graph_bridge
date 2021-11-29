@@ -1,1 +1,1 @@
-include: http://rainboard.laas.fr/project/dynamic-graph-bridge/.gitlab-ci.yml
+include: http://rainboard.laas.fr/project/dynamic_graph_bridge/.gitlab-ci.yml
