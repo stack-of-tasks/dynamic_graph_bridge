@@ -1,10 +1,8 @@
-<package format="2">
+<package format="3">
   <name>dynamic_graph_bridge</name>
   <version>3.4.1</version>
   <description>
-
      ROS bindings for dynamic graph.
-
   </description>
   <maintainer email="guilhem.saurel@laas.fr">guilhem.saurel@laas.fr</maintainer>
   <author email="hpp@laas.fr">hpp@laas.fr</author>
@@ -12,40 +10,58 @@
   <license>LGPL</license>
   <url>http://ros.org/wiki/dynamic_graph_bridge</url>
 
+  <!-- ROS1 dependencies -->
+  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
+
+  <build_depend condition="$ROS_VERSION == 1">std_msgs</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">std_srvs</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">roscpp</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">geometry_msgs</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">sensor_msgs</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">tf2_ros</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">realtime_tools</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">message_generation</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">message_runtime</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">dynamic-graph</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">dynamic-graph-python</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">sot-core</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">sot-dynamic-pinocchio</build_depend>
+  <build_depend condition="$ROS_VERSION == 1">dynamic_graph_bridge_msgs</build_depend>
+
+  <exec_depend condition="$ROS_VERSION == 1">std_msgs</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">std_srvs</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">roscpp</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">geometry_msgs</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">sensor_msgs</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">tf2_ros</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">realtime_tools</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">message_generation</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">message_runtime</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">dynamic-graph</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">dynamic-graph-python</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">sot-core</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">sot-dynamic-pinocchio</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 1">dynamic_graph_bridge_msgs</exec_depend>
+
+  <!-- ROS2 dependencies -->
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
+  <buildtool_depend condition="$ROS_VERSION == 2">ament_index_cpp</buildtool_depend>
+  <depend  condition="$ROS_VERSION == 2"> rclcpp </depend>
+  <exec_depend  condition="$ROS_VERSION == 2"> rclpy </exec_depend>
+  <depend  condition="$ROS_VERSION == 2"> rcutils </depend>
+  <depend  condition="$ROS_VERSION == 2"> std_msgs </depend>
+  <depend  condition="$ROS_VERSION == 2"> std_srvs </depend>
+  <depend  condition="$ROS_VERSION == 2"> geometry_msgs </depend>
+  <depend  condition="$ROS_VERSION == 2"> sensor_msgs </depend>
+  <depend  condition="$ROS_VERSION == 2"> tf2_ros </depend>
+  <depend  condition="$ROS_VERSION == 2"> boost </depend>
+  <depend  condition="$ROS_VERSION == 2"> dynamic_graph_bridge_msgs </depend>
+  <depend  condition="$ROS_VERSION == 2"> sot-core </depend>
+
   <export>
     <rosdoc config="rosdoc.yaml" />
+    <build_type condition="$ROS_VERSION == 2">ament_cmake</build_type>
   </export>
 
-  <buildtool_depend>catkin</buildtool_depend>
-
-  <build_depend>std_msgs</build_depend>
-  <build_depend>std_srvs</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>tf2_ros</build_depend>
-  <build_depend>realtime_tools</build_depend>
-  <build_depend>message_generation</build_depend>
-  <build_depend>message_runtime</build_depend>
-  <build_depend>dynamic-graph</build_depend>
-  <build_depend>dynamic-graph-python</build_depend>
-  <build_depend>sot-core</build_depend>
-  <build_depend>sot-dynamic-pinocchio</build_depend>
-  <build_depend>dynamic_graph_bridge_msgs</build_depend>
-
-  <exec_depend>std_msgs</exec_depend>
-  <exec_depend>std_srvs</exec_depend>
-  <exec_depend>roscpp</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>tf2_ros</exec_depend>
-  <exec_depend>realtime_tools</exec_depend>
-  <exec_depend>message_generation</exec_depend>
-  <exec_depend>message_runtime</exec_depend>
-  <exec_depend>dynamic-graph</exec_depend>
-  <exec_depend>dynamic-graph-python</exec_depend>
-  <exec_depend>sot-core</exec_depend>
-  <exec_depend>sot-dynamic-pinocchio</exec_depend>
-  <exec_depend>dynamic_graph_bridge_msgs</exec_depend>
-
+  <test_depend condition="$ROS_VERSION == 2">rclpy</test_depend>
 </package>
