@@ -1,0 +1,36 @@
+name: Ubuntu18.04, ROS1 Continuous Integration
+
+on:
+  push:
+    branches:
+    - master
+    - devel
+  pull_request:
+    branches:
+    - master
+    - devel
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      #
+      # Setup the machines and build environment
+      #
+      - name: Install ROS.
+        uses: ros-tooling/setup-ros@v0.2
+        with:
+          required-ros-distributions: melodic
+
+      #
+      # Checkout the current branch
+      #
+      - uses: actions/checkout@v2
+
+      #
+      # Build and test the repo
+      #
+      - uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          package-name: dynamic_graph_bridge_msgs
+          target-ros1-distro: melodic

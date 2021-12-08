@@ -22,13 +22,13 @@ RosPythonInterpreterClient::RosPythonInterpreterClient()
 
     // Create a client for the single python command service of the
     // DynamicGraphManager.
-    run_command_service_name_ = "/dynamic_graph_manager/run_python_command";
+    run_command_service_name_ = "/dynamic_graph_bridge/run_python_command";
     run_command_request_ = std::make_shared<RunPythonCommandSrvType::Request>();
     connect_to_rosservice_run_python_command();
 
     // Create a client for the python file reading service of the
     // DynamicGraphManager.
-    run_script_service_name_ = "/dynamic_graph_manager/run_python_file";
+    run_script_service_name_ = "/dynamic_graph_bridge/run_python_file";
     run_file_request_ = std::make_shared<RunPythonFileSrvType::Request>();
     connect_to_rosservice_run_python_script();
     timeout_connection_s_ = DurationSec(1);

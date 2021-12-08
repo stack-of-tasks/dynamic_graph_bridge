@@ -74,3 +74,5 @@ install(PROGRAMS
   DESTINATION share/${PROJECT_NAME}
   )
 
+# we also need to install the header files
+install(DIRECTORY include/ DESTINATION include)

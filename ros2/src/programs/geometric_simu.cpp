@@ -12,7 +12,7 @@
 #include <dynamic-graph/real-time-logger.h>
 
 #include <dynamic_graph_bridge/sot_loader.hh>
-#include <dynamic_graph_bridge/ros2_init.hh>
+#include <dynamic_graph_bridge/ros.hpp>
 
 int main(int argc, char *argv[]) {
   ::dynamicgraph::RealTimeLogger::instance()
@@ -20,23 +20,18 @@ int main(int argc, char *argv[]) {
 
   rclcpp::init(argc, argv);
 
-  dynamicgraph::RosContext::SharedPtr aRosContext =
-    std::make_shared<dynamicgraph::RosContext>();
-
-  aRosContext->rosInit();
-
   SotLoader aSotLoader;
   if (aSotLoader.parseOptions(argc, argv) < 0) return -1;
 
   // Advertize service "(start|stop)_dynamic_graph" and
   // load parameter "robot_description in SoT.
-  aSotLoader.initializeFromRosContext(aRosContext);
+  aSotLoader.initialize();
 
   // Load dynamic library and run python prologue.
   aSotLoader.initPublication();
 
   aSotLoader.initializeServices();
 
-  aRosContext->mtExecutor->spin();
+  dynamic_graph_bridge::ros_spin();
   return 0;
 }

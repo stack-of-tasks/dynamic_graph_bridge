@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""@package dynamic_graph_manager
+"""@package dynamic_graph_bridge
 
 @file
 @license License BSD-3-Clause
@@ -23,8 +23,8 @@ import signal
 import rclpy
 
 # Used to connect to ROS services
-from dynamic_graph_manager.ros.dgcompleter import DGCompleter
-from dynamic_graph_manager_cpp_bindings import RosPythonInterpreterClient
+from dynamic_graph_bridge.ros.dgcompleter import DGCompleter
+from dynamic_graph_bridge_cpp_bindings import RosPythonInterpreterClient
 
 
 def signal_handler(sig, frame):
