@@ -1,4 +1,4 @@
-"""@package dynamic_graph_manager
+"""@package dynamic_graph_bridge
 
 @file ros.py
 @author Maximilien Naveau (maximilien.naveau@gmail.com)
@@ -12,8 +12,8 @@ between ROS and the dynamic graph
 """
 
 from dynamic_graph import plug
-from dynamic_graph_manager.dynamic_graph.ros_entities import RosPublish
-from dynamic_graph_manager.dynamic_graph.ros_entities import RosSubscribe
+from dynamic_graph_bridge.dynamic_graph.ros_entities import RosPublish
+from dynamic_graph_bridge.dynamic_graph.ros_entities import RosSubscribe
 
 
 class Ros(object):

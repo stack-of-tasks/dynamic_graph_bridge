@@ -33,9 +33,9 @@ public:
      *
      * The first argument of "runCommandCallback"
      * (const std::string & command) is bound to
-     * (dynamic_graph_manager::srv::RunPythonCommand::Request).
+     * (dynamic_graph_bridge::srv::RunPythonCommand::Request).
      * And the second argument (std::string &result) is bound to
-     * (dynamic_graph_manager::srv::RunPythonCommand::Response)
+     * (dynamic_graph_bridge::srv::RunPythonCommand::Response)
      */
     typedef std::function<void(RunPythonCommandRequestPtr,
                                RunPythonCommandResponsePtr)>
@@ -47,9 +47,9 @@ public:
      *
      * The first argument of "runPythonFileCallback"
      * (std::string ifilename) is bound to
-     * (dynamic_graph_manager::srv::RunPythonCommand::Request).
+     * (dynamic_graph_bridge::srv::RunPythonCommand::Request).
      * And a fake second argument is simulated in
-     * (dynamic_graph_manager::srv::RunPythonCommand::Response)
+     * (dynamic_graph_bridge::srv::RunPythonCommand::Response)
      */
     typedef std::function<void(RunPythonFileRequestPtr,
                                RunPythonFileResponsePtr)>
@@ -86,7 +86,7 @@ public:
      * @param ifilename is the path to the script to execute
      */
     void run_python_file(const std::string ifilename,
-                         std::string& standarderror);
+                         std::string& result);
 
     /**
      * @brief start_ros_service advertize the "run_python_command" and

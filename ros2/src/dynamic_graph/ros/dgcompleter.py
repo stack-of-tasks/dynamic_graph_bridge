@@ -36,7 +36,7 @@ its input.
 """
 
 import ast
-from dynamic_graph_manager_cpp_bindings import RosPythonInterpreterClient
+from dynamic_graph_bridge_cpp_bindings import RosPythonInterpreterClient
 
 __all__ = ["DGCompleter"]
 
@@ -84,7 +84,7 @@ class DGCompleter:
         # self.client.run_python_command("global local_completer")
         cmd = 'local_completer.complete("' + text + '",' + str(state) + ")"
         response = self.client.run_python_command(cmd)
-        if not response or response is "\n" or response is None:
+        if not response or response == "\n" or response is None:
             response = None
             self.buffer = []
         else:

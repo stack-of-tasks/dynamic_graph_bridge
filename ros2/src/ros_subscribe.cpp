@@ -7,11 +7,8 @@
  * @date 2019-05-22
  */
 
-#include "dynamic_graph_bridge/ros_entities/ros_subscribe.hpp"
-
 #include <dynamic-graph/factory.h>
-
-#include "dynamic_graph_bridge/dynamic_graph_manager.hpp"
+#include "ros_subscribe.hpp"
 
 namespace dynamic_graph_bridge
 {
