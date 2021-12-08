@@ -269,7 +269,9 @@ RosNodePtr get_ros_node(std::string node_name)
     {
         /** RosNode instanciation */
         GLOBAL_LIST_OF_ROS_NODE[node_name] =
-            std::make_shared<RosNode>(node_name, "dynamic_graph_manager");
+            std::make_shared<RosNode>(
+                node_name, "dynamic_graph_bridge");
+        
     }
     /** Return a reference to the node handle so any function can use it */
     return GLOBAL_LIST_OF_ROS_NODE[node_name];
@@ -311,7 +313,7 @@ void ros_clean()
 
 bool ros_ok()
 {
-    return rclcpp::ok() && rclcpp::is_initialized();
+    return rclcpp::ok();
 }
 
 void ros_spin()

@@ -37,18 +37,11 @@ IF(BUILD_PYTHON_INTERFACE)
 ENDIF(BUILD_PYTHON_INTERFACE)
 
 add_subdirectory(src)
-# add_subdirectory(tests)
+add_subdirectory(tests)
 
 #install ros executables
-install(PROGRAMS
-  scripts/robot_pose_publisher
-  scripts/run_command
-  scripts/tf_publisher
-  DESTINATION share/${PROJECT_NAME}
-  )
+install(PROGRAMS scripts/remote_python_client.py  RENAME remote_python_client DESTINATION lib/${PROJECT_NAME})
+install(PROGRAMS scripts/remote_python_client.py  RENAME run_command DESTINATION lib/${PROJECT_NAME})
 
-# Install package information
-install(FILES package.xml DESTINATION share/${PROJECT_NAME})
-
-#ROS 2 packaging
-ament_package()
+# we also need to install the header files
+install(DIRECTORY include/ DESTINATION include)

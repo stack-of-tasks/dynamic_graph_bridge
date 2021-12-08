@@ -34,6 +34,8 @@ PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 if(DEFINED ENV{ROS_VERSION} )
   if ($ENV{ROS_VERSION} EQUAL 2) # if ROS2
     add_subdirectory(ros2)
+    #ROS 2 packaging
+    ament_package()
   else()
     add_subdirectory(ros1)
   endif()

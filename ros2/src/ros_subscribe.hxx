@@ -11,7 +11,7 @@
 
 #include <message_filters/message_traits.h>
 
-#include "dynamic_graph_bridge/ros_entities/dg_ros_mapping.hpp"
+#include "dg_ros_mapping.hpp"
 
 namespace dynamic_graph_bridge
 {

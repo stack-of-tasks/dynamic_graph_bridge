@@ -7,9 +7,8 @@
  * @brief Implements the RosPublish class.
  */
 
-#include "dynamic_graph_bridge/ros_entities/ros_publish.hpp"
-
 #include "dynamic_graph_bridge/ros.hpp"
+#include "ros_publish.hpp"
 
 namespace dynamic_graph_bridge
 {
