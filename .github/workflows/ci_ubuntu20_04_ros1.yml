@@ -33,5 +33,5 @@ jobs:
       #
       - uses: ros-tooling/action-ros-ci@v0.2
         with:
-          package-name: dynamic_graph_bridge_msgs
+          package-name: dynamic_graph_bridge
           target-ros1-distro: noetic
