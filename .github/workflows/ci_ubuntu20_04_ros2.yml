@@ -2,9 +2,6 @@ name: Ubuntu20.04, ROS2 Continuous Integration
 
 on:
   push:
-    branches:
-    - master
-    - devel
   pull_request:
     branches:
     - master
