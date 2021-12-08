@@ -2,6 +2,10 @@ name: Ubuntu20.04, ROS2 Continuous Integration
 
 on:
   push:
+    branches:
+    - master
+    - devel
+    - mnaveau/ubuntu20.04_ros1_ros2
   pull_request:
     branches:
     - master
@@ -29,5 +33,5 @@ jobs:
       #
       - uses: ros-tooling/action-ros-ci@v0.2
         with:
-          package-name: dynamic_graph_bridge_msgs
+          package-name: dynamic_graph_bridge
           target-ros2-distro: foxy
