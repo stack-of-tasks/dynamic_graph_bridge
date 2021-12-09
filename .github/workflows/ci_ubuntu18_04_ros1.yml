@@ -35,7 +35,8 @@ jobs:
       - name: Clone dependencies in the current workspace.
         shell: bash
         run: |
-          cd ${{ steps.ros_install.outputs.ros-workspace-directory-name }}/src
+          mkdir -p /home/runner/work/dynamic_graph_bridge/dynamic_graph_bridge/ros_ws/src
+          cd /home/runner/work/dynamic_graph_bridge/dynamic_graph_bridge/ros_ws/src
           git clone --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge_msgs.git
 
       #
