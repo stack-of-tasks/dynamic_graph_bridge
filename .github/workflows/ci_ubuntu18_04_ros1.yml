@@ -19,6 +19,7 @@ jobs:
       # Setup the machines and build environment
       #
       - name: Install ROS.
+        id: ros_install
         uses: ros-tooling/setup-ros@v0.2
         with:
           required-ros-distributions: melodic
@@ -27,6 +28,15 @@ jobs:
       # Checkout the current branch
       #
       - uses: actions/checkout@v2
+      
+      #
+      # Clone the dependencies in the ROS workspace
+      #
+      - name: Clone dependencies in the current workspace.
+        shell: bash
+        run: |
+          cd ${{ steps.ros_install.outputs.ros-workspace-directory-name }}/src
+          git clone --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge_msgs.git
 
       #
       # Build and test the repo
