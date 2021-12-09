@@ -29,6 +29,15 @@ jobs:
       - uses: actions/checkout@v2
 
       #
+      # Clone the dependencies in the ROS workspace
+      #
+      - name: Clone dependencies in the current workspace.
+        shell: bash
+        run: |
+          cd ${{ steps.ros_install.outputs.ros-workspace-directory-name }}/src
+          git clone --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge_msgs.git
+
+      #
       # Build and test the repo
       #
       - uses: ros-tooling/action-ros-ci@v0.2
