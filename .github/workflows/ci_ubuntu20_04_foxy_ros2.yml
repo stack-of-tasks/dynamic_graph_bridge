@@ -34,7 +34,7 @@ jobs:
       - name: Clone dependencies in the current workspace.
         shell: bash
         run: |
-          ws_path = /home/runner/work/dynamic_graph_bridge/colcon_workspace
+          ws_path=/home/runner/work/dynamic_graph_bridge/colcon_workspace
           mkdir -p $ws_path/src
           cd $ws_path/src
           git clone -b devel --single-branch --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge_msgs.git
