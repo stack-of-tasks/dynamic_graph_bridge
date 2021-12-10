@@ -49,4 +49,5 @@ jobs:
       #
       # Test the checkout package
       #
+      - name: Test current package.
           colcon test --packages-select dynamic_graph_bridge --event-handlers console_direct+ --return-code-on-test-failure
