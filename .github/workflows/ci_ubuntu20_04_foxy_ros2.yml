@@ -11,6 +11,9 @@ on:
     - master
     - devel
 
+env:
+  ROS_WORKSPACE: ${{github.workspace}}/../ros_workspace
+
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -36,9 +39,9 @@ jobs:
       - name: Clone dependencies in the current workspace.
         shell: bash
         run: |
-          ws_path=/home/runner/work/dynamic_graph_bridge/colcon_workspace
-          mkdir -p $ws_path/src
-          cd $ws_path/src
+          mkdir -p $ROS_WORKSPACE/src
+          cd $ROS_WORKSPACE/src
+          ln -s /home/runner/work/dynamic_graph_bridge/dynamic_graph_bridge .
           git clone -b devel --single-branch --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge_msgs.git
           
       #
@@ -47,8 +50,8 @@ jobs:
       - name: Build packages.
         shell: bash
         run: |
-          source /opt/ros/foxy/setup.bash
-          ln -s /home/runner/work/dynamic_graph_bridge/dynamic_graph_bridge .
+          cd $ROS_WORKSPACE
+          source /opt/ros/foxy/setup.bash         
           colcon build
 
       #
@@ -57,5 +60,6 @@ jobs:
       - name: Test current package.
         shell: bash
         run: |
+          cd $ROS_WORKSPACE
           source /opt/ros/foxy/setup.bash
           colcon test --packages-select dynamic_graph_bridge --event-handlers console_direct+ --return-code-on-test-failure
