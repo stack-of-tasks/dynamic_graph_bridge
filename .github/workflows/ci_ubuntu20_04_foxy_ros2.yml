@@ -43,6 +43,8 @@ jobs:
       # Build dep and checkout from source.
       #
       - name: Build packages.
+        shell: bash
+        run: |
           ln -s /home/runner/work/dynamic_graph_bridge/dynamic_graph_bridge .
           colcon build
 
@@ -50,4 +52,6 @@ jobs:
       # Test the checkout package
       #
       - name: Test current package.
+        shell: bash
+        run: |
           colcon test --packages-select dynamic_graph_bridge --event-handlers console_direct+ --return-code-on-test-failure
