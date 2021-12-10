@@ -22,7 +22,7 @@ if(BUILD_TESTING)
   target_include_directories(
     test_sot_loader_basic
     PUBLIC include "${GMOCK_INCLUDE_DIRS}"
-    PRIVATE ${PROJECT_SOURCE_DIR}/ros2/include)
+    PRIVATE ${PROJECT_SOURCE_DIR}/include)
   target_link_libraries(test_sot_loader_basic sot_loader "${GMOCK_LIBRARIES}")
 
   add_launch_test(launch/launching_test_sot_loader_basic.py)
@@ -32,7 +32,7 @@ if(BUILD_TESTING)
   target_include_directories(
     test_sot_loader
     PUBLIC include "${GMOCK_INCLUDE_DIRS}"
-    PRIVATE ${PROJECT_SOURCE_DIR}/ros2/include)
+    PRIVATE ${PROJECT_SOURCE_DIR}/include)
   target_link_libraries(test_sot_loader sot_loader "${GMOCK_LIBRARIES}")
 
   add_launch_test(launch/launching_test_sot_loader.py)
@@ -65,7 +65,7 @@ if(BUILD_TESTING)
              $<INSTALL_INTERFACE:include>
              SYSTEM
       PUBLIC ${PYTHON_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR}
-      PRIVATE ${PROJECT_SOURCE_DIR}/ros2/include)
+      PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
     # Link the dependecies to it.
     target_link_libraries(test_${test_name} ros_bridge)

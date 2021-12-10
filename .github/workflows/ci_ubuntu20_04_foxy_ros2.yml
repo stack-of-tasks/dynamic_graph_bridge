@@ -34,14 +34,19 @@ jobs:
       - name: Clone dependencies in the current workspace.
         shell: bash
         run: |
-          mkdir -p /home/runner/work/dynamic_graph_bridge/dynamic_graph_bridge/ros_ws/src
-          cd /home/runner/work/dynamic_graph_bridge/dynamic_graph_bridge/ros_ws/src
-          git clone --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge_msgs.git
+          ws_path = /home/runner/work/dynamic_graph_bridge/colcon_workspace
+          mkdir -p $ws_path/src
+          cd $ws_path/src
+          git clone -b devel --single-branch --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge_msgs.git
+          
+      #
+      # Build dep and checkout from source.
+      #
+      - name: Build packages.
+          ln -s /home/runner/work/dynamic_graph_bridge/dynamic_graph_bridge .
+          colcon build
 
       #
-      # Build and test the repo
+      # Test the checkout package
       #
-      - uses: ros-tooling/action-ros-ci@v0.2
-        with:
-          package-name: dynamic_graph_bridge
-          target-ros2-distro: foxy
+          colcon test --packages-select dynamic_graph_bridge --event-handlers console_direct+ --return-code-on-test-failure

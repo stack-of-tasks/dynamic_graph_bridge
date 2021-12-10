@@ -36,42 +36,49 @@ import pytest
 def generate_test_description():
     ld = LaunchDescription()
 
-    robot_description_content_path =  PathJoinSubstitution(
-                [
-                    get_package_share_directory("dynamic_graph_bridge"),
-                    "urdf",
-                    "dgb_minimal_robot.urdf",
-                ]
-            )
-    robot_description_content = open(robot_description_content_path.perform(None)).read()
+    robot_description_content_path = PathJoinSubstitution(
+        [
+            get_package_share_directory("dynamic_graph_bridge"),
+            "urdf",
+            "dgb_minimal_robot.urdf",
+        ]
+    )
+    robot_description_content = open(
+        robot_description_content_path.perform(None)
+    ).read()
 
-    params = { "state_vector_map": [ "joint1", "joint2"],
-               "robot_description": robot_description_content};
+    params = {
+        "state_vector_map": ["joint1", "joint2"],
+        "robot_description": robot_description_content,
+    }
 
     terminating_process = Node(
-         package="dynamic_graph_bridge",
-         executable="test_sot_loader",
-         output="screen",
-         emulate_tty=True,
-         parameters=[params],
+        package="dynamic_graph_bridge",
+        executable="test_sot_loader",
+        output="screen",
+        emulate_tty=True,
+        parameters=[params],
     )
 
     return (
-        launch.LaunchDescription([
-            terminating_process,
-            launch_testing.util.KeepAliveProc(),
-            launch_testing.actions.ReadyToTest(),
-        ]), locals()
+        launch.LaunchDescription(
+            [
+                terminating_process,
+                launch_testing.util.KeepAliveProc(),
+                launch_testing.actions.ReadyToTest(),
+            ]
+        ),
+        locals(),
     )
 
-class TestSotLoaderBasic(unittest.TestCase):
 
+class TestSotLoaderBasic(unittest.TestCase):
     def test_termination(self, terminating_process, proc_info):
         proc_info.assertWaitForShutdown(process=terminating_process, timeout=(10))
 
+
 @launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
-
     def test_exit_code(self, proc_info):
         # Check that all processes in the launch (in this case, there's just one) exit
         # with code 0

@@ -256,7 +256,7 @@ TEST_F(TestRosInterpreter, test_call_run_script_standarderror)
 
     // Create and call the clients.
     std::string file_name =
-        TEST_CONFIG_PATH + std::string("simple_add_fail.py");
+        TEST_CONFIG_PATH + std::string("simple_add_fail");
     std::string result = "";
     start_run_python_script_ros_service(file_name, result);
 
