@@ -47,6 +47,7 @@ jobs:
       - name: Build packages.
         shell: bash
         run: |
+          source /opt/ros/foxy/setup.bash
           ln -s /home/runner/work/dynamic_graph_bridge/dynamic_graph_bridge .
           colcon build
 
@@ -56,4 +57,5 @@ jobs:
       - name: Test current package.
         shell: bash
         run: |
+          source /opt/ros/foxy/setup.bash
           colcon test --packages-select dynamic_graph_bridge --event-handlers console_direct+ --return-code-on-test-failure
