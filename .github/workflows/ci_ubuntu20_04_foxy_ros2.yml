@@ -27,6 +27,8 @@ jobs:
       # Checkout the current branch
       #
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
       #
       # Clone the dependencies in the ROS workspace
