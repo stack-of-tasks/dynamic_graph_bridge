@@ -5,11 +5,15 @@ on:
     branches:
     - master
     - devel
+    - foxy
+    - foxy_devel
     - mnaveau/ubuntu20.04_ros1_ros2
   pull_request:
     branches:
     - master
     - devel
+    - foxy
+    - foxy_devel
 
 env:
   ROS_WORKSPACE: ${{github.workspace}}/../ros_workspace
