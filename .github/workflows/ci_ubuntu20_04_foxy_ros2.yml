@@ -58,7 +58,8 @@ jobs:
         shell: bash
         run: |
           cd $ROS_WORKSPACE
-          source /opt/ros/foxy/setup.bash         
+          source /opt/ros/foxy/setup.bash
+          source /opt/openrobots/setup.bash
           colcon build
 
       #
@@ -69,4 +70,5 @@ jobs:
         run: |
           cd $ROS_WORKSPACE
           source /opt/ros/foxy/setup.bash
+          source /opt/openrobots/setup.bash
           colcon test --packages-select dynamic_graph_bridge --event-handlers console_direct+ --return-code-on-test-failure
