@@ -27,6 +27,12 @@ jobs:
           required-ros-distributions: foxy
 
       #
+      # Setup the machines and build environment
+      #
+      - name: Setup laas packages.
+        uses: machines-in-motion/mim_github_actions/setup_laas_packages@main
+
+      #
       # Checkout the current branch
       #
       - uses: actions/checkout@v2
@@ -43,7 +49,8 @@ jobs:
           cd $ROS_WORKSPACE/src
           ln -s /home/runner/work/dynamic_graph_bridge/dynamic_graph_bridge .
           git clone -b devel --single-branch --recursive https://github.com/stack-of-tasks/dynamic_graph_bridge_msgs.git
-          
+          git clone -b devel --single-branch --recursive https://github.com/stack-of-tasks/sot-core.git
+      
       #
       # Build dep and checkout from source.
       #
