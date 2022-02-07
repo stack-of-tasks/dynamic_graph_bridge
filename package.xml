@@ -1,4 +1,5 @@
-<package format="2">
+<?xml version="1.0"?>
+<package format="3">
   <name>dynamic_graph_bridge</name>
   <version>3.4.1</version>
   <description>
@@ -16,7 +17,8 @@
     <rosdoc config="rosdoc.yaml" />
   </export>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend condition="$ROS_VERSION == 1">catkin</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 2">ament_cmake</exec_depend>
 
   <build_depend>std_msgs</build_depend>
   <build_depend>std_srvs</build_depend>
