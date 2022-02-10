@@ -49,7 +49,8 @@ template <typename SotType>
 class SotToRos;
 
 template <>
-struct SotToRos<bool> {
+class SotToRos<bool> {
+public:
   typedef bool sot_t;
   typedef std_msgs::msg::Bool ros_t;
   typedef std_msgs::msg::Bool::ConstSharedPtr ros_const_ptr_t;
@@ -68,7 +69,8 @@ struct SotToRos<bool> {
 };
 
 template <>
-struct SotToRos<double> {
+class SotToRos<double> {
+public:
   typedef double sot_t;
   typedef std_msgs::msg::Float64 ros_t;
   typedef std_msgs::msg::Float64::ConstSharedPtr ros_const_ptr_t;
@@ -87,7 +89,8 @@ struct SotToRos<double> {
 };
 
 template <>
-struct SotToRos<unsigned int> {
+class SotToRos<unsigned int> {
+public:
   typedef unsigned int sot_t;
   typedef std_msgs::msg::UInt32 ros_t;
   typedef std_msgs::msg::UInt32::ConstSharedPtr ros_const_ptr_t;
@@ -106,7 +109,8 @@ struct SotToRos<unsigned int> {
 };
 
 template <>
-struct SotToRos<int> {
+class SotToRos<int> {
+public:
   typedef int sot_t;
   typedef std_msgs::msg::Int32 ros_t;
   typedef std_msgs::msg::Int32::ConstSharedPtr ros_const_ptr_t;
@@ -125,7 +129,8 @@ struct SotToRos<int> {
 };
 
 template <>
-struct SotToRos<std::string> {
+class SotToRos<std::string> {
+public:
   typedef std::string sot_t;
   typedef std_msgs::msg::String ros_t;
   typedef std_msgs::msg::String::ConstSharedPtr ros_const_ptr_t;
@@ -144,7 +149,8 @@ struct SotToRos<std::string> {
 };
 
 template <>
-struct SotToRos<Matrix> {
+class SotToRos<Matrix> {
+public:
   typedef Matrix sot_t;
   typedef dynamic_graph_bridge_msgs::msg::Matrix ros_t;
   typedef dynamic_graph_bridge_msgs::msg::Matrix::ConstSharedPtr ros_const_ptr_t;
@@ -165,7 +171,8 @@ struct SotToRos<Matrix> {
 };
 
 template <>
-struct SotToRos<Vector> {
+class SotToRos<Vector> {
+public:
   typedef Vector sot_t;
   typedef dynamic_graph_bridge_msgs::msg::Vector ros_t;
   typedef dynamic_graph_bridge_msgs::msg::Vector::ConstSharedPtr ros_const_ptr_t;
@@ -186,7 +193,8 @@ struct SotToRos<Vector> {
 };
 
 template <>
-struct SotToRos<specific::Vector3> {
+class SotToRos<specific::Vector3> {
+public:
   typedef Vector sot_t;
   typedef geometry_msgs::msg::Vector3 ros_t;
   typedef geometry_msgs::msg::Vector3::ConstSharedPtr ros_const_ptr_t;
@@ -206,7 +214,8 @@ struct SotToRos<specific::Vector3> {
 };
 
 template <>
-struct SotToRos<sot::MatrixHomogeneous> {
+class SotToRos<sot::MatrixHomogeneous> {
+public:
   typedef sot::MatrixHomogeneous sot_t;
   typedef geometry_msgs::msg::Transform ros_t;
   typedef geometry_msgs::msg::Transform::ConstSharedPtr ros_const_ptr_t;
@@ -226,7 +235,8 @@ struct SotToRos<sot::MatrixHomogeneous> {
 };
 
 template <>
-struct SotToRos<specific::Twist> {
+class SotToRos<specific::Twist> {
+public:
   typedef Vector sot_t;
   typedef geometry_msgs::msg::Twist ros_t;
   typedef geometry_msgs::msg::Twist::ConstSharedPtr ros_const_ptr_t;
@@ -248,7 +258,8 @@ struct SotToRos<specific::Twist> {
 
 // Stamped vector3
 template <>
-struct SotToRos<std::pair<specific::Vector3, Vector> > {
+class SotToRos<std::pair<specific::Vector3, Vector> > {
+public:
   typedef Vector sot_t;
   typedef geometry_msgs::msg::Vector3Stamped ros_t;
   typedef geometry_msgs::msg::Vector3Stamped::ConstSharedPtr ros_const_ptr_t;
@@ -266,7 +277,8 @@ struct SotToRos<std::pair<specific::Vector3, Vector> > {
 
 // Stamped transformation
 template <>
-struct SotToRos<std::pair<sot::MatrixHomogeneous, Vector> > {
+class SotToRos<std::pair<sot::MatrixHomogeneous, Vector> > {
+public:
   typedef sot::MatrixHomogeneous sot_t;
   typedef geometry_msgs::msg::TransformStamped ros_t;
   typedef geometry_msgs::msg::TransformStamped::ConstSharedPtr ros_const_ptr_t;
@@ -284,7 +296,8 @@ struct SotToRos<std::pair<sot::MatrixHomogeneous, Vector> > {
 
 // Stamped twist
 template <>
-struct SotToRos<std::pair<specific::Twist, Vector> > {
+class SotToRos<std::pair<specific::Twist, Vector> > {
+public:
   typedef Vector sot_t;
   typedef geometry_msgs::msg::TwistStamped ros_t;
   typedef geometry_msgs::msg::TwistStamped::ConstSharedPtr ros_const_ptr_t;
@@ -300,11 +313,8 @@ struct SotToRos<std::pair<specific::Twist, Vector> > {
   }
 };
 
-inline std::string makeSignalString(const std::string& className,
-                                    const std::string& instanceName,
-                                    bool isInputSignal,
-                                    const std::string& signalType,
-                                    const std::string& signalName) {
+inline std::string makeSignalString(const std::string& className, const std::string& instanceName, bool isInputSignal,
+                                    const std::string& signalType, const std::string& signalName) {
   boost::format fmt("%s(%s)::%s(%s)::%s");
   fmt % className % instanceName % (isInputSignal ? "input" : "output") % signalType % signalName;
   return fmt.str();

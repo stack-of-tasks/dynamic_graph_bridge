@@ -25,12 +25,12 @@
 #include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
-#include <boost/thread/thread.hpp>
+#include <thread>
 
 // ROS includes
-#include "ros/ros.h"
-#include "std_srvs/Empty.h"
-#include <sensor_msgs/JointState.h>
+//#include "ros/ros.h"
+#include "std_srvs/srv/empty.hpp"
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <tf2_ros/transform_broadcaster.h>
 
 // Sot Framework includes
@@ -53,7 +53,7 @@ class SotLoader : public SotLoaderBasic {
   /// Angular values read by encoders
   std::vector<double> angleEncoder_;
   /// Angular values sent to motors
-  std::vector<double> angleControl_;
+  std::vector<double> control_;
   /// Forces read by force sensors
   std::vector<double> forces_;
   /// Torques
@@ -69,21 +69,23 @@ class SotLoader : public SotLoaderBasic {
   std::string robot_desc_string_;
 
   /// The thread running dynamic graph
-  boost::thread thread_;
+  std::shared_ptr<std::thread> thread_;
 
   // \brief Start control loop
   virtual void startControlLoop();
 
   // Robot Pose Publisher
-  tf2_ros::TransformBroadcaster freeFlyerPublisher_;
-  geometry_msgs::TransformStamped freeFlyerPose_;
+  std::shared_ptr<tf2_ros::TransformBroadcaster> freeFlyerPublisher_;
+
+  // Free flyer pose
+  geometry_msgs::msg::TransformStamped freeFlyerPose_;
 
  public:
   SotLoader();
-  ~SotLoader();
+  virtual ~SotLoader();
 
   // \brief Create a thread for ROS and start the control loop.
-  void initializeRosNode(int argc, char *argv[]);
+  void initializeServices();
 
   // \brief Compute one iteration of control.
   // Basically calls fillSensors, the SoT and the readControl.
@@ -97,6 +99,13 @@ class SotLoader : public SotLoaderBasic {
 
   // \brief Prepare the SoT framework.
   void setup();
+
+  // \brief Method for the thread implementing the starting and stopping part of dynamic_graph
+  void workThreadLoader();
+  
+  // \brief Join the thread.
+  void lthread_join();
+  typedef std::shared_ptr<SotLoader> SharedPtr;
 };
 
 #endif /* SOT_LOADER_HH_ */

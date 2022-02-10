@@ -17,12 +17,16 @@
 #include <dynamic-graph/command.h>
 #include <sot/core/matrix-geometry.hh>
 
-#include <ros/ros.h>
 
+#include "dynamic_graph_bridge/ros2_init.hh"
 #include "converter.hh"
-#include "sot_to_ros.hh"
+#include "sot_to_ros2.hh"
+
+#include <rclcpp/subscription_base.hpp>
+#include <rclcpp/node.hpp>
 
 namespace dynamicgraph {
+
 class RosQueuedSubscribe;
 
 namespace command {
@@ -33,7 +37,8 @@ using ::dynamicgraph::command::Value;
 #define ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND(CMD)                     \
   class CMD : public Command {                                     \
    public:                                                         \
-    CMD(RosQueuedSubscribe& entity, const std::string& docstring); \
+    CMD(RosQueuedSubscribe& entity,                   \
+        const std::string& docstring);                             \
     virtual Value doExecute();                                     \
   }
 
@@ -44,14 +49,15 @@ ROS_QUEUED_SUBSCRIBE_MAKE_COMMAND(Add);
 }  // end of namespace rosQueuedSubscribe.
 }  // end of namespace command.
 
-class RosQueuedSubscribe;
 
 namespace internal {
 template <typename T>
-struct Add;
+class Add;
 
-struct BindedSignalBase {
-  typedef boost::shared_ptr<ros::Subscriber> Subscriber_t;
+
+class BindedSignalBase {
+public:
+  typedef typename rclcpp::SubscriptionBase::SharedPtr Subscriber_t;
 
   BindedSignalBase(RosQueuedSubscribe* e) : entity(e) {}
   virtual ~BindedSignalBase() {}
@@ -60,18 +66,19 @@ struct BindedSignalBase {
   virtual std::size_t size() const = 0;
 
   Subscriber_t subscriber;
-  RosQueuedSubscribe* entity;
+  RosQueuedSubscribe * entity;
 };
 
 template <typename T, int BufferSize>
-struct BindedSignal : BindedSignalBase {
+class BindedSignal : public BindedSignalBase {
+public:
   typedef dynamicgraph::Signal<T, int> Signal_t;
-  typedef boost::shared_ptr<Signal_t> SignalPtr_t;
+  typedef std::shared_ptr<Signal_t> SignalPtr_t;
   typedef std::vector<T> buffer_t;
   typedef typename buffer_t::size_type size_type;
 
-  BindedSignal(RosQueuedSubscribe* e)
-      : BindedSignalBase(e), frontIdx(0), backIdx(0), buffer(BufferSize), init(false) {}
+  BindedSignal(RosQueuedSubscribe * e)
+    : BindedSignalBase(e), frontIdx(0), backIdx(0), buffer(BufferSize), init(false) {}
   ~BindedSignal() {
     signal.reset();
     clear();
@@ -127,7 +134,7 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   typedef boost::posix_time::ptime ptime;
 
  public:
-  typedef boost::shared_ptr<internal::BindedSignalBase> bindedSignal_t;
+  typedef std::shared_ptr<internal::BindedSignalBase > bindedSignal_t;
 
   RosQueuedSubscribe(const std::string& n);
   virtual ~RosQueuedSubscribe();
@@ -143,33 +150,35 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   void readQueue(int beginReadingAt);
   std::size_t queueSize(const std::string& signal) const;
 
-  template <typename T>
+  template<typename T>
   void add(const std::string& type, const std::string& signal, const std::string& topic);
 
   std::map<std::string, bindedSignal_t>& bindedSignal() { return bindedSignal_; }
   std::map<std::string, std::string>& topics() { return topics_; }
 
-  ros::NodeHandle& nh() { return nh_; }
+  rclcpp::Node::SharedPtr nh() { return nh_; }
 
   template <typename R, typename S>
-  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal, const R& data);
+  void callback(std::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal, const R& data);
 
   template <typename R>
-  void callbackTimestamp(boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal, const R& data);
+  void callbackTimestamp(std::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal, const R& data);
 
   template <typename T>
   friend class internal::Add;
 
+  void initializeRosContext(dynamicgraph::RosContext::SharedPtr ros_context);
+  
  private:
   static const std::string docstring_;
-  ros::NodeHandle& nh_;
+  rclcpp::Node::SharedPtr nh_;
   std::map<std::string, bindedSignal_t> bindedSignal_;
   std::map<std::string, std::string> topics_;
 
   int readQueue_;
   // Signal<bool, int> readQueue_;
 
-  template <typename T>
+  template <typename T, int BufferSize>
   friend class internal::BindedSignal;
 };
 }  // end of namespace dynamicgraph.

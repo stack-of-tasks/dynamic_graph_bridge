@@ -4,7 +4,7 @@
 #include <boost/bind.hpp>
 
 #include <tf2_ros/transform_listener.h>
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/transform_stamped.h>
 
 #include <dynamic-graph/entity.h>
 #include <dynamic-graph/signal-time-dependent.h>
@@ -13,7 +13,7 @@
 
 #include <sot/core/matrix-geometry.hh>
 
-#include <dynamic_graph_bridge/ros_init.hh>
+#include <dynamic_graph_bridge/ros2_init.hh>
 
 namespace dynamicgraph {
 class RosTfListener;
@@ -27,8 +27,8 @@ struct TransformListenerData {
   RosTfListener* entity;
   tf2_ros::Buffer& buffer;
   const std::string toFrame, fromFrame;
-  geometry_msgs::TransformStamped transform;
-  ros::Duration max_elapsed;
+  geometry_msgs::msg::TransformStamped transform;
+  rclcpp::Duration max_elapsed;
   AvailableSignal_t availableSig;
   MatrixSignal_t signal;
   DefaultSignal_t failbackSig;
@@ -70,41 +70,51 @@ class RosTfListener : public Entity {
 
   RosTfListener(const std::string& _name)
     : Entity(_name)
-    , buffer()
-    , listener(buffer, rosInit(), false)
-  {}
+    , ros_context_()
+    , buffer_()
+    , listener_()
+  {
+  }
 
   ~RosTfListener()
   {
-    for (const auto& pair : listenerDatas) delete pair.second;
+    for (const auto& pair : listenerDatas_) delete pair.second;
+  }
+
+  void initializeRosContext( dynamicgraph::RosContext::SharedPtr ros_context) {
+    ros_context_ = ros_context;
+    buffer_ = std::make_shared<tf2_ros::Buffer>(ros_context->nodeHandle->get_clock());
+    listener_ = std::make_shared<tf2_ros::TransformListener>(*buffer_,ros_context_->nodeHandle,false);
   }
 
   void add(const std::string& to, const std::string& from, const std::string& signame)
   {
-    if (listenerDatas.find(signame) != listenerDatas.end())
+    if (listenerDatas_.find(signame) != listenerDatas_.end())
       throw std::invalid_argument("A signal " + signame + " already exists in RosTfListener " + getName());
 
     boost::format signalName("RosTfListener(%1%)::output(MatrixHomo)::%2%");
     signalName % getName() % signame;
 
     TransformListenerData* tld =
-        new TransformListenerData(this, buffer, to, from, signalName.str());
+        new TransformListenerData(this, *buffer_, to, from, signalName.str());
     signalRegistration(tld->signal << tld->availableSig << tld->failbackSig);
-    listenerDatas[signame] = tld;
+    listenerDatas_[signame] = tld;
   }
 
   void setMaximumDelay(const std::string& signame, const double& max_elapsed)
   {
-    if (listenerDatas.count(signame) == 0)
+    if (listenerDatas_.count(signame) == 0)
       throw std::invalid_argument("No signal " + signame + " in RosTfListener " + getName());
-    listenerDatas[signame]->max_elapsed = ros::Duration(max_elapsed);
+    listenerDatas_[signame]->max_elapsed = rclcpp::Duration(max_elapsed);
   }
 
  private:
   typedef std::map<std::string, TransformListenerData*> Map_t;
-  Map_t listenerDatas;
-  tf2_ros::Buffer buffer;
-  tf2_ros::TransformListener listener;
+  Map_t listenerDatas_;
+  RosContext::SharedPtr ros_context_;
+  std::shared_ptr<tf2_ros::Buffer> buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> listener_;
+
 };
 }  // end of namespace dynamicgraph.
 

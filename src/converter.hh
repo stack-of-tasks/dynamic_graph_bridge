@@ -1,14 +1,16 @@
 #ifndef DYNAMIC_GRAPH_ROS_CONVERTER_HH
 #define DYNAMIC_GRAPH_ROS_CONVERTER_HH
 #include <stdexcept>
-#include "sot_to_ros.hh"
+#include <vector>
+#include "sot_to_ros2.hh"
 
 #include <boost/static_assert.hpp>
 #include <boost/date_time/date.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <ros/time.h>
-#include <std_msgs/Header.h>
+#include <rclcpp/time.hpp>
+#include <rclcpp/clock.hpp>
+#include <std_msgs/msg/header.hpp>
 
 #define SOT_TO_ROS_IMPL(T) \
   template <>              \
@@ -19,11 +21,11 @@
   inline void converter(SotToRos<T>::sot_t& dst, const SotToRos<T>::ros_t& src)
 
 namespace dynamicgraph {
-inline void makeHeader(std_msgs::Header& header) {
-  header.seq = 0;
-  header.stamp = ros::Time::now();
-  header.frame_id = "/dynamic_graph/world";
-}
+  inline void makeHeader(std_msgs::msg::Header& header) {
+    rclcpp::Clock aClock;
+    header.stamp = aClock.now();
+    header.frame_id = "/dynamic_graph/world";
+  }
 
 /// \brief Handle ROS <-> dynamic-graph conversion.
 ///
@@ -62,12 +64,13 @@ ROS_TO_SOT_IMPL(std::string) { dst = src.data; }
 
 // Vector
 SOT_TO_ROS_IMPL(Vector) {
-  dst.data.resize(src.size());
-  for (int i = 0; i < src.size(); ++i) dst.data[i] = src(i);
+  dst.data.resize(static_cast<std::size_t>(src.size()));
+  for (std::size_t i = 0; i < static_cast<std::size_t>(src.size()); ++i)
+    dst.data[i] = src(static_cast<Eigen::Index>(i));
 }
 
 ROS_TO_SOT_IMPL(Vector) {
-  dst.resize(src.data.size());
+  dst.resize(static_cast<Eigen::Index>(src.data.size()));
   for (unsigned int i = 0; i < src.data.size(); ++i) dst(i) = src.data[i];
 }
 
@@ -94,8 +97,9 @@ SOT_TO_ROS_IMPL(Matrix) {
   // TODO: Confirm Ros Matrix Storage order. It changes the RosMatrix to
   // ColMajor.
   dst.width = (unsigned int)src.rows();
-  dst.data.resize(src.cols() * src.rows());
-  for (int i = 0; i < src.cols() * src.rows(); ++i) dst.data[i] = src.data()[i];
+  dst.data.resize(static_cast<std::size_t>(src.cols() * src.rows()));
+  for (int i = 0; i < src.cols() * src.rows(); ++i)
+    dst.data[static_cast<std::size_t>(i)] = src.data()[i];
 }
 
 ROS_TO_SOT_IMPL(Matrix) {
@@ -174,7 +178,7 @@ DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(specific::Twist, twist, ;);
 ///        is required.
 #define DG_BRIDGE_MAKE_SHPTR_IMPL(T)                                                                       \
   template <>                                                                                              \
-  inline void converter(SotToRos<T>::sot_t& dst, const boost::shared_ptr<SotToRos<T>::ros_t const>& src) { \
+  inline void converter(SotToRos<T>::sot_t& dst, const std::shared_ptr<SotToRos<T>::ros_t const>& src) { \
     converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t>(dst, *src);                                          \
   }                                                                                                        \
   struct e_n_d__w_i_t_h__s_e_m_i_c_o_l_o_n
@@ -216,7 +220,7 @@ DG_BRIDGE_MAKE_STAMPED_IMPL(specific::Twist, twist, ;);
 #define DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(T, ATTRIBUTE, EXTRA)                                        \
   template <>                                                                                         \
   inline void converter(SotToRos<std::pair<T, Vector> >::sot_t& dst,                                  \
-                        const boost::shared_ptr<SotToRos<std::pair<T, Vector> >::ros_t const>& src) { \
+                        const std::shared_ptr<SotToRos<std::pair<T, Vector> >::ros_t const>& src) { \
     converter<SotToRos<T>::sot_t, SotToRos<T>::ros_t>(dst, src->ATTRIBUTE);                           \
     do {                                                                                              \
       EXTRA                                                                                           \
@@ -239,7 +243,7 @@ DG_BRIDGE_MAKE_STAMPED_SHPTR_IMPL(specific::Twist, twist, ;);
 /// conversion.  You can either fix your code or provide the wanted
 /// conversion by updating this header.
 template <typename U, typename V>
-inline void converter(U& dst, V& src) {
+inline void converter(U& , V& ) {
   // This will always fail if instantiated.
   BOOST_STATIC_ASSERT(sizeof(U) == 0);
 }
@@ -250,19 +254,19 @@ typedef boost::posix_time::microseconds microseconds;
 typedef boost::posix_time::time_duration time_duration;
 typedef boost::gregorian::date date;
 
-boost::posix_time::ptime rosTimeToPtime(const ros::Time& rosTime) {
-  ptime time(date(1970, 1, 1), seconds(rosTime.sec) + microseconds(rosTime.nsec / 1000));
+boost::posix_time::ptime rosTimeToPtime(const rclcpp::Time& rosTime) {
+  ptime time(date(1970, 1, 1), seconds(rosTime.nanoseconds() / 1000000)) ;
   return time;
 }
 
-ros::Time pTimeToRostime(const boost::posix_time::ptime& time) {
+rclcpp::Time pTimeToRostime(const boost::posix_time::ptime& time) {
   static ptime timeStart(date(1970, 1, 1));
   time_duration diff = time - timeStart;
 
   uint32_t sec = (unsigned int)diff.ticks() / (unsigned int)time_duration::rep_type::res_adjust();
   uint32_t nsec = (unsigned int)diff.fractional_seconds();
 
-  return ros::Time(sec, nsec);
+  return rclcpp::Time(static_cast<int32_t>(sec), nsec);
 }
 }  // end of namespace dynamicgraph.
 

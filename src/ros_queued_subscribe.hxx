@@ -15,20 +15,22 @@
 #include <dynamic-graph/signal-caster.h>
 #include <dynamic-graph/linear-algebra.h>
 #include <dynamic-graph/signal-cast-helper.h>
-#include <std_msgs/Float64.h>
-#include "dynamic_graph_bridge_msgs/Matrix.h"
-#include "dynamic_graph_bridge_msgs/Vector.h"
+#include <std_msgs/msg/float64.hpp>
+#include "dynamic_graph_bridge_msgs/msg/matrix.hpp"
+#include "dynamic_graph_bridge_msgs/msg/vector.hpp"
 
 namespace dynamicgraph {
 namespace internal {
 static const int BUFFER_SIZE = 1 << 10;
 
 template <typename T>
-struct Add {
-  void operator()(RosQueuedSubscribe& rosSubscribe, const std::string& type, const std::string& signal,
+class Add {
+public:
+  void operator()(RosQueuedSubscribe & rosSubscribe, const std::string& type, const std::string& signal,
                   const std::string& topic) {
     typedef typename SotToRos<T>::sot_t sot_t;
     typedef typename SotToRos<T>::ros_const_ptr_t ros_const_ptr_t;
+    typedef typename SotToRos<T>::ros_t ros_t;
     typedef BindedSignal<sot_t, BUFFER_SIZE> BindedSignal_t;
     typedef typename BindedSignal_t::Signal_t Signal_t;
 
@@ -41,18 +43,19 @@ struct Add {
     signalName % rosSubscribe.getName() % type % signal;
 
     bs->signal.reset(new Signal_t(signalName.str()));
+    /// Sot Side using boost::bind
     bs->signal->setFunction(boost::bind(&BindedSignal_t::reader, bs, _1, _2));
     rosSubscribe.signalRegistration(*bs->signal);
 
     // Initialize the subscriber.
-    typedef boost::function<void(const ros_const_ptr_t& data)> callback_t;
-    callback_t callback = boost::bind(&BindedSignal_t::template writer<ros_const_ptr_t>, bs, _1);
+    typedef boost::function<void(const ros_const_ptr_t data)> callback_t;
+    callback_t callback = std::bind(&BindedSignal_t::template writer<ros_const_ptr_t>, bs, std::placeholders::_1);
 
     // Keep 50 messages in queue, but only 20 are sent every 100ms
     // -> No message should be lost because of a full buffer
-    bs->subscriber = boost::make_shared<ros::Subscriber>(rosSubscribe.nh().subscribe(topic, BUFFER_SIZE, callback));
+    bs->subscriber = rosSubscribe.nh()->create_subscription<ros_t>(topic, 10, callback);
 
-    RosQueuedSubscribe::bindedSignal_t bindedSignal(bs);
+    typename RosQueuedSubscribe::bindedSignal_t bindedSignal(bs);
     rosSubscribe.bindedSignal()[signal] = bindedSignal;
     rosSubscribe.topics()[signal] = topic;
   }
@@ -86,7 +89,8 @@ T& BindedSignal<T, N>::reader(T& data, int time) {
   // synchronize with method clear:
   // If reading from the list cannot be done, then return last value.
   boost::mutex::scoped_lock lock(rmutex, boost::try_to_lock);
-  if (!lock.owns_lock() || entity->readQueue_ == -1 || time < entity->readQueue_) {
+  if (!lock.owns_lock() || BindedSignalBase::entity->readQueue_ == -1 ||
+      time < BindedSignalBase::entity->readQueue_) {
     data = last;
   } else {
     if (empty())
