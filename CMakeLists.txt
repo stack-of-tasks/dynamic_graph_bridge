@@ -74,6 +74,12 @@ set(${PROJECT_NAME}_HEADERS
   src/sot_to_ros.hh
   )
 
+SET(${PROJECT_NAME}_SOURCES
+  src/ros2_init.cpp
+  src/sot_to_ros2.cpp
+  src/ros2_parameter.cpp
+  )
+
 ADD_LIBRARY(ros_bridge SHARED
   ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 
@@ -96,10 +102,6 @@ ament_target_dependencies(ros_bridge
   ament_index_cpp
   std_msgs std_srvs geometry_msgs sensor_msgs tf2_ros rcutils)
 
-TARGET_INCLUDE_DIRECTORIES(ros_bridge PUBLIC $<INSTALL_INTERFACE:include>)
-TARGET_LINK_LIBRARIES(ros_bridge ${catkin_LIBRARIES}
-  sot-core::sot-core pinocchio::pinocchio)
-
 IF(SUFFIX_SO_VERSION)
   SET_TARGET_PROPERTIES(ros_bridge PROPERTIES SOVERSION ${PROJECT_VERSION})
 ENDIF(SUFFIX_SO_VERSION)
@@ -117,6 +119,9 @@ install(PROGRAMS
   scripts/run_command
   scripts/tf_publisher
   DESTINATION share/${PROJECT_NAME})
+
+# Install package information
+install(FILES package.xml DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gmock REQUIRED)
@@ -162,7 +167,7 @@ if(BUILD_TESTING)
     DESTINATION lib
     )
 
-  install(DIRECTORY launch urdf
+  install(DIRECTORY urdf
     DESTINATION share/${PROJECT_NAME}
     )
 
