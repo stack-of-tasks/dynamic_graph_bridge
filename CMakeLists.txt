@@ -77,7 +77,7 @@ ADD_LIBRARY(ros_bridge SHARED
 TARGET_INCLUDE_DIRECTORIES(ros_bridge SYSTEM PUBLIC ${catkin_INCLUDE_DIRS})
 TARGET_INCLUDE_DIRECTORIES(ros_bridge PUBLIC $<INSTALL_INTERFACE:include>)
 TARGET_LINK_LIBRARIES(ros_bridge ${catkin_LIBRARIES}
-  sot-core::sot-core pinocchio::pinocchio)
+  sot-core::sot-core pinocchio::pinocchio dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs)
 
 IF(SUFFIX_SO_VERSION)
   SET_TARGET_PROPERTIES(ros_bridge PROPERTIES SOVERSION ${PROJECT_VERSION})
