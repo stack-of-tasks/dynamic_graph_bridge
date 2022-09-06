@@ -1,5 +1,7 @@
-#include "dynamic_graph_bridge/ros_parameter.hh"
+#include <pinocchio/fwd.hpp>
 
+// include pinocchio first
+//
 #include <ros/ros.h>
 #include <urdf_parser/urdf_parser.h>
 
@@ -8,6 +10,7 @@
 #include <sot/core/robot-utils.hh>
 #include <stdexcept>
 
+#include "dynamic_graph_bridge/ros_parameter.hh"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
