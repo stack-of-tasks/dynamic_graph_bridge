@@ -5,10 +5,11 @@
 #include <ros/ros.h>
 #pragma GCC diagnostic pop
 
-#include <dynamic_graph_bridge/fwd.hh>
 #include <dynamic_graph_bridge_msgs/RunCommand.h>
 #include <dynamic_graph_bridge_msgs/RunPythonFile.h>
+
 #include <dynamic-graph/python/interpreter.hh>
+#include <dynamic_graph_bridge/fwd.hh>
 
 namespace dynamicgraph {
 /// \brief This class wraps the implementation of the runCommand
@@ -19,19 +20,22 @@ namespace dynamicgraph {
 /// the outside.
 class Interpreter {
  public:
-  typedef boost::function<bool(dynamic_graph_bridge_msgs::RunCommand::Request&,
-                               dynamic_graph_bridge_msgs::RunCommand::Response&)>
+  typedef boost::function<bool(
+      dynamic_graph_bridge_msgs::RunCommand::Request&,
+      dynamic_graph_bridge_msgs::RunCommand::Response&)>
       runCommandCallback_t;
 
-  typedef boost::function<bool(dynamic_graph_bridge_msgs::RunPythonFile::Request&,
-                               dynamic_graph_bridge_msgs::RunPythonFile::Response&)>
+  typedef boost::function<bool(
+      dynamic_graph_bridge_msgs::RunPythonFile::Request&,
+      dynamic_graph_bridge_msgs::RunPythonFile::Response&)>
       runPythonFileCallback_t;
 
   explicit Interpreter(ros::NodeHandle& nodeHandle);
 
   /// \brief Method to start python interpreter and deal with messages.
   /// \param Command string to execute, result, stdout, stderr strings.
-  void runCommand(const std::string& command, std::string& result, std::string& out, std::string& err);
+  void runCommand(const std::string& command, std::string& result,
+                  std::string& out, std::string& err);
 
   /// \brief Method to parse python scripts.
   /// \param Input file name to parse.
@@ -46,8 +50,9 @@ class Interpreter {
                           dynamic_graph_bridge_msgs::RunCommand::Response& res);
 
   /// \brief Run a Python file.
-  bool runPythonFileCallback(dynamic_graph_bridge_msgs::RunPythonFile::Request& req,
-                             dynamic_graph_bridge_msgs::RunPythonFile::Response& res);
+  bool runPythonFileCallback(
+      dynamic_graph_bridge_msgs::RunPythonFile::Request& req,
+      dynamic_graph_bridge_msgs::RunPythonFile::Response& res);
 
  private:
   python::Interpreter interpreter_;

@@ -12,9 +12,9 @@
 #include <dynamic-graph/fwd.hh>
 
 namespace dynamicgraph {
-  // classes defined in sot-core
-  class Interpreter;
-  typedef std::shared_ptr<Interpreter> InterpreterPtr_t;
-}// namespace dynamicgraph
+// classes defined in sot-core
+class Interpreter;
+typedef std::shared_ptr<Interpreter> InterpreterPtr_t;
+}  // namespace dynamicgraph
 
-#endif // DYNAMIC_GRAPH_PYTHON_FWD_HH
+#endif  // DYNAMIC_GRAPH_PYTHON_FWD_HH

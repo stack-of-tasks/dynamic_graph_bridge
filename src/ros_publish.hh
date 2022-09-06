@@ -1,22 +1,19 @@
 #ifndef DYNAMIC_GRAPH_ROS_PUBLISH_HH
 #define DYNAMIC_GRAPH_ROS_PUBLISH_HH
-#include <map>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/thread/mutex.hpp>
-
+#include <dynamic-graph/command.h>
 #include <dynamic-graph/entity.h>
 #include <dynamic-graph/signal-time-dependent.h>
-#include <dynamic-graph/command.h>
-
+#include <realtime_tools/realtime_publisher.h>
 #include <ros/ros.h>
 
-#include <realtime_tools/realtime_publisher.h>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <fstream>
+#include <map>
 
 #include "converter.hh"
 #include "sot_to_ros.hh"
-#include <fstream>
 
 namespace dynamicgraph {
 class RosPublish;
@@ -47,7 +44,9 @@ class RosPublish : public dynamicgraph::Entity {
  public:
   typedef boost::function<void(int)> callback_t;
 
-  typedef boost::tuple<boost::shared_ptr<dynamicgraph::SignalBase<int> >, callback_t> bindedSignal_t;
+  typedef boost::tuple<boost::shared_ptr<dynamicgraph::SignalBase<int> >,
+                       callback_t>
+      bindedSignal_t;
 
   static const double ROS_JOINT_STATE_PUBLISHER_RATE;
 
@@ -65,8 +64,11 @@ class RosPublish : public dynamicgraph::Entity {
   int& trigger(int&, int);
 
   template <typename T>
-  void sendData(boost::shared_ptr<realtime_tools::RealtimePublisher<typename SotToRos<T>::ros_t> > publisher,
-                boost::shared_ptr<typename SotToRos<T>::signalIn_t> signal, int time);
+  void sendData(
+      boost::shared_ptr<
+          realtime_tools::RealtimePublisher<typename SotToRos<T>::ros_t> >
+          publisher,
+      boost::shared_ptr<typename SotToRos<T>::signalIn_t> signal, int time);
 
   template <typename T>
   void add(const std::string& signal, const std::string& topic);

@@ -1,31 +1,30 @@
 #ifndef DYNAMIC_GRAPH_ROS_SOT_TO_ROS_HH
 #define DYNAMIC_GRAPH_ROS_SOT_TO_ROS_HH
-#include <vector>
-#include <utility>
-
-#include <boost/format.hpp>
-
+#include <dynamic-graph/linear-algebra.h>
+#include <dynamic-graph/signal-ptr.h>
+#include <dynamic-graph/signal-time-dependent.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float64.h>
-#include <std_msgs/UInt32.h>
 #include <std_msgs/Int32.h>
 #include <std_msgs/String.h>
+#include <std_msgs/UInt32.h>
+
+#include <boost/format.hpp>
+#include <sot/core/matrix-geometry.hh>
+#include <utility>
+#include <vector>
+
 #include "dynamic_graph_bridge_msgs/Matrix.h"
 #include "dynamic_graph_bridge_msgs/Vector.h"
-
 #include "geometry_msgs/Transform.h"
 #include "geometry_msgs/TransformStamped.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/Vector3Stamped.h"
 
-#include <dynamic-graph/signal-time-dependent.h>
-#include <dynamic-graph/linear-algebra.h>
-#include <dynamic-graph/signal-ptr.h>
-#include <sot/core/matrix-geometry.hh>
-
-#define MAKE_SIGNAL_STRING(NAME, IS_INPUT, OUTPUT_TYPE, SIGNAL_NAME) \
-  makeSignalString(typeid(*this).name(), NAME, IS_INPUT, OUTPUT_TYPE, SIGNAL_NAME)
+#define MAKE_SIGNAL_STRING(NAME, IS_INPUT, OUTPUT_TYPE, SIGNAL_NAME)  \
+  makeSignalString(typeid(*this).name(), NAME, IS_INPUT, OUTPUT_TYPE, \
+                   SIGNAL_NAME)
 
 namespace dynamicgraph {
 
@@ -300,10 +299,14 @@ struct SotToRos<std::pair<specific::Twist, Vector> > {
   }
 };
 
-inline std::string makeSignalString(const std::string& className, const std::string& instanceName, bool isInputSignal,
-                                    const std::string& signalType, const std::string& signalName) {
+inline std::string makeSignalString(const std::string& className,
+                                    const std::string& instanceName,
+                                    bool isInputSignal,
+                                    const std::string& signalType,
+                                    const std::string& signalName) {
   boost::format fmt("%s(%s)::%s(%s)::%s");
-  fmt % className % instanceName % (isInputSignal ? "input" : "output") % signalType % signalName;
+  fmt % className % instanceName % (isInputSignal ? "input" : "output") %
+      signalType % signalName;
   return fmt.str();
 }
 }  // end of namespace dynamicgraph.

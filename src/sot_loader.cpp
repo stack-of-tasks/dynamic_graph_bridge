@@ -10,7 +10,9 @@
 /* -------------------------------------------------------------------------- */
 
 #include <ros/rate.h>
+
 #include <dynamic_graph_bridge/sot_loader.hh>
+
 #include "dynamic_graph_bridge/ros_init.hh"
 
 // POSIX.1-2001
@@ -29,17 +31,11 @@ struct DataToLog {
   std::vector<double> ittimes;
 
   DataToLog(std::size_t N_)
-    : N(N_)
-    , idx(0)
-    , iter(0)
-    , iters(N, 0)
-    , times(N, 0)
-    , ittimes(N, 0)
-  {}
+      : N(N_), idx(0), iter(0), iters(N, 0), times(N, 0), ittimes(N, 0) {}
 
   void record(const double t, const double itt) {
-    iters  [idx] = iter;
-    times  [idx] = t;
+    iters[idx] = iter;
+    times[idx] = t;
     ittimes[idx] = itt;
     ++idx;
     ++iter;
@@ -53,10 +49,8 @@ struct DataToLog {
     std::ofstream aof(oss.str().c_str());
     if (aof.is_open()) {
       for (std::size_t k = 0; k < N; ++k) {
-        aof
-          << iters  [(idx + k) % N] << ' '
-          << times  [(idx + k) % N] << ' '
-          << ittimes[(idx + k) % N] << '\n';
+        aof << iters[(idx + k) % N] << ' ' << times[(idx + k) % N] << ' '
+            << ittimes[(idx + k) % N] << '\n';
       }
     }
     aof.close();
@@ -64,11 +58,11 @@ struct DataToLog {
 };
 
 void workThreadLoader(SotLoader *aSotLoader) {
-  ros::Rate rate(1000); // 1 kHz
+  ros::Rate rate(1000);  // 1 kHz
   if (ros::param::has("/sot_controller/dt")) {
     double periodd;
     ros::param::get("/sot_controller/dt", periodd);
-    rate = ros::Rate(1/periodd);
+    rate = ros::Rate(1 / periodd);
   }
   DataToLog dataToLog(5000);
 
@@ -113,8 +107,7 @@ SotLoader::SotLoader()
 
   freeFlyerPose_.header.frame_id = "odom";
   freeFlyerPose_.child_frame_id = "base_link";
-  if (ros::param::get("/sot/tf_base_link",
-                      freeFlyerPose_.child_frame_id)) {
+  if (ros::param::get("/sot/tf_base_link", freeFlyerPose_.child_frame_id)) {
     ROS_INFO_STREAM("Publishing " << freeFlyerPose_.child_frame_id << " wrt "
                                   << freeFlyerPose_.header.frame_id);
   }
@@ -125,7 +118,9 @@ SotLoader::~SotLoader() {
   thread_.join();
 }
 
-void SotLoader::startControlLoop() { thread_ = boost::thread(workThreadLoader, this); }
+void SotLoader::startControlLoop() {
+  thread_ = boost::thread(workThreadLoader, this);
+}
 
 void SotLoader::initializeRosNode(int argc, char *argv[]) {
   SotLoaderBasic::initializeRosNode(argc, argv);
@@ -143,7 +138,8 @@ void SotLoader::fillSensors(map<string, dgs::SensorValues> &sensorsIn) {
   assert(angleControl_.size() == angleEncoder_.size());
 
   sensorsIn["joints"].setName("angle");
-  for (unsigned int i = 0; i < angleControl_.size(); i++) angleEncoder_[i] = angleControl_[i];
+  for (unsigned int i = 0; i < angleControl_.size(); i++)
+    angleEncoder_[i] = angleControl_[i];
   sensorsIn["joints"].setValues(angleEncoder_);
 }
 
@@ -152,7 +148,8 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   angleControl_ = controlValues["control"].getValues();
 
   // Debug
-  std::map<std::string, dgs::ControlValues>::iterator it = controlValues.begin();
+  std::map<std::string, dgs::ControlValues>::iterator it =
+      controlValues.begin();
   sotDEBUG(30) << "ControlValues to be broadcasted:" << std::endl;
   for (; it != controlValues.end(); it++) {
     sotDEBUG(30) << it->first << ":";
@@ -165,8 +162,8 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
 
   // Check if the size if coherent with the robot description.
   if (angleControl_.size() != (unsigned int)nbOfJoints_) {
-    std::cerr << " angleControl_" << angleControl_.size() << " and nbOfJoints" << (unsigned int)nbOfJoints_
-              << " are different !" << std::endl;
+    std::cerr << " angleControl_" << angleControl_.size() << " and nbOfJoints"
+              << (unsigned int)nbOfJoints_ << " are different !" << std::endl;
     exit(-1);
   }
   // Publish the data.
@@ -176,7 +173,8 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   }
   for (unsigned int i = 0; i < parallel_joints_to_state_vector_.size(); i++) {
     joint_state_.position[i + nbOfJoints_] =
-        coefficient_parallel_joints_[i] * angleControl_[parallel_joints_to_state_vector_[i]];
+        coefficient_parallel_joints_[i] *
+        angleControl_[parallel_joints_to_state_vector_[i]];
   }
 
   joint_pub_.publish(joint_state_);

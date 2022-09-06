@@ -22,18 +22,19 @@
 #include <pinocchio/fwd.hpp>
 
 // Boost includes
-#include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
+#include <boost/program_options.hpp>
 
 // ROS includes
-#include "ros/ros.h"
-#include "std_srvs/Empty.h"
 #include <sensor_msgs/JointState.h>
 
+#include "ros/ros.h"
+#include "std_srvs/Empty.h"
+
 // Sot Framework includes
-#include <sot/core/debug.hh>
 #include <sot/core/abstract-sot-external-interface.hh>
+#include <sot/core/debug.hh>
 
 namespace po = boost::program_options;
 namespace dgs = dynamicgraph::sot;
@@ -94,10 +95,12 @@ class SotLoaderBasic {
   virtual void initializeRosNode(int argc, char* argv[]);
 
   // \brief Callback function when starting dynamic graph.
-  bool start_dg(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+  bool start_dg(std_srvs::Empty::Request& request,
+                std_srvs::Empty::Response& response);
 
   // \brief Callback function when stopping dynamic graph.
-  bool stop_dg(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+  bool stop_dg(std_srvs::Empty::Request& request,
+               std_srvs::Empty::Response& response);
 
   // \brief Read the state vector description based upon the robot links.
   int readSotVectorStateParam();

@@ -1,19 +1,16 @@
 #ifndef DYNAMIC_GRAPH_ROS_TF_LISTENER_HH
 #define DYNAMIC_GRAPH_ROS_TF_LISTENER_HH
 
-#include <boost/bind.hpp>
-
-#include <tf2_ros/transform_listener.h>
-#include <geometry_msgs/TransformStamped.h>
-
-#include <dynamic-graph/entity.h>
-#include <dynamic-graph/signal-time-dependent.h>
-#include <dynamic-graph/signal-ptr.h>
 #include <dynamic-graph/command-bind.h>
+#include <dynamic-graph/entity.h>
+#include <dynamic-graph/signal-ptr.h>
+#include <dynamic-graph/signal-time-dependent.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <tf2_ros/transform_listener.h>
 
-#include <sot/core/matrix-geometry.hh>
-
+#include <boost/bind.hpp>
 #include <dynamic_graph_bridge/ros_init.hh>
+#include <sot/core/matrix-geometry.hh>
 
 namespace dynamicgraph {
 class RosTfListener;
@@ -36,15 +33,14 @@ struct TransformListenerData {
   TransformListenerData(RosTfListener* e, tf2_ros::Buffer& b,
                         const std::string& to, const std::string& from,
                         const std::string& signame)
-      : entity(e)
-      , buffer(b)
-      , toFrame(to)
-      , fromFrame(from)
-      , max_elapsed(0.5)
-      , availableSig(signame+"_available")
-      , signal(signame)
-      , failbackSig(NULL, signame+"_failback")
-  {
+      : entity(e),
+        buffer(b),
+        toFrame(to),
+        fromFrame(from),
+        max_elapsed(0.5),
+        availableSig(signame + "_available"),
+        signal(signame),
+        failbackSig(NULL, signame + "_failback") {
     signal.setFunction(
         boost::bind(&TransformListenerData::getTransform, this, _1, _2));
 
@@ -52,7 +48,7 @@ struct TransformListenerData {
         boost::bind(&TransformListenerData::isAvailable, this, _1, _2));
     availableSig.setNeedUpdateFromAllChildren(true);
 
-    failbackSig.setConstant (sot::MatrixHomogeneous::Identity());
+    failbackSig.setConstant(sot::MatrixHomogeneous::Identity());
     signal.addDependencies(failbackSig << availableSig);
   }
 
@@ -69,20 +65,18 @@ class RosTfListener : public Entity {
   typedef internal::TransformListenerData TransformListenerData;
 
   RosTfListener(const std::string& _name)
-    : Entity(_name)
-    , buffer()
-    , listener(buffer, rosInit(), false)
-  {}
+      : Entity(_name), buffer(), listener(buffer, rosInit(), false) {}
 
-  ~RosTfListener()
-  {
+  ~RosTfListener() {
     for (const auto& pair : listenerDatas) delete pair.second;
   }
 
-  void add(const std::string& to, const std::string& from, const std::string& signame)
-  {
+  void add(const std::string& to, const std::string& from,
+           const std::string& signame) {
     if (listenerDatas.find(signame) != listenerDatas.end())
-      throw std::invalid_argument("A signal " + signame + " already exists in RosTfListener " + getName());
+      throw std::invalid_argument("A signal " + signame +
+                                  " already exists in RosTfListener " +
+                                  getName());
 
     boost::format signalName("RosTfListener(%1%)::output(MatrixHomo)::%2%");
     signalName % getName() % signame;
@@ -93,10 +87,10 @@ class RosTfListener : public Entity {
     listenerDatas[signame] = tld;
   }
 
-  void setMaximumDelay(const std::string& signame, const double& max_elapsed)
-  {
+  void setMaximumDelay(const std::string& signame, const double& max_elapsed) {
     if (listenerDatas.count(signame) == 0)
-      throw std::invalid_argument("No signal " + signame + " in RosTfListener " + getName());
+      throw std::invalid_argument("No signal " + signame +
+                                  " in RosTfListener " + getName());
     listenerDatas[signame]->max_elapsed = ros::Duration(max_elapsed);
   }
 

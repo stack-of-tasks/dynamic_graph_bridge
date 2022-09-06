@@ -1,16 +1,14 @@
 #ifndef DYNAMIC_GRAPH_ROS_SUBSCRIBE_HH
 #define DYNAMIC_GRAPH_ROS_SUBSCRIBE_HH
-#include <map>
+#include <dynamic-graph/command.h>
+#include <dynamic-graph/entity.h>
+#include <dynamic-graph/signal-ptr.h>
+#include <dynamic-graph/signal-time-dependent.h>
+#include <ros/ros.h>
 
 #include <boost/shared_ptr.hpp>
-
-#include <dynamic-graph/entity.h>
-#include <dynamic-graph/signal-time-dependent.h>
-#include <dynamic-graph/signal-ptr.h>
-#include <dynamic-graph/command.h>
+#include <map>
 #include <sot/core/matrix-geometry.hh>
-
-#include <ros/ros.h>
 
 #include "converter.hh"
 #include "sot_to_ros.hh"
@@ -48,7 +46,8 @@ class RosSubscribe : public dynamicgraph::Entity {
   typedef boost::posix_time::ptime ptime;
 
  public:
-  typedef std::pair<boost::shared_ptr<dynamicgraph::SignalBase<int> >, boost::shared_ptr<ros::Subscriber> >
+  typedef std::pair<boost::shared_ptr<dynamicgraph::SignalBase<int> >,
+                    boost::shared_ptr<ros::Subscriber> >
       bindedSignal_t;
 
   RosSubscribe(const std::string& n);
@@ -65,15 +64,20 @@ class RosSubscribe : public dynamicgraph::Entity {
   template <typename T>
   void add(const std::string& signal, const std::string& topic);
 
-  std::map<std::string, bindedSignal_t>& bindedSignal() { return bindedSignal_; }
+  std::map<std::string, bindedSignal_t>& bindedSignal() {
+    return bindedSignal_;
+  }
 
   ros::NodeHandle& nh() { return nh_; }
 
   template <typename R, typename S>
-  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal, const R& data);
+  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal,
+                const R& data);
 
   template <typename R>
-  void callbackTimestamp(boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal, const R& data);
+  void callbackTimestamp(
+      boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal,
+      const R& data);
 
   template <typename T>
   friend class internal::Add;

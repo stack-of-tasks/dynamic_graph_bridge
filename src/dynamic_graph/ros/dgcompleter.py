@@ -62,18 +62,18 @@ class DGCompleter:
         self.client(astr)
         astr = "readline.set_completer(aCompleter.complete)"
         self.client(astr)
-        astr = "readline.parse_and_bind(\"tab: complete\")"
+        astr = 'readline.parse_and_bind("tab: complete")'
         self.client(astr)
 
     def complete(self, text, state):
-        """Return the next possible completion for 'text'.    readline.parse_and_bind("tab: complete")
-
+        """Return the next possible completion for 'text'.
+        readline.parse_and_bind("tab: complete")
 
         This is called successively with state == 0, 1, 2, ... until it
         returns None.  The completion should begin with 'text'.
 
         """
-        astr = "aCompleter.complete(\"" + text + "\"," + str(state) + ")"
+        astr = 'aCompleter.complete("' + text + '",' + str(state) + ")"
         response = self.client(astr)
         res2 = ast.literal_eval(response.result)
         return res2

@@ -5,8 +5,9 @@
  * CNRS
  *
  */
-#include <iostream>
 #include <ros/console.h>
+
+#include <iostream>
 
 #define ENABLE_RT_LOG
 #include <dynamic-graph/real-time-logger.h>
@@ -14,8 +15,9 @@
 #include <dynamic_graph_bridge/sot_loader.hh>
 
 int main(int argc, char *argv[]) {
-  ::dynamicgraph::RealTimeLogger::instance()
-    .addOutputStream(::dynamicgraph::LoggerStreamPtr_t(new dynamicgraph::LoggerIOStream(std::cout)));
+  ::dynamicgraph::RealTimeLogger::instance().addOutputStream(
+      ::dynamicgraph::LoggerStreamPtr_t(
+          new dynamicgraph::LoggerIOStream(std::cout)));
 
   ros::init(argc, argv, "sot_ros_encapsulator");
   SotLoader aSotLoader;
@@ -27,6 +29,6 @@ int main(int argc, char *argv[]) {
   // Load dynamic library and run python prologue.
   aSotLoader.Initialization();
 
-  ros::waitForShutdown ();
+  ros::waitForShutdown();
   return 0;
 }
