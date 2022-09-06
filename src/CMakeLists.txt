@@ -10,9 +10,8 @@ foreach(plugin ${plugins})
                                                      ${PROJECT_VERSION})
   endif(SUFFIX_SO_VERSION)
 
-  target_link_libraries(
-    ${LIBRARY_NAME} ${${LIBRARY_NAME}_deps} ${catkin_LIBRARIES} ros_bridge
-    dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs)
+  target_link_libraries(${LIBRARY_NAME} ${${LIBRARY_NAME}_deps}
+                        ${catkin_LIBRARIES} ros_bridge)
 
   if(NOT INSTALL_PYTHON_INTERFACE_ONLY)
     install(
@@ -46,10 +45,8 @@ if(BUILD_PYTHON_INTERFACE)
 
   # ros_interperter library.
   add_library(ros_interpreter ros_interpreter.cpp)
-  target_link_libraries(
-    ros_interpreter ros_bridge ${catkin_LIBRARIES}
-    dynamic-graph-python::dynamic-graph-python
-    dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs)
+  target_link_libraries(ros_interpreter ros_bridge ${catkin_LIBRARIES}
+                        dynamic-graph-python::dynamic-graph-python)
 
   install(
     TARGETS ros_interpreter
@@ -60,16 +57,14 @@ endif(BUILD_PYTHON_INTERFACE)
 # Stand alone embedded intepreter with a robot controller.
 add_executable(geometric_simu geometric_simu.cpp sot_loader.cpp
                               sot_loader_basic.cpp)
-target_link_libraries(
-  geometric_simu Boost::program_options ${CMAKE_DL_LIBS} ${catkin_LIBRARIES}
-  ros_bridge dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs)
+target_link_libraries(geometric_simu Boost::program_options ${CMAKE_DL_LIBS}
+                      ${catkin_LIBRARIES} ros_bridge)
 install(TARGETS geometric_simu DESTINATION lib/${PROJECT_NAME})
 
 # Sot loader library
 add_library(sot_loader sot_loader.cpp sot_loader_basic.cpp)
-target_link_libraries(
-  sot_loader Boost::program_options ${catkin_LIBRARIES} ros_bridge
-  dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs)
+target_link_libraries(sot_loader Boost::program_options ${catkin_LIBRARIES}
+                      ros_bridge)
 install(
   TARGETS sot_loader
   EXPORT ${TARGETS_EXPORT_NAME}

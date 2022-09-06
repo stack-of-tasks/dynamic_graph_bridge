@@ -6,6 +6,8 @@
 # through dynamic_graph_bridge.
 #
 
+import logging
+
 import rospy
 
 import tf
@@ -13,15 +15,15 @@ import geometry_msgs.msg
 
 
 def main():
-    rospy.init_node('tf_publisher', anonymous=True)
+    rospy.init_node("tf_publisher", anonymous=True)
 
-    frame = rospy.get_param('~frame', '')
-    childFrame = rospy.get_param('~child_frame', '')
-    topic = rospy.get_param('~topic', '')
-    rateSeconds = rospy.get_param('~rate', 5)
+    frame = rospy.get_param("~frame", "")
+    childFrame = rospy.get_param("~child_frame", "")
+    topic = rospy.get_param("~topic", "")
+    rateSeconds = rospy.get_param("~rate", 5)
 
     if not frame or not childFrame or not topic:
-        logpy.error("frame, childFrame and topic are required parameters")
+        logging.error("frame, childFrame and topic are required parameters")
         return
 
     rate = rospy.Rate(rateSeconds)
@@ -35,11 +37,10 @@ def main():
     ok = False
     while not rospy.is_shutdown() and not ok:
         try:
-            tl.waitForTransform(childFrame, frame,
-                                rospy.Time(), rospy.Duration(0.1))
+            tl.waitForTransform(childFrame, frame, rospy.Time(), rospy.Duration(0.1))
             ok = True
-        except tf.Exception, e:
-            rospy.logwarn("waiting for tf transform")
+        except tf.Exception:
+            logging.warning("waiting for tf transform")
             ok = False
 
     while not rospy.is_shutdown():
@@ -59,5 +60,6 @@ def main():
 
         pub.publish(transform)
         rate.sleep()
+
 
 main()
