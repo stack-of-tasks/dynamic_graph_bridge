@@ -3,11 +3,12 @@
 ///
 /// Author: Florent Lamiraux
 
-#include <dynamic-graph/factory.h>
-#include <dynamic-graph/signal-caster.h>
-#include <dynamic-graph/signal-cast-helper.h>
-
 #include "ros_time.hh"
+
+#include <dynamic-graph/factory.h>
+#include <dynamic-graph/signal-cast-helper.h>
+#include <dynamic-graph/signal-caster.h>
+
 #include "converter.hh"
 
 namespace dynamicgraph {
@@ -23,7 +24,8 @@ const std::string RosTime::docstring_(
     "  boost::posix_time::ptime type.\n");
 
 RosTime::RosTime(const std::string& _name)
-    : Entity(_name), now_("RosTime(" + _name + ")::output(boost::posix_time::ptime)::time") {
+    : Entity(_name),
+      now_("RosTime(" + _name + ")::output(boost::posix_time::ptime)::time") {
   signalRegistration(now_);
   now_.setConstant(rosTimeToPtime(ros::Time::now()));
   now_.setFunction(boost::bind(&RosTime::update, this, _1, _2));

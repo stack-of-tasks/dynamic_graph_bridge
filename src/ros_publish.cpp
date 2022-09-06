@@ -1,4 +1,11 @@
-#include <stdexcept>
+#include "ros_publish.hh"
+
+#include <dynamic-graph/command.h>
+#include <dynamic-graph/factory.h>
+#include <dynamic-graph/linear-algebra.h>
+#include <ros/ros.h>
+#include <std_msgs/Float64.h>
+#include <std_msgs/UInt32.h>
 
 #include <boost/assign.hpp>
 #include <boost/bind.hpp>
@@ -6,17 +13,9 @@
 #include <boost/format.hpp>
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
-
-#include <ros/ros.h>
-#include <std_msgs/Float64.h>
-#include <std_msgs/UInt32.h>
-
-#include <dynamic-graph/factory.h>
-#include <dynamic-graph/command.h>
-#include <dynamic-graph/linear-algebra.h>
+#include <stdexcept>
 
 #include "dynamic_graph_bridge/ros_init.hh"
-#include "ros_publish.hh"
 
 #define ENABLE_RT_LOG
 #include <dynamic-graph/real-time-logger.h>
@@ -30,7 +29,10 @@ namespace command {
 namespace rosPublish {
 
 Add::Add(RosPublish& entity, const std::string& docstring)
-    : Command(entity, boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING), docstring) {}
+    : Command(
+          entity,
+          boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING),
+          docstring) {}
 
 Value Add::doExecute() {
   RosPublish& entity = static_cast<RosPublish&>(owner());
@@ -98,7 +100,8 @@ RosPublish::RosPublish(const std::string& n)
       clock_gettime(CLOCK_REALTIME, &nextPublicationRT_);
     }
   } catch (const std::exception& exc) {
-    throw std::runtime_error("Failed to call ros::Time::now ():" + std::string(exc.what()));
+    throw std::runtime_error("Failed to call ros::Time::now ():" +
+                             std::string(exc.what()));
   }
   signalRegistration(trigger_);
   trigger_.setNeedUpdateFromAllChildren(true);
@@ -120,13 +123,16 @@ RosPublish::RosPublish(const std::string& n)
 
 RosPublish::~RosPublish() { aofs_.close(); }
 
-void RosPublish::display(std::ostream& os) const { os << CLASS_NAME << std::endl; }
+void RosPublish::display(std::ostream& os) const {
+  os << CLASS_NAME << std::endl;
+}
 
 void RosPublish::rm(const std::string& signal) {
   if (bindedSignal_.find(signal) == bindedSignal_.end()) return;
 
   if (signal == "trigger") {
-    std::cerr << "The trigger signal should not be removed. Aborting." << std::endl;
+    std::cerr << "The trigger signal should not be removed. Aborting."
+              << std::endl;
     return;
   }
 
@@ -139,8 +145,8 @@ void RosPublish::rm(const std::string& signal) {
 
 std::vector<std::string> RosPublish::list() const {
   std::vector<std::string> result(bindedSignal_.size());
-  std::transform(bindedSignal_.begin(), bindedSignal_.end(),
-      result.begin(), [](const auto& pair) { return pair.first; });
+  std::transform(bindedSignal_.begin(), bindedSignal_.end(), result.begin(),
+                 [](const auto& pair) { return pair.first; });
   return result;
 }
 

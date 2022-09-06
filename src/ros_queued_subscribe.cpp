@@ -4,20 +4,20 @@
 //
 //
 
+#include "ros_queued_subscribe.hh"
+
+#include <dynamic-graph/factory.h>
+#include <ros/ros.h>
+#include <std_msgs/Float64.h>
+#include <std_msgs/UInt32.h>
+
 #include <boost/assign.hpp>
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
 
-#include <ros/ros.h>
-#include <std_msgs/Float64.h>
-#include <std_msgs/UInt32.h>
-
-#include <dynamic-graph/factory.h>
-
 #include "dynamic_graph_bridge/ros_init.hh"
-#include "ros_queued_subscribe.hh"
 
 namespace dynamicgraph {
 DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosQueuedSubscribe, "RosQueuedSubscribe");
@@ -25,7 +25,10 @@ DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosQueuedSubscribe, "RosQueuedSubscribe");
 namespace command {
 namespace rosQueuedSubscribe {
 Add::Add(RosQueuedSubscribe& entity, const std::string& docstring)
-    : Command(entity, boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING), docstring) {}
+    : Command(
+          entity,
+          boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING),
+          docstring) {}
 
 Value Add::doExecute() {
   RosQueuedSubscribe& entity = static_cast<RosQueuedSubscribe&>(owner());
@@ -62,7 +65,10 @@ const std::string RosQueuedSubscribe::docstring_(
     "  Use command \"add\" to subscribe to a new signal.\n");
 
 RosQueuedSubscribe::RosQueuedSubscribe(const std::string& n)
-    : dynamicgraph::Entity(n), nh_(rosInit(true)), bindedSignal_(), readQueue_(-1) {
+    : dynamicgraph::Entity(n),
+      nh_(rosInit(true)),
+      bindedSignal_(),
+      readQueue_(-1) {
   std::string docstring =
       "\n"
       "  Add a signal reading data from a ROS topic\n"
@@ -78,7 +84,9 @@ RosQueuedSubscribe::RosQueuedSubscribe(const std::string& n)
 
 RosQueuedSubscribe::~RosQueuedSubscribe() {}
 
-void RosQueuedSubscribe::display(std::ostream& os) const { os << CLASS_NAME << std::endl; }
+void RosQueuedSubscribe::display(std::ostream& os) const {
+  os << CLASS_NAME << std::endl;
+}
 
 void RosQueuedSubscribe::rm(const std::string& signal) {
   std::string signalTs = signal + "Timestamp";
@@ -94,16 +102,15 @@ void RosQueuedSubscribe::rm(const std::string& signal) {
 
 std::vector<std::string> RosQueuedSubscribe::list() {
   std::vector<std::string> result(bindedSignal_.size());
-  std::transform(bindedSignal_.begin(), bindedSignal_.end(),
-      result.begin(), [](const auto& pair) { return pair.first; });
+  std::transform(bindedSignal_.begin(), bindedSignal_.end(), result.begin(),
+                 [](const auto& pair) { return pair.first; });
   return result;
 }
 
-std::vector<std::string> RosQueuedSubscribe::listTopics()
-{
+std::vector<std::string> RosQueuedSubscribe::listTopics() {
   std::vector<std::string> result(topics_.size());
-  std::transform(topics_.begin(), topics_.end(),
-      result.begin(), [](const auto& pair) { return pair.second; });
+  std::transform(topics_.begin(), topics_.end(), result.begin(),
+                 [](const auto& pair) { return pair.second; });
   return result;
 }
 
@@ -122,7 +129,8 @@ void RosQueuedSubscribe::clearQueue(const std::string& signal) {
 }
 
 std::size_t RosQueuedSubscribe::queueSize(const std::string& signal) const {
-  std::map<std::string, bindedSignal_t>::const_iterator _bs = bindedSignal_.find(signal);
+  std::map<std::string, bindedSignal_t>::const_iterator _bs =
+      bindedSignal_.find(signal);
   if (_bs != bindedSignal_.end()) {
     return _bs->second->size();
   }

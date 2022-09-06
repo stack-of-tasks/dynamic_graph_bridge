@@ -1,8 +1,8 @@
-#include <stdexcept>
+#include "dynamic_graph_bridge/ros_init.hh"
+
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
-
-#include "dynamic_graph_bridge/ros_init.hh"
+#include <stdexcept>
 
 namespace dynamicgraph {
 struct GlobalRos {
@@ -17,7 +17,8 @@ struct GlobalRos {
 };
 GlobalRos ros;
 
-ros::NodeHandle& rosInit(bool createAsyncSpinner, bool createMultiThreadedSpinner) {
+ros::NodeHandle& rosInit(bool createAsyncSpinner,
+                         bool createMultiThreadedSpinner) {
   if (!ros.nodeHandle) {
     int argc = 1;
     char* arg0 = strdup("dynamic_graph_bridge");
@@ -34,11 +35,14 @@ ros::NodeHandle& rosInit(bool createAsyncSpinner, bool createMultiThreadedSpinne
     // priority
     int oldThreadPolicy, newThreadPolicy;
     struct sched_param oldThreadParam, newThreadParam;
-    if (pthread_getschedparam(pthread_self(), &oldThreadPolicy, &oldThreadParam) == 0) {
+    if (pthread_getschedparam(pthread_self(), &oldThreadPolicy,
+                              &oldThreadParam) == 0) {
       newThreadPolicy = SCHED_OTHER;
       newThreadParam = oldThreadParam;
-      newThreadParam.sched_priority -= 5;  // Arbitrary number, TODO: choose via param/file?
-      if (newThreadParam.sched_priority < sched_get_priority_min(newThreadPolicy))
+      newThreadParam.sched_priority -=
+          5;  // Arbitrary number, TODO: choose via param/file?
+      if (newThreadParam.sched_priority <
+          sched_get_priority_min(newThreadPolicy))
         newThreadParam.sched_priority = sched_get_priority_min(newThreadPolicy);
 
       pthread_setschedparam(pthread_self(), newThreadPolicy, &newThreadParam);

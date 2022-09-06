@@ -1,17 +1,17 @@
+#include "ros_subscribe.hh"
+
+#include <dynamic-graph/factory.h>
+#include <ros/ros.h>
+#include <std_msgs/Float64.h>
+#include <std_msgs/UInt32.h>
+
 #include <boost/assign.hpp>
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
 
-#include <ros/ros.h>
-#include <std_msgs/Float64.h>
-#include <std_msgs/UInt32.h>
-
-#include <dynamic-graph/factory.h>
-
 #include "dynamic_graph_bridge/ros_init.hh"
-#include "ros_subscribe.hh"
 
 namespace dynamicgraph {
 DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosSubscribe, "RosSubscribe");
@@ -19,7 +19,10 @@ DYNAMICGRAPH_FACTORY_ENTITY_PLUGIN(RosSubscribe, "RosSubscribe");
 namespace command {
 namespace rosSubscribe {
 Add::Add(RosSubscribe& entity, const std::string& docstring)
-    : Command(entity, boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING), docstring) {}
+    : Command(
+          entity,
+          boost::assign::list_of(Value::STRING)(Value::STRING)(Value::STRING),
+          docstring) {}
 
 Value Add::doExecute() {
   RosSubscribe& entity = static_cast<RosSubscribe&>(owner());
@@ -63,7 +66,8 @@ const std::string RosSubscribe::docstring_(
     "\n"
     "  Use command \"add\" to subscribe to a new signal.\n");
 
-RosSubscribe::RosSubscribe(const std::string& n) : dynamicgraph::Entity(n), nh_(rosInit(true)), bindedSignal_() {
+RosSubscribe::RosSubscribe(const std::string& n)
+    : dynamicgraph::Entity(n), nh_(rosInit(true)), bindedSignal_() {
   std::string docstring =
       "\n"
       "  Add a signal reading data from a ROS topic\n"
@@ -81,7 +85,9 @@ RosSubscribe::RosSubscribe(const std::string& n) : dynamicgraph::Entity(n), nh_(
 
 RosSubscribe::~RosSubscribe() {}
 
-void RosSubscribe::display(std::ostream& os) const { os << CLASS_NAME << std::endl; }
+void RosSubscribe::display(std::ostream& os) const {
+  os << CLASS_NAME << std::endl;
+}
 
 void RosSubscribe::rm(const std::string& signal) {
   std::string signalTs = signal + "Timestamp";
@@ -97,8 +103,8 @@ void RosSubscribe::rm(const std::string& signal) {
 
 std::vector<std::string> RosSubscribe::list() {
   std::vector<std::string> result(bindedSignal_.size());
-  std::transform(bindedSignal_.begin(), bindedSignal_.end(),
-      result.begin(), [](const auto& pair) { return pair.first; });
+  std::transform(bindedSignal_.begin(), bindedSignal_.end(), result.begin(),
+                 [](const auto& pair) { return pair.first; });
   return result;
 }
 

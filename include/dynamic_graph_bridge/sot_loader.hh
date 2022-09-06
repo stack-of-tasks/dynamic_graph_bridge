@@ -22,20 +22,21 @@
 #include <pinocchio/fwd.hpp>
 
 // Boost includes
-#include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
+#include <boost/program_options.hpp>
 #include <boost/thread/thread.hpp>
 
 // ROS includes
-#include "ros/ros.h"
-#include "std_srvs/Empty.h"
 #include <sensor_msgs/JointState.h>
 #include <tf2_ros/transform_broadcaster.h>
 
+#include "ros/ros.h"
+#include "std_srvs/Empty.h"
+
 // Sot Framework includes
-#include <sot/core/debug.hh>
 #include <sot/core/abstract-sot-external-interface.hh>
+#include <sot/core/debug.hh>
 
 // Dynamic-graph-bridge includes.
 #include <dynamic_graph_bridge/sot_loader_basic.hh>

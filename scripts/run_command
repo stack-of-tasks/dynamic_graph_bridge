@@ -2,7 +2,7 @@
 
 import rospy
 
-import dynamic_graph
+import dynamic_graph  # noqa: F401
 import dynamic_graph_bridge_msgs.srv
 import sys
 import code
@@ -18,7 +18,8 @@ except ImportError:
     print("Module readline not available.")
 
 # Enable a History
-HISTFILE="%s/.pyhistory" % os.environ["HOME"]
+HISTFILE = "%s/.pyhistory" % os.environ["HOME"]
+
 
 def savehist():
     readline.write_history_file(HISTFILE)
@@ -29,30 +30,31 @@ class RosShell(InteractiveConsole):
         self.cache = ""
         InteractiveConsole.__init__(self)
 
-        rospy.loginfo('waiting for service...')
-        rospy.wait_for_service('run_command')
+        rospy.loginfo("waiting for service...")
+        rospy.wait_for_service("run_command")
         self.client = rospy.ServiceProxy(
-            'run_command', dynamic_graph_bridge_msgs.srv.RunCommand, True)
-        rospy.wait_for_service('run_script')
+            "run_command", dynamic_graph_bridge_msgs.srv.RunCommand, True
+        )
+        rospy.wait_for_service("run_script")
         self.scriptClient = rospy.ServiceProxy(
-            'run_script', dynamic_graph_bridge_msgs.srv.RunPythonFile, True)
-        
+            "run_script", dynamic_graph_bridge_msgs.srv.RunPythonFile, True
+        )
+
         readline.set_completer(DGCompleter(self.client).complete)
         readline.parse_and_bind("tab: complete")
 
         # Read the existing history if there is one
         if os.path.exists(HISTFILE):
             readline.read_history_file(HISTFILE)
-            
+
         # Set maximum number of items that will be written to the history file
         readline.set_history_length(300)
-            
- 
+
     import atexit
+
     atexit.register(savehist)
 
-
-    def runcode(self, code, retry = True):
+    def runcode(self, code, retry=True):
         source = self.cache[:-1]
         self.cache = ""
         if source != "":
@@ -60,7 +62,8 @@ class RosShell(InteractiveConsole):
                 if not self.client:
                     print("Connection to remote server lost. Reconnecting...")
                     self.client = rospy.ServiceProxy(
-                        'run_command', dynamic_graph_bridge_msgs.srv.RunCommand, True)
+                        "run_command", dynamic_graph_bridge_msgs.srv.RunCommand, True
+                    )
                     if retry:
                         print("Retrying previous command...")
                         self.cache = source
@@ -72,16 +75,17 @@ class RosShell(InteractiveConsole):
                     print(response.standarderror[:-1])
                 elif response.result != "None":
                     print(response.result)
-            except rospy.ServiceException as e:
+            except rospy.ServiceException:
                 print("Connection to remote server lost. Reconnecting...")
                 self.client = rospy.ServiceProxy(
-                    'run_command', dynamic_graph_bridge_msgs.srv.RunCommand, True)
+                    "run_command", dynamic_graph_bridge_msgs.srv.RunCommand, True
+                )
                 if retry:
                     print("Retrying previous command...")
                     self.cache = source
                     self.runcode(code, False)
 
-    def runsource(self, source, filename = '<input>', symbol = 'single'):
+    def runsource(self, source, filename="<input>", symbol="single"):
         try:
             c = code.compile_command(source, filename, symbol)
             if c:
@@ -93,17 +97,18 @@ class RosShell(InteractiveConsole):
             self.cache = ""
             return False
 
-    def push(self,line):
+    def push(self, line):
         self.cache += line + "\n"
-        return InteractiveConsole.push(self,line)
+        return InteractiveConsole.push(self, line)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import optparse
     import os.path
-    rospy.init_node('run_command', argv=sys.argv)
+
+    rospy.init_node("run_command", argv=sys.argv)
     sys.argv = rospy.myargv(argv=None)
-    parser = optparse.OptionParser(
-        usage='\n\t%prog [options]')
+    parser = optparse.OptionParser(usage="\n\t%prog [options]")
     (options, args) = parser.parse_args(sys.argv[1:])
 
     sh = RosShell()
@@ -118,6 +123,6 @@ if __name__ == '__main__':
             if not response:
                 print("Error while file parsing ")
         else:
-            print("Provided file does not exist: %s"%(infile))
+            print("Provided file does not exist: %s" % (infile))
     else:
         sh.interact("Interacting with remote server.")
