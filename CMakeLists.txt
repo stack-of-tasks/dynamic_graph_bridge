@@ -24,7 +24,6 @@ SET(CATKIN_ENABLE_TESTING OFF)
 # JRL-cmakemodule setup
 INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
-INCLUDE(cmake/python.cmake)
 INCLUDE(cmake/ros.cmake)
 
 # Project definition
@@ -34,26 +33,24 @@ PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 # Project dependencies
 SET(CATKIN_REQUIRED_COMPONENTS roscpp std_msgs message_generation std_srvs geometry_msgs sensor_msgs tf2_ros
     realtime_tools)
-ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS program_options)
-ADD_PROJECT_DEPENDENCY(dynamic_graph_bridge_msgs 0.3.0 REQUIRED)
 
 IF(BUILD_PYTHON_INTERFACE)
-  FINDPYTHON()
-  SEARCH_FOR_BOOST_PYTHON()
-  STRING(REGEX REPLACE "-" "_" PY_NAME ${PROJECT_NAME})
   ADD_PROJECT_DEPENDENCY(dynamic-graph-python 4.0.0 REQUIRED)
+  STRING(REGEX REPLACE "-" "_" PY_NAME ${PROJECT_NAME})
   SET(CATKIN_REQUIRED_COMPONENTS ${CATKIN_REQUIRED_COMPONENTS} rospy)
-
-  IF(Boost_VERSION GREATER 107299 OR Boost_VERSION_MACRO GREATER 107299)
-    # Silence a warning about a deprecated use of boost bind by boost >= 1.73
-    # without dropping support for boost < 1.73
-    ADD_DEFINITIONS(-DBOOST_BIND_GLOBAL_PLACEHOLDERS)
-  ENDIF()
 ENDIF(BUILD_PYTHON_INTERFACE)
 
-find_package(catkin REQUIRED COMPONENTS ${CATKIN_REQUIRED_COMPONENTS})
-
+ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS program_options)
+ADD_PROJECT_DEPENDENCY(dynamic_graph_bridge_msgs 0.3.0 REQUIRED)
 ADD_PROJECT_DEPENDENCY(sot-core REQUIRED)
+
+IF(Boost_VERSION GREATER 107299 OR Boost_VERSION_MACRO GREATER 107299)
+  # Silence a warning about a deprecated use of boost bind by boost >= 1.73
+  # without dropping support for boost < 1.73
+  ADD_DEFINITIONS(-DBOOST_BIND_GLOBAL_PLACEHOLDERS)
+ENDIF()
+
+find_package(catkin REQUIRED COMPONENTS ${CATKIN_REQUIRED_COMPONENTS})
 
 # Main Library
 set(${PROJECT_NAME}_HEADERS
