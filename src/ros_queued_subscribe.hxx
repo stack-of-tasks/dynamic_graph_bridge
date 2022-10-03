@@ -23,7 +23,7 @@
 
 namespace dynamicgraph {
 namespace internal {
-static const int BUFFER_SIZE = 1 << 10;
+static const int BUFFER_SIZE = 1 << 22;
 
 template <typename T>
 struct Add {
