@@ -102,7 +102,7 @@ class SotLoader : public SotLoaderBasic {
 
   // \brief Method for the thread implementing the starting and stopping part of dynamic_graph
   void workThreadLoader();
-  
+
   // \brief Join the thread.
   void lthread_join();
   typedef std::shared_ptr<SotLoader> SharedPtr;
