@@ -21,9 +21,9 @@ public:
                                  dynamicgraph::sot::SensorValues> &) final;
   virtual void getControl(std::map<std::string,
                           dynamicgraph::sot::ControlValues> &) final;
-  
+
   virtual void setSecondOrderIntegration(void);
-  
+
   virtual void setNoIntegration(void);
 
 protected:

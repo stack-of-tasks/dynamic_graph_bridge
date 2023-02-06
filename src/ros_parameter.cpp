@@ -19,7 +19,7 @@ namespace dynamicgraph {
       {
         nh->declare_parameter("robot_description",std::string(""));
       }
-    
+
     std::string robot_description;
     std::string parameter_name("robot_description");
     nh->get_parameter(parameter_name,robot_description);
@@ -29,9 +29,9 @@ namespace dynamicgraph {
                      "Parameter robot_description is empty");
         return false;
       }
-    
+
     std::string model_name("robot");
-    
+
     // Search for the robot util related to robot_name.
     sot::RobotUtilShrPtr aRobotUtil = sot::getRobotUtil(model_name);
     // If does not exist then it is created.

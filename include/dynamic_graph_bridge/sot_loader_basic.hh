@@ -73,7 +73,7 @@ class SotLoaderBasic {
 
   // Node reference
   rclcpp::Node::SharedPtr nh_;
-  
+
   // Joint state to be published.
   sensor_msgs::msg::JointState joint_state_;
 
@@ -100,7 +100,7 @@ class SotLoaderBasic {
 
   // Returns nodeHandle
   rclcpp::Node::SharedPtr returnsNodeHandle();
-  
+
   /// \brief Unload the library which handles the robot device.
   void CleanUp();
 
