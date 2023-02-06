@@ -7,6 +7,7 @@
  * @date 2019-05-22
  */
 
+#include "fwd.hpp"
 #include <dynamic-graph/factory.h>
 #include "ros_subscribe.hpp"
 
@@ -163,6 +164,7 @@ Add::Add(RosSubscribe& entity, const std::string& doc_string)
 
 Value Add::doExecute()
 {
+  using namespace dynamicgraph;
     RosSubscribe& entity = static_cast<RosSubscribe&>(owner());
     std::vector<Value> values = getParameterValues();
 

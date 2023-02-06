@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "fwd.hpp"
 #include <dynamic-graph/command.h>
 #include <dynamic-graph/entity.h>
 #include <dynamic-graph/signal-ptr.h>
