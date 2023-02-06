@@ -17,7 +17,7 @@ ImplTestSotExternalInterface::ImplTestSotExternalInterface()
   named_base_ff_vec_.setName("baseff");
 
   ctrl_vector.resize(7);
-  for( auto i=0;i<6;i++)
+  for( std::vector<double>::size_type i=0;i<6;i++)
     ctrl_vector[i] = 0.0;
   ctrl_vector[6] = 0.0;
   named_base_ff_vec_.setValues(ctrl_vector);
