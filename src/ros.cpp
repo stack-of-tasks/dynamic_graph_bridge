@@ -7,13 +7,23 @@
  * @date 2019-05-22
  */
 
+/// Standard includes
 #include <deque>
 #include <atomic>
 #include <fstream>
 #include <chrono>
 #include <thread>
 
+/// ROS2 includes
+#include <rclcpp/executor.hpp>
+
+/// Dynamic Bridge include
 #include "dynamic_graph_bridge/ros.hpp"
+
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#include <sys/param.h>
+#endif
 
 namespace dynamic_graph_bridge
 {
@@ -49,7 +59,7 @@ static GlobalListOfRosNodeType GLOBAL_LIST_OF_ROS_NODE;
 class Executor
 {
 public:
-    Executor() : ros_executor_(rclcpp::executor::ExecutorArgs(), 4)
+    Executor() : ros_executor_(rclcpp::ExecutorOptions(), 4)
     {
         is_thread_running_ = false;
         is_spinning_ = false;
@@ -189,7 +199,7 @@ ExecutorPtr EXECUTOR = nullptr;
 /**
  * @brief Private function that allow us to get the current executable name.
  *
- * @return std::string the current executable name.
+ * @Return std::string the current executable name.
  */
 std::string executable_name()
 {
@@ -206,6 +216,11 @@ std::string executable_name()
     GetModuleFileNameA(nullptr, buf, MAX_PATH);
     return buf;
 
+#elif defined(__APPLE__)
+    uint32_t buf_length=MAXPATHLEN;
+    char buf[MAXPATHLEN];
+    _NSGetExecutablePath(buf,&buf_length);
+    return buf;
 #else
 
     static_assert(false, "unrecognized platform");
