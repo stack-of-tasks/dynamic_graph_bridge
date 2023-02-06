@@ -10,18 +10,16 @@
 
 #pragma once
 
-#include <ostream>
 #include <chrono>
+#include <ostream>
 
-namespace dynamic_graph_bridge
-{
+namespace dynamic_graph_bridge {
 /** @brief Time stamp type. */
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> timestamp_t;
 
 }  // namespace dynamic_graph_bridge
 
-namespace dynamicgraph
-{
+namespace dynamicgraph {
 /**
  * @brief out stream the time stamp data.
  *
@@ -29,17 +27,16 @@ namespace dynamicgraph
  * @param time_stamp
  * @return std::ostream&
  *
- * For clang this function needs to be forward declared before the template using it.
- * This is more in accordance to the standard.
+ * For clang this function needs to be forward declared before the template
+ * using it. This is more in accordance to the standard.
  */
 inline std::ostream &operator<<(
-    std::ostream &os, const dynamic_graph_bridge::timestamp_t &time_stamp)
-{
-    std::chrono::time_point<std::chrono::high_resolution_clock,
-                            std::chrono::milliseconds>
-        time_stamp_nanosec =
-            std::chrono::time_point_cast<std::chrono::milliseconds>(time_stamp);
-    os << time_stamp_nanosec.time_since_epoch().count();
-    return os;
+    std::ostream &os, const dynamic_graph_bridge::timestamp_t &time_stamp) {
+  std::chrono::time_point<std::chrono::high_resolution_clock,
+                          std::chrono::milliseconds>
+      time_stamp_nanosec =
+          std::chrono::time_point_cast<std::chrono::milliseconds>(time_stamp);
+  os << time_stamp_nanosec.time_since_epoch().count();
+  return os;
 }
-}
+}  // namespace dynamicgraph

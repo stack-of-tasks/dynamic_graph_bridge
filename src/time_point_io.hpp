@@ -9,12 +9,11 @@
 
 #pragma once
 
-#include "fwd.hpp"
-
 #include <dynamic-graph/signal-caster.h>
 
-namespace dynamicgraph
-{
+#include "fwd.hpp"
+
+namespace dynamicgraph {
 
 /**
  * @brief Structure used to serialize/deserialize the time stamp.
@@ -23,12 +22,10 @@ namespace dynamicgraph
  */
 template <>
 struct signal_io<dynamic_graph_bridge::timestamp_t>
-    : signal_io_base<dynamic_graph_bridge::timestamp_t>
-{
-    inline static dynamic_graph_bridge::timestamp_t cast(std::istringstream &)
-    {
-        throw std::logic_error("this cast is not implemented.");
-    }
+    : signal_io_base<dynamic_graph_bridge::timestamp_t> {
+  inline static dynamic_graph_bridge::timestamp_t cast(std::istringstream &) {
+    throw std::logic_error("this cast is not implemented.");
+  }
 };
 
 }  // namespace dynamicgraph

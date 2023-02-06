@@ -1,11 +1,11 @@
 #include <dynamic-graph/python/module.hh>
+
 #include "ros_subscribe.hpp"
 
 namespace dgb = dynamic_graph_bridge;
 namespace dg = dynamicgraph;
 
-BOOST_PYTHON_MODULE(wrap)
-{
+BOOST_PYTHON_MODULE(wrap) {
   bp::import("dynamic_graph");
 
   dg::python::exposeEntity<dgb::RosSubscribe, bp::bases<dg::Entity>,

@@ -8,10 +8,10 @@
  */
 
 /// Standard includes
-#include <deque>
 #include <atomic>
-#include <fstream>
 #include <chrono>
+#include <deque>
+#include <fstream>
 #include <thread>
 
 /// ROS2 includes
@@ -25,8 +25,7 @@
 #include <sys/param.h>
 #endif
 
-namespace dynamic_graph_bridge
-{
+namespace dynamic_graph_bridge {
 /*
  * Private methods
  */
@@ -56,134 +55,112 @@ static GlobalListOfRosNodeType GLOBAL_LIST_OF_ROS_NODE;
 /**
  * @brief Small class allowing to start a ROS spin in a thread.
  */
-class Executor
-{
-public:
-    Executor() : ros_executor_(rclcpp::ExecutorOptions(), 4)
-    {
-        is_thread_running_ = false;
-        is_spinning_ = false;
-        list_node_added_.clear();
+class Executor {
+ public:
+  Executor() : ros_executor_(rclcpp::ExecutorOptions(), 4) {
+    is_thread_running_ = false;
+    is_spinning_ = false;
+    list_node_added_.clear();
+  }
+
+  /**
+   * @brief Upon destruction close the thread and stop spinning.
+   *
+   * @return
+   */
+  ~Executor() { stop_spinning(); }
+
+  /**
+   * @brief Start ros_spin in a different thread to not block the current one.
+   */
+  void spin_non_blocking() {
+    if (!is_thread_running_ && !is_spinning_) {
+      std::cout << "Start ros spin in thread." << std::endl;
+      // Marking thread as started to avoid a second thread from getting
+      // started.
+      is_thread_running_ = true;
+      thread_ = std::thread(&Executor::thread_callback, this);
     }
+  }
 
-    /**
-     * @brief Upon destruction close the thread and stop spinning.
-     *
-     * @return
-     */
-    ~Executor()
-    {
-        stop_spinning();
+  /**
+   * @brief Block the current thread and make ROS spinning.
+   */
+  void spin() {
+    if (is_thread_running_) {
+      while (ros_ok() && is_thread_running_) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
+    } else {
+      is_spinning_ = true;
+      ros_executor_.spin();
+      is_spinning_ = false;
     }
+  }
 
-    /**
-     * @brief Start ros_spin in a different thread to not block the current one.
-     */
-    void spin_non_blocking()
-    {
-        if (!is_thread_running_ && !is_spinning_)
-        {
-            std::cout << "Start ros spin in thread." << std::endl;
-            // Marking thread as started to avoid a second thread from getting
-            // started.
-            is_thread_running_ = true;
-            thread_ = std::thread(&Executor::thread_callback, this);
-        }
+  void add_node(const std::string& ros_node_name) {
+    if (std::find(list_node_added_.begin(), list_node_added_.end(),
+                  ros_node_name) == list_node_added_.end()) {
+      list_node_added_.push_back(ros_node_name);
+      ros_executor_.add_node(get_ros_node(ros_node_name));
     }
+  }
 
-    /**
-     * @brief Block the current thread and make ROS spinning.
-     */
-    void spin()
-    {
-        if (is_thread_running_)
-        {
-            while (ros_ok() && is_thread_running_)
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-        }
-        else
-        {
-            is_spinning_ = true;
-            ros_executor_.spin();
-            is_spinning_ = false;
-        }
+  void remove_node(const std::string& ros_node_name) {
+    std::deque<std::string>::iterator el = std::find(
+        list_node_added_.begin(), list_node_added_.end(), ros_node_name);
+    if (el != list_node_added_.end()) {
+      list_node_added_.erase(el);
+      assert(std::find(list_node_added_.begin(), list_node_added_.end(),
+                       ros_node_name) == list_node_added_.end() &&
+             "The node has not been removed properly.");
+      ros_executor_.remove_node(get_ros_node(ros_node_name));
     }
+  }
 
-    void add_node(const std::string& ros_node_name)
-    {
-        if (std::find(list_node_added_.begin(),
-                      list_node_added_.end(),
-                      ros_node_name) == list_node_added_.end())
-        {
-            list_node_added_.push_back(ros_node_name);
-            ros_executor_.add_node(get_ros_node(ros_node_name));
-        }
+  /**
+   * @brief Stop the spinning al together. Callable in a different thread.
+   */
+  void stop_spinning() {
+    while (is_thread_running_ || is_spinning_) {
+      ros_executor_.cancel();
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
-    void remove_node(const std::string& ros_node_name)
-    {
-        std::deque<std::string>::iterator el = std::find(
-            list_node_added_.begin(), list_node_added_.end(), ros_node_name);
-        if (el != list_node_added_.end())
-        {
-            list_node_added_.erase(el);
-            assert(std::find(list_node_added_.begin(),
-                             list_node_added_.end(),
-                             ros_node_name) == list_node_added_.end() &&
-                   "The node has not been removed properly.");
-            ros_executor_.remove_node(get_ros_node(ros_node_name));
-        }
+    if (thread_.joinable()) {
+      thread_.join();
     }
+  }
 
-    /**
-     * @brief Stop the spinning al together. Callable in a different thread.
-     */
-    void stop_spinning()
-    {
-        while (is_thread_running_ || is_spinning_)
-        {
-            ros_executor_.cancel();
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-        if (thread_.joinable())
-        {
-            thread_.join();
-        }
-    }
+ private:
+  /**
+   * @brief Thread callback function
+   */
+  void thread_callback() {
+    ros_executor_.spin();
+    is_thread_running_ = false;
+  }
 
-private:
-    /**
-     * @brief Thread callback function
-     */
-    void thread_callback()
-    {
-        ros_executor_.spin();
-        is_thread_running_ = false;
-    }
+  /**
+   * @brief Check if the thread is running.
+   */
+  std::atomic<bool> is_thread_running_;
 
-    /**
-     * @brief Check if the thread is running.
-     */
-    std::atomic<bool> is_thread_running_;
+  /**
+   * @brief Check if the the executor is spinning.
+   */
+  std::atomic<bool> is_spinning_;
 
-    /**
-     * @brief Check if the the executor is spinning.
-     */
-    std::atomic<bool> is_spinning_;
+  /**
+   * @brief Thread in which the EXECUTOR spins.
+   */
+  std::thread thread_;
 
-    /**
-     * @brief Thread in which the EXECUTOR spins.
-     */
-    std::thread thread_;
+  /**
+   * @brief Object that execute the ROS callbacks in a different thread.
+   */
+  RosExecutor ros_executor_;
 
-    /**
-     * @brief Object that execute the ROS callbacks in a different thread.
-     */
-    RosExecutor ros_executor_;
-
-    std::deque<std::string> list_node_added_;
+  std::deque<std::string> list_node_added_;
 
 };  // class Executor
 
@@ -201,29 +178,28 @@ ExecutorPtr EXECUTOR = nullptr;
  *
  * @Return std::string the current executable name.
  */
-std::string executable_name()
-{
+std::string executable_name() {
 #if defined(PLATFORM_POSIX) || \
     defined(__linux__)  // check defines for your setup
 
-    std::string sp;
-    std::ifstream("/proc/self/comm") >> sp;
-    return sp;
+  std::string sp;
+  std::ifstream("/proc/self/comm") >> sp;
+  return sp;
 
 #elif defined(_WIN32)
 
-    char buf[MAX_PATH];
-    GetModuleFileNameA(nullptr, buf, MAX_PATH);
-    return buf;
+  char buf[MAX_PATH];
+  GetModuleFileNameA(nullptr, buf, MAX_PATH);
+  return buf;
 
 #elif defined(__APPLE__)
-    uint32_t buf_length=MAXPATHLEN;
-    char buf[MAXPATHLEN];
-    _NSGetExecutablePath(buf,&buf_length);
-    return buf;
+  uint32_t buf_length = MAXPATHLEN;
+  char buf[MAXPATHLEN];
+  _NSGetExecutablePath(buf, &buf_length);
+  return buf;
 #else
 
-    static_assert(false, "unrecognized platform");
+  static_assert(false, "unrecognized platform");
 
 #endif
 }
@@ -231,119 +207,89 @@ std::string executable_name()
 /**
  * @brief Private function that allow us to initialize ROS only once.
  */
-void ros_init()
-{
-    if (!rclcpp::ok())
-    {
-        /** call rclcpp::init */
-        int argc = 1;
-        char* arg0 = strdup(executable_name().c_str());
-        char* argv[] = {arg0, nullptr};
-        rclcpp::init(argc, argv);
-        free(arg0);
-    }
+void ros_init() {
+  if (!rclcpp::ok()) {
+    /** call rclcpp::init */
+    int argc = 1;
+    char* arg0 = strdup(executable_name().c_str());
+    char* argv[] = {arg0, nullptr};
+    rclcpp::init(argc, argv);
+    free(arg0);
+  }
 }
 
 /*
  * Public Functions => user API, see ros.hpp for the docstrings.
  */
 
-bool ros_node_exists(std::string node_name)
-{
-    if (GLOBAL_LIST_OF_ROS_NODE.find(node_name) ==
-        GLOBAL_LIST_OF_ROS_NODE.end())
-    {
-        return false;
-    }
-    if (GLOBAL_LIST_OF_ROS_NODE.at(node_name) == nullptr)
-    {
-        return false;
-    }
-    return true;
+bool ros_node_exists(std::string node_name) {
+  if (GLOBAL_LIST_OF_ROS_NODE.find(node_name) ==
+      GLOBAL_LIST_OF_ROS_NODE.end()) {
+    return false;
+  }
+  if (GLOBAL_LIST_OF_ROS_NODE.at(node_name) == nullptr) {
+    return false;
+  }
+  return true;
 }
 
-ExecutorPtr get_ros_executor()
-{
-    ros_init();
-    if (!EXECUTOR)
-    {
-        EXECUTOR = std::make_shared<Executor>();
-    }
-    return EXECUTOR;
+ExecutorPtr get_ros_executor() {
+  ros_init();
+  if (!EXECUTOR) {
+    EXECUTOR = std::make_shared<Executor>();
+  }
+  return EXECUTOR;
 }
 
-RosNodePtr get_ros_node(std::string node_name)
-{
-    ros_init();
-    if (!ros_node_exists(node_name))
-    {
-        GLOBAL_LIST_OF_ROS_NODE[node_name] = RosNodePtr(nullptr);
-    }
-    if (!GLOBAL_LIST_OF_ROS_NODE[node_name] ||
-        GLOBAL_LIST_OF_ROS_NODE[node_name].get() == nullptr)
-    {
-        /** RosNode instanciation */
-        GLOBAL_LIST_OF_ROS_NODE[node_name] =
-            std::make_shared<RosNode>(
-                node_name, "dynamic_graph_bridge");
-
-    }
-    /** Return a reference to the node handle so any function can use it */
-    return GLOBAL_LIST_OF_ROS_NODE[node_name];
+RosNodePtr get_ros_node(std::string node_name) {
+  ros_init();
+  if (!ros_node_exists(node_name)) {
+    GLOBAL_LIST_OF_ROS_NODE[node_name] = RosNodePtr(nullptr);
+  }
+  if (!GLOBAL_LIST_OF_ROS_NODE[node_name] ||
+      GLOBAL_LIST_OF_ROS_NODE[node_name].get() == nullptr) {
+    /** RosNode instanciation */
+    GLOBAL_LIST_OF_ROS_NODE[node_name] =
+        std::make_shared<RosNode>(node_name, "dynamic_graph_bridge");
+  }
+  /** Return a reference to the node handle so any function can use it */
+  return GLOBAL_LIST_OF_ROS_NODE[node_name];
 }
 
-void ros_add_node_to_executor(const std::string& node_name)
-{
-    get_ros_executor()->add_node(node_name);
+void ros_add_node_to_executor(const std::string& node_name) {
+  get_ros_executor()->add_node(node_name);
 }
 
-void ros_shutdown(std::string node_name)
-{
-    if (GLOBAL_LIST_OF_ROS_NODE.find(node_name) ==
-        GLOBAL_LIST_OF_ROS_NODE.end())
-    {
-        return;
-    }
-    get_ros_executor()->remove_node(node_name);
-    GLOBAL_LIST_OF_ROS_NODE.erase(node_name);
+void ros_shutdown(std::string node_name) {
+  if (GLOBAL_LIST_OF_ROS_NODE.find(node_name) ==
+      GLOBAL_LIST_OF_ROS_NODE.end()) {
+    return;
+  }
+  get_ros_executor()->remove_node(node_name);
+  GLOBAL_LIST_OF_ROS_NODE.erase(node_name);
 }
 
-void ros_shutdown()
-{
-    // rclcpp::shutdown();
+void ros_shutdown() {
+  // rclcpp::shutdown();
 }
 
-void ros_clean()
-{
-    ros_stop_spinning();
-    GlobalListOfRosNodeType::iterator ros_node_it =
-        GLOBAL_LIST_OF_ROS_NODE.begin();
-    while (!GLOBAL_LIST_OF_ROS_NODE.empty())
-    {
-        ros_shutdown(ros_node_it->first);
-        ros_node_it = GLOBAL_LIST_OF_ROS_NODE.begin();
-    }
-    GLOBAL_LIST_OF_ROS_NODE.clear();
+void ros_clean() {
+  ros_stop_spinning();
+  GlobalListOfRosNodeType::iterator ros_node_it =
+      GLOBAL_LIST_OF_ROS_NODE.begin();
+  while (!GLOBAL_LIST_OF_ROS_NODE.empty()) {
+    ros_shutdown(ros_node_it->first);
+    ros_node_it = GLOBAL_LIST_OF_ROS_NODE.begin();
+  }
+  GLOBAL_LIST_OF_ROS_NODE.clear();
 }
 
-bool ros_ok()
-{
-    return rclcpp::ok();
-}
+bool ros_ok() { return rclcpp::ok(); }
 
-void ros_spin()
-{
-    get_ros_executor()->spin();
-}
+void ros_spin() { get_ros_executor()->spin(); }
 
-void ros_spin_non_blocking()
-{
-    get_ros_executor()->spin_non_blocking();
-}
+void ros_spin_non_blocking() { get_ros_executor()->spin_non_blocking(); }
 
-void ros_stop_spinning()
-{
-    get_ros_executor()->stop_spinning();
-}
+void ros_stop_spinning() { get_ros_executor()->stop_spinning(); }
 
 }  // end of namespace dynamic_graph_bridge.
