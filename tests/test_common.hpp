@@ -46,7 +46,7 @@ void start_dg_ros_service()
     ASSERT_TRUE(response.valid());
     // wait_for_response(response);
     ASSERT_TRUE(rclcpp::spin_until_future_complete(ros_node, response) ==
-                rclcpp::executor::FutureReturnCode::SUCCESS);
+                rclcpp::FutureReturnCode::SUCCESS);
 }
 
 void stop_dg_ros_service()
@@ -68,7 +68,7 @@ void stop_dg_ros_service()
     ASSERT_TRUE(response.valid());
     // wait_for_response(response);
     ASSERT_TRUE(rclcpp::spin_until_future_complete(ros_node, response) ==
-                rclcpp::executor::FutureReturnCode::SUCCESS);
+                rclcpp::FutureReturnCode::SUCCESS);
 }
 
 void start_run_python_command_ros_service(const std::string& cmd,
@@ -96,7 +96,7 @@ void start_run_python_command_ros_service(const std::string& cmd,
     ASSERT_TRUE(response.valid());
     // wait_for_response(response);
     ASSERT_TRUE(rclcpp::spin_until_future_complete(ros_node, response) ==
-                rclcpp::executor::FutureReturnCode::SUCCESS);
+                rclcpp::FutureReturnCode::SUCCESS);
     // Get the results.
     result = response.get()->result;
     standarderror = response.get()->standarderror;
@@ -126,7 +126,7 @@ void start_run_python_script_ros_service(const std::string& file_name,
     ASSERT_TRUE(response.valid());
     // wait_for_response(response);
     ASSERT_TRUE(rclcpp::spin_until_future_complete(ros_node, response) ==
-                rclcpp::executor::FutureReturnCode::SUCCESS);
+                rclcpp::FutureReturnCode::SUCCESS);
     // Get the results.
     result = response.get()->result;
 }
