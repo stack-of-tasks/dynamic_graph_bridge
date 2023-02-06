@@ -15,8 +15,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_srvs/srv/empty.hpp"
 
-namespace dynamic_graph_bridge
-{
+namespace dynamic_graph_bridge {
 const std::string DG_ROS_NODE_NAME = "dynamic_graph";
 const std::string HWC_ROS_NODE_NAME = "hardware_communication";
 
@@ -29,7 +28,8 @@ typedef rclcpp::executors::MultiThreadedExecutor RosExecutor;
 typedef std::shared_ptr<RosExecutor> RosExecutorPtr;
 
 // Python commands shortcuts
-typedef dynamic_graph_bridge_msgs::srv::RunPythonCommand RunPythonCommandSrvType;
+typedef dynamic_graph_bridge_msgs::srv::RunPythonCommand
+    RunPythonCommandSrvType;
 typedef rclcpp::Service<RunPythonCommandSrvType>::SharedPtr
     RunPythonCommandServerPtr;
 typedef rclcpp::Client<RunPythonCommandSrvType>::SharedPtr

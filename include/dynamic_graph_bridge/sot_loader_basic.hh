@@ -22,18 +22,20 @@
 #include <pinocchio/fwd.hpp>
 
 // Boost includes
-#include <boost/program_options.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
+#include <boost/program_options.hpp>
 
 // ROS includes
 #include <rclcpp/rclcpp.hpp>
-#include "std_srvs/srv/empty.hpp"
 #include <sensor_msgs/msg/joint_state.hpp>
 
+#include "std_srvs/srv/empty.hpp"
+
 // Sot Framework includes
-#include <sot/core/debug.hh>
 #include <sot/core/abstract-sot-external-interface.hh>
+#include <sot/core/debug.hh>
+
 #include "dynamic_graph_bridge/ros.hpp"
 
 namespace po = boost::program_options;
@@ -54,7 +56,7 @@ class SotLoaderBasic {
   void* sotRobotControllerLibrary_;
 
   /// \brief Map between SoT state vector and some joint_state_links
-  //XmlRpc::XmlRpcValue stateVectorMap_;
+  // XmlRpc::XmlRpcValue stateVectorMap_;
 
   /// \brief List of parallel joints from the state vector.
   typedef std::vector<int> parallel_joints_to_state_vector_t;
@@ -83,7 +85,6 @@ class SotLoaderBasic {
 
   // Ordered list of joint names describing the robot state.
   std::vector<std::string> stateVectorMap_;
-
 
  public:
   SotLoaderBasic();

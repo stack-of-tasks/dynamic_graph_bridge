@@ -7,16 +7,16 @@
  */
 #include <iostream>
 
-
 #define ENABLE_RT_LOG
 #include <dynamic-graph/real-time-logger.h>
 
-#include <dynamic_graph_bridge/sot_loader.hh>
 #include <dynamic_graph_bridge/ros.hpp>
+#include <dynamic_graph_bridge/sot_loader.hh>
 
 int main(int argc, char *argv[]) {
-  ::dynamicgraph::RealTimeLogger::instance()
-    .addOutputStream(::dynamicgraph::LoggerStreamPtr_t(new dynamicgraph::LoggerIOStream(std::cout)));
+  ::dynamicgraph::RealTimeLogger::instance().addOutputStream(
+      ::dynamicgraph::LoggerStreamPtr_t(
+          new dynamicgraph::LoggerIOStream(std::cout)));
 
   rclcpp::init(argc, argv);
 
