@@ -59,7 +59,7 @@ struct DataToLog {
 
 void workThreadLoader(SotLoader *aSotLoader) {
   ros::Rate rate(1000);  // 1 kHz
-  double periodd (1e-3);
+  double periodd(1e-3);
 
   if (ros::param::has("/sot_controller/dt")) {
     ros::param::get("/sot_controller/dt", periodd);
@@ -205,7 +205,7 @@ void SotLoader::setup() {
   readControl(controlValues_);
 }
 
-void SotLoader::oneIteration(const double& period) {
+void SotLoader::oneIteration(const double &period) {
   fillSensors(sensorsIn_);
   try {
     sotController_->nominalSetSensors(sensorsIn_);
