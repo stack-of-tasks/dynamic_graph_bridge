@@ -88,7 +88,7 @@ class SotLoader : public SotLoaderBasic {
 
   // \brief Compute one iteration of control.
   // Basically calls fillSensors, the SoT and the readControl.
-  void oneIteration(const double &period);
+  void oneIteration(const double &period=0);
 
   // \brief Fill the sensors value for the SoT.
   void fillSensors(std::map<std::string, dgs::SensorValues> &sensorsIn);
