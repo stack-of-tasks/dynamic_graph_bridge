@@ -59,8 +59,9 @@ struct DataToLog {
 
 void workThreadLoader(SotLoader *aSotLoader) {
   ros::Rate rate(1000);  // 1 kHz
+  double periodd (1e-3);
+
   if (ros::param::has("/sot_controller/dt")) {
-    double periodd;
     ros::param::get("/sot_controller/dt", periodd);
     rate = ros::Rate(1 / periodd);
   }
@@ -80,7 +81,7 @@ void workThreadLoader(SotLoader *aSotLoader) {
 
     if (!paused) {
       time = ros::Time::now();
-      aSotLoader->oneIteration();
+      aSotLoader->oneIteration(periodd);
 
       ros::Duration d = ros::Time::now() - time;
       dataToLog.record((time - timeOrigin).toSec(), d.toSec());
@@ -200,15 +201,15 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
 void SotLoader::setup() {
   fillSensors(sensorsIn_);
   sotController_->setupSetSensors(sensorsIn_);
-  sotController_->getControl(controlValues_);
+  sotController_->getControl(controlValues_, 0);
   readControl(controlValues_);
 }
 
-void SotLoader::oneIteration() {
+void SotLoader::oneIteration(const double& period) {
   fillSensors(sensorsIn_);
   try {
     sotController_->nominalSetSensors(sensorsIn_);
-    sotController_->getControl(controlValues_);
+    sotController_->getControl(controlValues_, period);
   } catch (std::exception &) {
     throw;
   }
