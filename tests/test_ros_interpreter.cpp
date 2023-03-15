@@ -255,3 +255,20 @@ TEST_F(TestRosInterpreter, test_call_run_script_standarderror) {
   ASSERT_TRUE(found_first_part != std::string::npos);
   ASSERT_TRUE(found_second_part != std::string::npos);
 }
+
+TEST_F(TestRosInterpreter, test_call_run_script_ros_publish) {
+  /* Setup. */
+
+  // Create the ros python interpreter.
+  RosPythonInterpreterServer rpi;
+  rpi.start_ros_service();
+
+  // Create and call the clients.
+  std::string file_name =
+      TEST_CONFIG_PATH + std::string("simple_ros_publish.py");
+  std::string result = "";
+  start_run_python_script_ros_service(file_name, result);
+
+  /* Tests. */
+  ASSERT_EQ(result, "");
+}
