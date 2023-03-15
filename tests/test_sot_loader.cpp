@@ -26,14 +26,14 @@ class MockSotLoaderTest : public ::testing::Test {
       char *argv[2];
       char argv1[30] = "mocktest";
       argv[0] = argv1;
-      char argv2[60] = "--input-file=libimpl_test_sot_external_interface.so";
+      char argv2[60] = "--input-file=libimpl_test_library.so";
       argv[1] = argv2;
       parseOptions(argc, argv);
 
-      std::string finalname("libimpl_test_sot_external_interface.so");
+      std::string finalname("libimpl_test_library.so");
       EXPECT_TRUE(finalname == dynamicLibraryName_);
 
-      // Performs initialization of libimpl_test_sot_external_interface.so
+      // Performs initialization of libimpl_test_library.so
       loadController();
       EXPECT_TRUE(sotRobotControllerLibrary_ != 0);
       EXPECT_TRUE(sotController_ != nullptr);

@@ -1,6 +1,29 @@
 #include "impl_test_sot_external_interface.hh"
 
-ImplTestSotExternalInterface::ImplTestSotExternalInterface() {
+#include "dynamic_graph_bridge/ros.hpp"
+
+using namespace dynamic_graph_bridge;
+
+ImplTestSotExternalInterface::ImplTestSotExternalInterface()
+    : device_(new ImplTestSotMockDevice("RobotName")) {
+  init();
+}
+
+ImplTestSotExternalInterface::ImplTestSotExternalInterface(
+    std::string RobotName)
+    : device_(new ImplTestSotMockDevice(RobotName)) {
+  init();
+}
+
+ImplTestSotExternalInterface::ImplTestSotExternalInterface(
+    const char RobotName[])
+    : device_(new ImplTestSotMockDevice(RobotName)) {
+  init();
+}
+
+ImplTestSotExternalInterface::~ImplTestSotExternalInterface() {}
+
+void ImplTestSotExternalInterface::init() {
   std::vector<double> ctrl_vector;
   ctrl_vector.resize(2);
 
@@ -19,9 +42,20 @@ ImplTestSotExternalInterface::ImplTestSotExternalInterface() {
   for (std::vector<double>::size_type i = 0; i < 6; i++) ctrl_vector[i] = 0.0;
   ctrl_vector[6] = 0.0;
   named_base_ff_vec_.setValues(ctrl_vector);
-}
 
-ImplTestSotExternalInterface::~ImplTestSotExternalInterface() {}
+  // rosInit is called here only to initialize ros.
+  // No spinner is initialized.
+  py_interpreter_srv_ =
+      boost::shared_ptr<dynamic_graph_bridge::RosPythonInterpreterServer>(
+          new dynamic_graph_bridge::RosPythonInterpreterServer());
+
+  RosNodePtr py_inter_ptr = get_ros_node("python_interpreter");
+  // Set the control time step parameter to 0.001
+  double ts = 0.001;
+
+  py_inter_ptr->declare_parameter<double>("/sot_controller/dt", ts);
+  device_->timeStep(ts);
+}
 
 void ImplTestSotExternalInterface::setupSetSensors(
     std::map<std::string, dynamicgraph::sot::SensorValues> &) {

@@ -11,12 +11,23 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Library for sot_external_interface
-  add_library(impl_test_sot_external_interface SHARED
-              impl_test_sot_external_interface)
+  add_library(impl_test_library
+    SHARED
+    impl_test_sot_external_interface.cpp
+    impl_test_sot_mock_device.cpp)
 
-  target_link_libraries(impl_test_sot_external_interface
-                        PUBLIC sot-core::sot-core)
-
+  target_include_directories(impl_test_library
+    PUBLIC include
+    )
+  target_link_libraries(impl_test_library
+    PUBLIC sot-core::sot-core
+    )
+  ament_target_dependencies(impl_test_library PUBLIC
+    dynamic_graph_bridge_msgs
+    rclcpp
+    rcl_interfaces
+    std_srvs
+    )
   # Executable for SotLoaderBasic test
   add_executable(test_sot_loader_basic test_sot_loader_basic.cpp)
   target_include_directories(
@@ -42,7 +53,7 @@ if(BUILD_TESTING)
           DESTINATION lib/${PROJECT_NAME})
 
   # Install library for tests
-  install(TARGETS impl_test_sot_external_interface DESTINATION lib)
+  install(TARGETS impl_test_library DESTINATION lib)
 
   install(DIRECTORY launch urdf DESTINATION share/${PROJECT_NAME})
 
