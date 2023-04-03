@@ -11,32 +11,38 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Module to charge a urdf and run a sot_loader_basic class."""
 
-from pathlib import Path
 import unittest
+from pathlib import Path
+
 import launch
 import launch.actions
 import launch_testing
 import launch_testing.actions
-from launch.substitutions import PathJoinSubstitution
-from launch import LaunchDescription
-from launch_ros.actions import Node
-from ament_index_python.packages import get_package_share_directory
 import pytest
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.substitutions import PathJoinSubstitution
+from launch_ros.actions import Node
 
 
 @pytest.mark.launch_test
 def generate_test_description():
+    """Run a node in dynamic_graph_bridge package.
+
+    It also set parameters state_vector_map and robot_description
+    """
     ld = LaunchDescription()
 
     robot_description_content_path = (
-        Path(get_package_share_directory("dynamic_graph_bridge")) /
-        "urdf" /
-        "dgb_minimal_robot.urdf"
+        Path(get_package_share_directory("dynamic_graph_bridge"))
+        / "urdf"
+        / "dgb_minimal_robot.urdf"
     )
-    assert(robot_description_content_path.exists())
-    robot_description_content = open(
-        PathJoinSubstitution(str(robot_description_content_path)).perform(None)
+    assert robot_description_content_path.exists()
+    robot_description_content = Path.open(
+        PathJoinSubstitution(str(robot_description_content_path)).perform(None),
     ).read()
     terminating_process = Node(
         package="dynamic_graph_bridge",
@@ -55,20 +61,24 @@ def generate_test_description():
                 terminating_process,
                 launch_testing.util.KeepAliveProc(),
                 launch_testing.actions.ReadyToTest(),
-            ]
+            ],
         ),
         locals(),
     )
 
 
 class TestSotLoaderBasic(unittest.TestCase):
+    """Main class to start the test."""
+
     def test_termination(self, terminating_process, proc_info):
+        """Runs the generate_test_description() function."""
         proc_info.assertWaitForShutdown(process=terminating_process, timeout=(10))
 
 
 @launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
+    """Class to handle the test result."""
+
     def test_exit_code(self, proc_info):
-        # Check that all processes in the launch (in this case, there's just one) exit
-        # with code 0
+        """Check that all processes in the launch exit with code 0."""
         launch_testing.asserts.assertExitCodes(proc_info)

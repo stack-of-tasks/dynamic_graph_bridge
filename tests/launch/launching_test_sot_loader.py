@@ -11,29 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Module to test sot_loader."""
 
-import os
-import sys
 import unittest
-
-import ament_index_python
+from pathlib import Path
 
 import launch
 import launch.actions
-
 import launch_testing
 import launch_testing.actions
-from launch.substitutions import PathJoinSubstitution
-
-from launch import LaunchDescription
-from launch_ros.actions import Node
-from ament_index_python.packages import get_package_share_directory
-
 import pytest
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.substitutions import PathJoinSubstitution
+from launch_ros.actions import Node
 
 
 @pytest.mark.launch_test
 def generate_test_description():
+    """Load a simple urdf, parameters and the library."""
     ld = LaunchDescription()
 
     robot_description_content_path = PathJoinSubstitution(
@@ -41,10 +37,11 @@ def generate_test_description():
             get_package_share_directory("dynamic_graph_bridge"),
             "urdf",
             "dgb_minimal_robot.urdf",
-        ]
+        ],
     )
-    robot_description_content = open(
-        robot_description_content_path.perform(None)
+
+    robot_description_content = Path.open(
+        robot_description_content_path.perform(None),
     ).read()
 
     params = {
@@ -66,20 +63,24 @@ def generate_test_description():
                 terminating_process,
                 launch_testing.util.KeepAliveProc(),
                 launch_testing.actions.ReadyToTest(),
-            ]
+            ],
         ),
         locals(),
     )
 
 
 class TestSotLoaderBasic(unittest.TestCase):
+    """Loads the sot_loader."""
+
     def test_termination(self, terminating_process, proc_info):
+        """Calls the decorator generate_test_description."""
         proc_info.assertWaitForShutdown(process=terminating_process, timeout=(10))
 
 
 @launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
+    """Handle the test result."""
+
     def test_exit_code(self, proc_info):
-        # Check that all processes in the launch (in this case, there's just one) exit
-        # with code 0
+        """Check that all processes in the launch exit with code 0."""
         launch_testing.asserts.assertExitCodes(proc_info)

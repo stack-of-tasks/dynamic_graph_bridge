@@ -20,7 +20,8 @@ set(${PROJECT_NAME}_SOURCES
 )
 add_library(ros_bridge SHARED ${${PROJECT_NAME}_SOURCES}
                               ${${PROJECT_NAME}_HEADERS})
-target_include_directories(ros_bridge
+target_include_directories(
+  ros_bridge
   PUBLIC $<INSTALL_INTERFACE:include>
   PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(
@@ -52,19 +53,21 @@ endif(NOT INSTALL_PYTHON_INTERFACE_ONLY)
 set(plugins ros_publish ros_subscribe)
 foreach(plugin ${plugins})
   get_filename_component(plugin_library_name ${plugin} NAME)
-  add_library(${plugin_library_name} SHARED
-    ${PROJECT_SOURCE_DIR}/src/${plugin}.cpp #
-    ${PROJECT_SOURCE_DIR}/src/${plugin}.hpp #
+  add_library(
+    ${plugin_library_name} SHARED ${PROJECT_SOURCE_DIR}/src/${plugin}.cpp #
+                                  ${PROJECT_SOURCE_DIR}/src/${plugin}.hpp #
   )
   if(SUFFIX_SO_VERSION)
     set_target_properties(${plugin_library_name} PROPERTIES SOVERSION
-                                                     ${PROJECT_VERSION})
+                                                            ${PROJECT_VERSION})
   endif(SUFFIX_SO_VERSION)
   target_link_libraries(
-    ${plugin_library_name} ${${plugin_library_name}_deps} ${catkin_LIBRARIES} ros_bridge
+    ${plugin_library_name} ${${plugin_library_name}_deps} ${catkin_LIBRARIES}
+    ros_bridge
     dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp
   )
-  target_include_directories(${plugin_library_name}
+  target_include_directories(
+    ${plugin_library_name}
     PUBLIC $<INSTALL_INTERFACE:include>
     PRIVATE ${PROJECT_SOURCE_DIR}/include)
   if(NOT INSTALL_PYTHON_INTERFACE_ONLY)
@@ -86,7 +89,8 @@ foreach(plugin ${plugins})
         ${PROJECT_NAME}-${PYTHON_LIBRARY_NAME}-wrap MODULE_HEADER
         "${CMAKE_CURRENT_SOURCE_DIR}/${plugin}-python.hh")
     endif()
-    target_include_directories(${PROJECT_NAME}-${PYTHON_LIBRARY_NAME}-wrap
+    target_include_directories(
+      ${PROJECT_NAME}-${PYTHON_LIBRARY_NAME}-wrap
       PUBLIC $<INSTALL_INTERFACE:include>
       PRIVATE ${PROJECT_SOURCE_DIR}/include)
   endif(BUILD_PYTHON_INTERFACE)
@@ -100,10 +104,11 @@ endif(BUILD_PYTHON_INTERFACE)
 
 # Sot loader library
 add_library(sot_loader sot_loader.cpp sot_loader_basic.cpp)
- target_link_libraries(
+target_link_libraries(
   sot_loader Boost::program_options ${catkin_LIBRARIES} ros_bridge
   dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp)
-target_include_directories(sot_loader
+target_include_directories(
+  sot_loader
   PUBLIC $<INSTALL_INTERFACE:include>
   PRIVATE ${PROJECT_SOURCE_DIR}/include)
 install(
@@ -114,10 +119,15 @@ install(
 # Stand alone embedded intepreter with a robot controller.
 add_executable(geometric_simu programs/geometric_simu.cpp)
 target_link_libraries(
-  geometric_simu Boost::program_options ${CMAKE_DL_LIBS} ${catkin_LIBRARIES}
-  ros_bridge sot_loader
+  geometric_simu
+  Boost::program_options
+  ${CMAKE_DL_LIBS}
+  ${catkin_LIBRARIES}
+  ros_bridge
+  sot_loader
   dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp)
-target_include_directories(geometric_simu
+target_include_directories(
+  geometric_simu
   PUBLIC $<INSTALL_INTERFACE:include>
   PRIVATE ${PROJECT_SOURCE_DIR}/include)
 install(TARGETS geometric_simu DESTINATION lib/${PROJECT_NAME})

@@ -1,4 +1,4 @@
-"""@package dynamic_graph_bridge
+"""@package dynamic_graph_bridge.
 
 @file __init__.py
 @author Maximilien Naveau (maximilien.naveau@gmail.com)
