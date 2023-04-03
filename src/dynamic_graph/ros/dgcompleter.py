@@ -11,8 +11,8 @@ Tip: to use the tab key as the completion key, call
 
     readline.parse_and_bind("tab: complete")
 
-Notes:
-
+Notes
+-----
 - Exceptions raised by the completer function are *ignored* (and generally cause
   the completion to fail).  This is a feature -- since readline sets the tty
   device in raw (or cbreak) mode, printing a traceback wouldn't work well
@@ -35,13 +35,14 @@ its input.
 
 """
 
-import ast
 from dynamic_graph_bridge_cpp_bindings import RosPythonInterpreterClient
 
 __all__ = ["DGCompleter"]
 
 
 class DGCompleter:
+    """Auto completion for the embedded interpreter."""
+
     def __init__(self, ros_python_interpreter_client=None):
         """Create a new completer for the command line.
 
@@ -66,7 +67,7 @@ class DGCompleter:
             "    local_completer=Completer()\n"
             "    import readline\n"
             "    readline.set_completer(local_completer.complete)\n"
-            '    readline.parse_and_bind("tab: complete")'
+            '    readline.parse_and_bind("tab: complete")',
         ]
 
         for python_command in cmd:
@@ -76,7 +77,9 @@ class DGCompleter:
         self.buffer = []
 
     def complete(self, text, state):
-        """Return the next possible completion for 'text'.readline.parse_and_bind("tab: complete")
+        """Return the next possible completion."""
+        """ It returns the next possible completion
+        for 'text'.readline.parse_and_bind("tab: complete").
 
         This is called successively with state == 0, 1, 2, ... until it
         returns None. The completion should begin with 'text'.

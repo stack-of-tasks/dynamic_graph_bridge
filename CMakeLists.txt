@@ -31,9 +31,9 @@ include(cmake/ros.cmake)
 compute_project_args(PROJECT_ARGS LANGUAGES CXX)
 project(${PROJECT_NAME} ${PROJECT_ARGS})
 
-#if(NOT CMAKE_CXX_STANDARD)
+# if(NOT CMAKE_CXX_STANDARD)
 set(CMAKE_CXX_STANDARD 17)
-#endif()
+# endif()
 
 cmake_policy(SET CMP0057 NEW)
 find_package(ament_cmake REQUIRED)
@@ -83,5 +83,5 @@ install(DIRECTORY include/ DESTINATION include)
 # Install package information
 install(FILES package.xml DESTINATION share/${PROJECT_NAME})
 
-#ROS 2 packaging
+# ROS 2 packaging
 ament_package()

@@ -1,0 +1,11 @@
+[tool.black]
+exclude = "cmake"
+
+[tool.ruff]
+exclude = ["cmake"]
+extend-ignore = ["D203", "D213"]
+extend-select = ["A", "B", "C", "COM", "D", "EM", "EXE", "G", "N", "PTH", "RET", "RUF", "UP", "W", "YTT"]
+target-version = "py310"
+
+[tool.isort]
+profile = "black"

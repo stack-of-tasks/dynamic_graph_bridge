@@ -204,10 +204,23 @@ TEST_F(TestRosInterpreter, test_call_run_command_standarderror) {
   rpi.start_ros_service();
 
   // Create and call the clients.
-  std::string cmd = "a";
+  std::string cmd = "import sys;print(sys.path)";
   std::string result = "";
   std::string standarderror = "";
   std::string standardoutput = "";
+  start_run_python_command_ros_service(cmd, result, standarderror,
+                                       standardoutput);
+  std::cout << "standard output:" << standardoutput << std::endl;
+
+  // Create and call the clients.
+  // std::string
+  cmd = "a";
+  // std::string
+  result = "";
+  // std::string
+  standarderror = "";
+  // std::string
+  standardoutput = "";
   start_run_python_command_ros_service(cmd, result, standarderror,
                                        standardoutput);
 
@@ -267,6 +280,8 @@ TEST_F(TestRosInterpreter, test_call_run_script_ros_publish) {
   std::string file_name =
       TEST_CONFIG_PATH + std::string("simple_ros_publish.py");
   std::string result = "";
+  std::string standard_output = "";
+  std::string standard_error = "";
   start_run_python_script_ros_service(file_name, result);
 
   /* Tests. */
