@@ -10,9 +10,34 @@ if(BUILD_TESTING)
   find_package(launch_testing_ament_cmake)
   ament_lint_auto_find_test_dependencies()
 
+  # Library for sot_mock_device
+  add_library(impl_test_sot_mock_device SHARED impl_test_sot_mock_device.cpp)
+  set_target_properties(impl_test_sot_mock_device PROPERTIES INSTALL_RPATH
+                                                             $ORIGIN)
+  # target_include_directories(impl_test_sot_mock_device PUBLIC include)
+  target_link_libraries(
+    impl_test_sot_mock_device PUBLIC sot-core::sot-core
+                                     dynamic-graph-python::dynamic-graph-python)
+
+  install(
+    TARGETS impl_test_sot_mock_device
+    EXPORT ${TARGETS_EXPORT_NAME}
+    DESTINATION ${DYNAMIC_GRAPH_PLUGINDIR})
+
+  file(MAKE_DIRECTORY
+       ${PROJECT_BINARY_DIR}/tests/dynamic_graph/ros/impl_test_sot_mock_device)
+
+  dynamic_graph_python_module(
+    "${PYTHON_DIR}/ros/impl_test_sot_mock_device" impl_test_sot_mock_device
+    dynamic_graph_bridge-impl_test_sot_mock_device-wrap SOURCE_PYTHON_MODULE
+    "${CMAKE_CURRENT_SOURCE_DIR}/impl_test_sot_mock_device-python-module-py.cc")
+
+  install(
+    TARGETS ${plugin_library_name}
+    EXPORT ${TARGETS_EXPORT_NAME}
+    DESTINATION ${DYNAMIC_GRAPH_PLUGINDIR})
   # Library for sot_external_interface
-  add_library(impl_test_library SHARED impl_test_sot_external_interface.cpp
-                                       impl_test_sot_mock_device.cpp)
+  add_library(impl_test_library SHARED impl_test_sot_external_interface.cpp)
 
   target_include_directories(impl_test_library PUBLIC include)
   target_link_libraries(impl_test_library PUBLIC sot-core::sot-core)
