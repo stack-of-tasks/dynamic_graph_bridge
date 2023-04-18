@@ -31,7 +31,7 @@ from launch_ros.actions import Node
 def generate_test_description():
     """Load a simple urdf, parameters and the library."""
     ld = LaunchDescription()
-
+    print("After launch description")
     robot_description_content_path = PathJoinSubstitution(
         [
             get_package_share_directory("dynamic_graph_bridge"),
@@ -39,11 +39,10 @@ def generate_test_description():
             "dgb_minimal_robot.urdf",
         ],
     )
-
-    robot_description_content = Path.open(
-        robot_description_content_path.perform(None),
-    ).read()
-
+    print("Before robot_description_content")
+    robot_description_content_path = Path(robot_description_content_path.perform(None))
+    robot_description_content = robot_description_content_path.open().read()
+    print("Before params")
     params = {
         "state_vector_map": ["joint1", "joint2"],
         "robot_description": robot_description_content,

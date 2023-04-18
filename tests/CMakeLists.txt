@@ -14,7 +14,6 @@ if(BUILD_TESTING)
   add_library(impl_test_sot_mock_device SHARED impl_test_sot_mock_device.cpp)
   set_target_properties(impl_test_sot_mock_device PROPERTIES INSTALL_RPATH
                                                              $ORIGIN)
-  # target_include_directories(impl_test_sot_mock_device PUBLIC include)
   target_link_libraries(
     impl_test_sot_mock_device PUBLIC sot-core::sot-core
                                      dynamic-graph-python::dynamic-graph-python)
@@ -32,15 +31,12 @@ if(BUILD_TESTING)
     dynamic_graph_bridge-impl_test_sot_mock_device-wrap SOURCE_PYTHON_MODULE
     "${CMAKE_CURRENT_SOURCE_DIR}/impl_test_sot_mock_device-python-module-py.cc")
 
-  install(
-    TARGETS ${plugin_library_name}
-    EXPORT ${TARGETS_EXPORT_NAME}
-    DESTINATION ${DYNAMIC_GRAPH_PLUGINDIR})
   # Library for sot_external_interface
   add_library(impl_test_library SHARED impl_test_sot_external_interface.cpp)
 
   target_include_directories(impl_test_library PUBLIC include)
-  target_link_libraries(impl_test_library PUBLIC sot-core::sot-core)
+  target_link_libraries(impl_test_library PUBLIC impl_test_sot_mock_device
+                                                 sot-core::sot-core)
   ament_target_dependencies(impl_test_library PUBLIC dynamic_graph_bridge_msgs
                             rclcpp rcl_interfaces std_srvs)
   # Executable for SotLoaderBasic test
