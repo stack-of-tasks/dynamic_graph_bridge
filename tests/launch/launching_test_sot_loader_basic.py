@@ -33,17 +33,19 @@ def generate_test_description():
 
     It also set parameters state_vector_map and robot_description
     """
+    print("start generate_test_description")
     ld = LaunchDescription()
 
-    robot_description_content_path = (
-        Path(get_package_share_directory("dynamic_graph_bridge"))
-        / "urdf"
-        / "dgb_minimal_robot.urdf"
+    robot_description_pathjs_str = PathJoinSubstitution(
+        [
+            get_package_share_directory("dynamic_graph_bridge"),
+            "urdf",
+            "dgb_minimal_robot.urdf",
+        ],
     )
-    assert robot_description_content_path.exists()
-    robot_description_content = Path.open(
-        PathJoinSubstitution(str(robot_description_content_path)).perform(None),
-    ).read()
+    robot_description_path = Path(robot_description_pathjs_str.perform(None))
+    robot_description_content = robot_description_path.open().read()
+    print("After building robot_description_content")
     terminating_process = Node(
         package="dynamic_graph_bridge",
         executable="test_sot_loader_basic",
