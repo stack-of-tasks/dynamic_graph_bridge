@@ -57,6 +57,9 @@ struct BindedSignalBase {
   virtual void clear() = 0;
   virtual std::size_t size() const = 0;
 
+  virtual bool receivedData() const = 0;
+  virtual void receivedData(bool) = 0;
+
   Subscriber_t subscriber;
   RosQueuedSubscribe* entity;
 };
@@ -73,7 +76,8 @@ struct BindedSignal : BindedSignalBase {
         frontIdx(0),
         backIdx(0),
         buffer(BufferSize),
-        init(false) {}
+        init(false),
+        receivedData_(false) {}
   ~BindedSignal() {
     signal.reset();
     clear();
@@ -107,6 +111,15 @@ struct BindedSignal : BindedSignalBase {
       return backIdx + BufferSize - frontIdx;
   }
 
+  /// @brief Returns the value stored in receivedData_ i.e.
+  /// whether the signal has received atleast one data point
+  /// or not 
+  bool receivedData() const {return receivedData_;}
+
+  /// @brief Set the value of data acquisition status of the signal
+  /// @param status 
+  void receivedData(bool status) {receivedData_ = status;}
+
   SignalPtr_t signal;
   /// Index of the next value to be read.
   size_type frontIdx;
@@ -120,6 +133,10 @@ struct BindedSignal : BindedSignalBase {
   template <typename R>
   void writer(const R& data);
   T& reader(T& val, int time);
+
+ private:
+  /// Indicates whether the signal has received atleast one data point
+  bool receivedData_;
 };
 }  // namespace internal
 
@@ -144,6 +161,8 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   void clearQueue(const std::string& signal);
   void readQueue(int beginReadingAt);
   std::size_t queueSize(const std::string& signal) const;
+  bool queueReceivedData(const std::string& signal) const;
+  void setQueueReceivedData(const std::string& signal, bool status);
 
   template <typename T>
   void add(const std::string& type, const std::string& signal,
