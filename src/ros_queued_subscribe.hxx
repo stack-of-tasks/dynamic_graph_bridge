@@ -82,6 +82,12 @@ void BindedSignal<T, N>::writer(const R& data) {
     last = buffer[backIdx];
     init = true;
   }
+  // Updating the status flag to indicate that the signal
+  // has received atleast one data point.
+  if (!receivedData_) {
+    receivedData_ = true;
+  }
+  
   backIdx = (backIdx + 1) % N;
 }
 

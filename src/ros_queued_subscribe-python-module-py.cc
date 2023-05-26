@@ -24,5 +24,11 @@ BOOST_PYTHON_MODULE(wrap) {
            "Return the queue size of a given signal", bp::args("signal_name"))
       .def("readQueue", &dg::RosQueuedSubscribe::readQueue,
            "Whether signals should read values from the queues, and when.",
-           bp::args("start_time"));
+           bp::args("start_time"))
+      .def("queueReceivedData", &dg::RosQueuedSubscribe::queueReceivedData,
+           "Check whether the queue of a given signal has received atleast one data point", 
+           bp::args("signal_name"))
+      .def("setQueueReceivedData", &dg::RosQueuedSubscribe::setQueueReceivedData,
+           "Set the data reception status of the queue corresponding to a given signal", 
+           bp::args("signal_name","signal_data_acq_status"));
 }

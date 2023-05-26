@@ -147,4 +147,21 @@ void RosQueuedSubscribe::readQueue(int beginReadingAt) {
 }
 
 std::string RosQueuedSubscribe::getDocString() const { return docstring_; }
+
+bool RosQueuedSubscribe::queueReceivedData(const std::string& signal) const{
+  std::map<std::string, bindedSignal_t>::const_iterator _bs = bindedSignal_.find(signal);
+  if (_bs != bindedSignal_.end()) {
+    return _bs->second->receivedData();
+  }
+
+  return false;
+}
+
+void RosQueuedSubscribe::setQueueReceivedData(const std::string& signal, bool status) {
+  std::map<std::string, bindedSignal_t>::const_iterator _bs = bindedSignal_.find(signal);
+  if (_bs != bindedSignal_.end()) {
+    _bs->second->receivedData(status);
+  }
+}
+
 }  // end of namespace dynamicgraph.
