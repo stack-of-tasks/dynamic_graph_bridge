@@ -113,12 +113,12 @@ struct BindedSignal : BindedSignalBase {
 
   /// @brief Returns the value stored in receivedData_ i.e.
   /// whether the signal has received atleast one data point
-  /// or not 
-  bool receivedData() const {return receivedData_;}
+  /// or not
+  bool receivedData() const { return receivedData_; }
 
   /// @brief Set the value of data acquisition status of the signal
-  /// @param status 
-  void receivedData(bool status) {receivedData_ = status;}
+  /// @param status
+  void receivedData(bool status) { receivedData_ = status; }
 
   SignalPtr_t signal;
   /// Index of the next value to be read.

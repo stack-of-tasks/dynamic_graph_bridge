@@ -87,7 +87,7 @@ void BindedSignal<T, N>::writer(const R& data) {
   if (!receivedData_) {
     receivedData_ = true;
   }
-  
+
   backIdx = (backIdx + 1) % N;
 }
 
