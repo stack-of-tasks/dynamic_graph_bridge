@@ -52,6 +52,11 @@ SOT_TO_ROS_IMPL(int) { dst.data = src; }
 
 ROS_TO_SOT_IMPL(int) { dst = src.data; }
 
+// Int64
+SOT_TO_ROS_IMPL(int64_t) { dst.data = src; }
+
+ROS_TO_SOT_IMPL(int64_t) { dst = src.data; }
+
 // Unsigned
 SOT_TO_ROS_IMPL(unsigned int) { dst.data = src; }
 
@@ -190,6 +195,7 @@ DG_BRIDGE_TO_ROS_MAKE_STAMPED_IMPL(specific::Twist, twist, ;);
 DG_BRIDGE_MAKE_SHPTR_IMPL(bool);
 DG_BRIDGE_MAKE_SHPTR_IMPL(double);
 DG_BRIDGE_MAKE_SHPTR_IMPL(int);
+DG_BRIDGE_MAKE_SHPTR_IMPL(int64_t);
 DG_BRIDGE_MAKE_SHPTR_IMPL(unsigned int);
 DG_BRIDGE_MAKE_SHPTR_IMPL(std::string);
 DG_BRIDGE_MAKE_SHPTR_IMPL(Vector);

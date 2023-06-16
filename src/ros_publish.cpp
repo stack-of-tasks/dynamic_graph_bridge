@@ -50,6 +50,8 @@ Value Add::doExecute() {
     entity.add<unsigned int>(signal, topic);
   else if (type == "int")
     entity.add<int>(signal, topic);
+  else if (type == "int64")
+    entity.add<int64_t>(signal, topic);
   else if (type == "matrix")
     entity.add<Matrix>(signal, topic);
   else if (type == "vector")
@@ -162,7 +164,7 @@ void RosPublish::clear() {
   }
 }
 
-int& RosPublish::trigger(int& dummy, int t) {
+int& RosPublish::trigger(int& dummy, sigtime_t t) {
   typedef std::map<std::string, bindedSignal_t>::iterator iterator_t;
   ros::Time aTime;
   if (ros::Time::isSimTime()) {

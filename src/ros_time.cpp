@@ -31,7 +31,7 @@ RosTime::RosTime(const std::string& _name)
   now_.setFunction(boost::bind(&RosTime::update, this, _1, _2));
 }
 
-ptime& RosTime::update(ptime& time, const int&) {
+ptime& RosTime::update(ptime& time, const sigtime_t&) {
   time = rosTimeToPtime(ros::Time::now());
   return time;
 }

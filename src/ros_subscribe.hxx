@@ -18,7 +18,7 @@ namespace dg = dynamicgraph;
 namespace dynamicgraph {
 template <typename R, typename S>
 void RosSubscribe::callback(
-    boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal, const R& data) {
+    boost::shared_ptr<dynamicgraph::SignalPtr<S, sigtime_t> > signal, const R& data) {
   typedef S sot_t;
   sot_t value;
   converter(value, data);
@@ -27,7 +27,7 @@ void RosSubscribe::callback(
 
 template <typename R>
 void RosSubscribe::callbackTimestamp(
-    boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal,
+    boost::shared_ptr<dynamicgraph::SignalPtr<ptime, sigtime_t> > signal,
     const R& data) {
   ptime time = rosTimeToPtime(data->header.stamp);
   signal->setConstant(time);
@@ -101,7 +101,7 @@ struct Add<std::pair<T, dg::Vector> > {
     RosSubscribe.bindedSignal()[signal] = bindedSignal;
 
     // Timestamp.
-    typedef dynamicgraph::SignalPtr<RosSubscribe::ptime, int> signalTimestamp_t;
+    typedef dynamicgraph::SignalPtr<RosSubscribe::ptime, sigtime_t> signalTimestamp_t;
     std::string signalTimestamp =
         (boost::format("%1%%2%") % signal % "Timestamp").str();
 

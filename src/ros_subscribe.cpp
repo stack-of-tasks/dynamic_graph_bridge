@@ -36,6 +36,10 @@ Value Add::doExecute() {
     entity.add<double>(signal, topic);
   else if (type == "unsigned")
     entity.add<unsigned int>(signal, topic);
+  else if (type == "int")
+    entity.add<int>(signal, topic);
+  else if (type == "int64")
+    entity.add<int64_t>(signal, topic);
   else if (type == "matrix")
     entity.add<dg::Matrix>(signal, topic);
   else if (type == "vector")

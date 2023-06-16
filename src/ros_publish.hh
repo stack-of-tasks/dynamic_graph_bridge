@@ -42,9 +42,9 @@ class RosPublish : public dynamicgraph::Entity {
   DYNAMIC_GRAPH_ENTITY_DECL();
 
  public:
-  typedef boost::function<void(int)> callback_t;
+  typedef boost::function<void(sigtime_t)> callback_t;
 
-  typedef boost::tuple<boost::shared_ptr<dynamicgraph::SignalBase<int> >,
+  typedef boost::tuple<boost::shared_ptr<dynamicgraph::SignalBase<sigtime_t> >,
                        callback_t>
       bindedSignal_t;
 
@@ -61,14 +61,15 @@ class RosPublish : public dynamicgraph::Entity {
   std::vector<std::string> list() const;
   void clear();
 
-  int& trigger(int&, int);
+  int& trigger(int&, sigtime_t);
 
   template <typename T>
   void sendData(
       boost::shared_ptr<
           realtime_tools::RealtimePublisher<typename SotToRos<T>::ros_t> >
           publisher,
-      boost::shared_ptr<typename SotToRos<T>::signalIn_t> signal, int time);
+      boost::shared_ptr<typename SotToRos<T>::signalIn_t> signal,
+      sigtime_t time);
 
   template <typename T>
   void add(const std::string& signal, const std::string& topic);
@@ -77,7 +78,7 @@ class RosPublish : public dynamicgraph::Entity {
   static const std::string docstring_;
   ros::NodeHandle& nh_;
   std::map<std::string, bindedSignal_t> bindedSignal_;
-  dynamicgraph::SignalTimeDependent<int, int> trigger_;
+  dynamicgraph::SignalTimeDependent<int, sigtime_t> trigger_;
   ros::Duration rate_;
   ros::Time nextPublication_;
   boost::mutex mutex_;

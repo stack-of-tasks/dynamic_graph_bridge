@@ -9,7 +9,7 @@
 namespace dynamicgraph {
 namespace internal {
 sot::MatrixHomogeneous& TransformListenerData::getTransform(
-    sot::MatrixHomogeneous& res, int time) {
+    sot::MatrixHomogeneous& res, sigtime_t time) {
   availableSig.recompute(time);
 
   bool available = availableSig.accessCopy();
@@ -29,7 +29,7 @@ sot::MatrixHomogeneous& TransformListenerData::getTransform(
   return res;
 }
 
-bool& TransformListenerData::isAvailable(bool& available, int time) {
+bool& TransformListenerData::isAvailable(bool& available, sigtime_t time) {
   static const ros::Time origin(0);
   available = false;
   ros::Duration elapsed;

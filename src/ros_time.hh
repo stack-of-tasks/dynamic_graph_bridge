@@ -18,13 +18,13 @@ class RosTime : public dynamicgraph::Entity {
   DYNAMIC_GRAPH_ENTITY_DECL();
 
  public:
-  Signal<boost::posix_time::ptime, int> now_;
+  Signal<boost::posix_time::ptime, sigtime_t> now_;
   RosTime(const std::string& name);
   virtual std::string getDocString() const;
 
  protected:
   boost::posix_time::ptime& update(boost::posix_time::ptime& time,
-                                   const int& t);
+                                   const sigtime_t& t);
 
  private:
   static const std::string docstring_;

@@ -137,7 +137,7 @@ std::size_t RosQueuedSubscribe::queueSize(const std::string& signal) const {
   return -1;
 }
 
-void RosQueuedSubscribe::readQueue(int beginReadingAt) {
+void RosQueuedSubscribe::readQueue(int64_t beginReadingAt) {
   // Prints signal queues sizes
   /*for (std::map<std::string, bindedSignal_t>::const_iterator it =
          bindedSignal_.begin (); it != bindedSignal_.end (); it++) {

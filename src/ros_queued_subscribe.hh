@@ -66,7 +66,7 @@ struct BindedSignalBase {
 
 template <typename T, int BufferSize>
 struct BindedSignal : BindedSignalBase {
-  typedef dynamicgraph::Signal<T, int> Signal_t;
+  typedef dynamicgraph::Signal<T, sigtime_t> Signal_t;
   typedef boost::shared_ptr<Signal_t> SignalPtr_t;
   typedef std::vector<T> buffer_t;
   typedef typename buffer_t::size_type size_type;
@@ -132,7 +132,7 @@ struct BindedSignal : BindedSignalBase {
 
   template <typename R>
   void writer(const R& data);
-  T& reader(T& val, int time);
+  T& reader(T& val, sigtime_t time);
 
  private:
   /// Indicates whether the signal has received atleast one data point
@@ -159,7 +159,7 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   std::vector<std::string> listTopics();
   void clear();
   void clearQueue(const std::string& signal);
-  void readQueue(int beginReadingAt);
+  void readQueue(int64_t beginReadingAt);
   std::size_t queueSize(const std::string& signal) const;
   bool queueReceivedData(const std::string& signal) const;
   void setQueueReceivedData(const std::string& signal, bool status);
@@ -176,12 +176,12 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   ros::NodeHandle& nh() { return nh_; }
 
   template <typename R, typename S>
-  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, int> > signal,
-                const R& data);
+  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, sigtime_t> >
+                signal, const R& data);
 
   template <typename R>
   void callbackTimestamp(
-      boost::shared_ptr<dynamicgraph::SignalPtr<ptime, int> > signal,
+      boost::shared_ptr<dynamicgraph::SignalPtr<ptime, sigtime_t> > signal,
       const R& data);
 
   template <typename T>
@@ -193,8 +193,7 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   std::map<std::string, bindedSignal_t> bindedSignal_;
   std::map<std::string, std::string> topics_;
 
-  int readQueue_;
-  // Signal<bool, int> readQueue_;
+  int64_t readQueue_;
 
   template <typename T>
   friend class internal::BindedSignal;

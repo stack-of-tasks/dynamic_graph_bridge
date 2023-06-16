@@ -17,9 +17,9 @@ class RosTfListener;
 
 namespace internal {
 struct TransformListenerData {
-  typedef SignalTimeDependent<bool, int> AvailableSignal_t;
-  typedef SignalTimeDependent<sot::MatrixHomogeneous, int> MatrixSignal_t;
-  typedef SignalPtr<sot::MatrixHomogeneous, int> DefaultSignal_t;
+  typedef SignalTimeDependent<bool, sigtime_t> AvailableSignal_t;
+  typedef SignalTimeDependent<sot::MatrixHomogeneous, sigtime_t> MatrixSignal_t;
+  typedef SignalPtr<sot::MatrixHomogeneous, sigtime_t> DefaultSignal_t;
 
   RosTfListener* entity;
   tf2_ros::Buffer& buffer;
@@ -52,9 +52,10 @@ struct TransformListenerData {
     signal.addDependencies(failbackSig << availableSig);
   }
 
-  sot::MatrixHomogeneous& getTransform(sot::MatrixHomogeneous& res, int time);
+  sot::MatrixHomogeneous& getTransform(sot::MatrixHomogeneous& res,
+                                       sigtime_t time);
 
-  bool& isAvailable(bool& isAvailable, int time);
+  bool& isAvailable(bool& isAvailable, sigtime_t time);
 };
 }  // namespace internal
 

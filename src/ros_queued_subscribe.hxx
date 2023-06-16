@@ -92,7 +92,7 @@ void BindedSignal<T, N>::writer(const R& data) {
 }
 
 template <typename T, int N>
-T& BindedSignal<T, N>::reader(T& data, int time) {
+T& BindedSignal<T, N>::reader(T& data, sigtime_t time) {
   // synchronize with method clear:
   // If reading from the list cannot be done, then return last value.
   boost::mutex::scoped_lock lock(rmutex, boost::try_to_lock);
