@@ -16,8 +16,7 @@ inline void RosPublish::sendData<std::pair<sot::MatrixHomogeneous, Vector> >(
         publisher,
     boost::shared_ptr<
         SotToRos<std::pair<sot::MatrixHomogeneous, Vector> >::signalIn_t>
-        signal,
-    int time) {
+        signal, sigtime_t time) {
   SotToRos<std::pair<sot::MatrixHomogeneous, Vector> >::ros_t result;
   if (publisher->trylock()) {
     publisher->msg_.child_frame_id = "/dynamic_graph/world";
@@ -31,7 +30,8 @@ void RosPublish::sendData(
     boost::shared_ptr<
         realtime_tools::RealtimePublisher<typename SotToRos<T>::ros_t> >
         publisher,
-    boost::shared_ptr<typename SotToRos<T>::signalIn_t> signal, int time) {
+    boost::shared_ptr<typename SotToRos<T>::signalIn_t> signal,
+    sigtime_t time) {
   typename SotToRos<T>::ros_t result;
   if (publisher->trylock()) {
     converter(publisher->msg_, signal->access(time));
