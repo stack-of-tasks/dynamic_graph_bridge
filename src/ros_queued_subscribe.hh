@@ -176,8 +176,9 @@ class RosQueuedSubscribe : public dynamicgraph::Entity {
   ros::NodeHandle& nh() { return nh_; }
 
   template <typename R, typename S>
-  void callback(boost::shared_ptr<dynamicgraph::SignalPtr<S, sigtime_t> >
-                signal, const R& data);
+  void callback(
+      boost::shared_ptr<dynamicgraph::SignalPtr<S, sigtime_t> > signal,
+      const R& data);
 
   template <typename R>
   void callbackTimestamp(
