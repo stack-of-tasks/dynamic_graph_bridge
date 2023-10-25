@@ -35,12 +35,12 @@ class MockSotLoaderBasicTest : public ::testing::Test {
       EXPECT_EQ(parseOptions(argc, argv), -1);
 
       // Test input file
-      char argv3[60] = "--input-file=libimpl_test_sot_external_interface.so";
+      char argv3[60] = "--input-file=libimpl_test_library.so";
       argv[1] = argv3;
       EXPECT_EQ(parseOptions(argc, argv), 0);
 
       // Check that the file is what we specified
-      std::string finalname("libimpl_test_sot_external_interface.so");
+      std::string finalname("libimpl_test_library.so");
       EXPECT_TRUE(finalname == dynamicLibraryName_);
     }
 
@@ -72,14 +72,14 @@ class MockSotLoaderBasicTest : public ::testing::Test {
 
       char argv1[30] = "mocktest";
       argv[0] = argv1;
-      char argv2[60] = "--input-file=libimpl_test_sot_external_interface.so";
+      char argv2[60] = "--input-file=libimpl_test_library.so";
       argv[1] = argv2;
       parseOptions(argc, argv);
 
-      std::string finalname("libimpl_test_sot_external_interface.so");
+      std::string finalname("libimpl_test_library.so");
       EXPECT_TRUE(finalname == dynamicLibraryName_);
 
-      // Performs initializatio of libimpl_test_sot_external_interface.so
+      // Performs initializatio of libimpl_test_library.so
       loadController();
       EXPECT_TRUE(sotRobotControllerLibrary_ != 0);
       EXPECT_TRUE(sotController_ != nullptr);
@@ -106,14 +106,14 @@ class MockSotLoaderBasicTest : public ::testing::Test {
 
       char argv1[30] = "mocktest";
       argv[0] = argv1;
-      char argv2[60] = "--input-file=libimpl_test_sot_external_interface.so";
+      char argv2[60] = "--input-file=libimpl_test_library.so";
       argv[1] = argv2;
       parseOptions(argc, argv);
 
-      std::string finalname("libimpl_test_sot_external_interface.so");
+      std::string finalname("libimpl_test_library.so");
       EXPECT_TRUE(finalname == dynamicLibraryName_);
 
-      // Performs initializatio of libimpl_test_sot_external_interface.so
+      // Performs initializatio of libimpl_test_library.so
       loadController();
       // Remove
       CleanUp();
