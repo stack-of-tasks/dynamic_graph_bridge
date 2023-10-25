@@ -36,11 +36,13 @@
 #include "dynamic_graph_bridge_msgs/msg/matrix.hpp"
 #include "dynamic_graph_bridge_msgs/msg/vector.hpp"
 
+namespace dg = dynamicgraph;
+
 namespace dynamic_graph_bridge {
 /** @brief Conventient renaming for ease of implementation. */
-typedef dynamicgraph::Vector DgVector;
+typedef dg::Vector DgVector;
 /** @brief Conventient renaming for ease of implementation. */
-typedef dynamicgraph::Matrix DgMatrix;
+typedef dg::Matrix DgMatrix;
 /** @brief Conventient renaming for ease of implementation. */
 typedef dynamic_graph_bridge_msgs::msg::Vector RosVector;
 /** @brief Conventient renaming for ease of implementation. */
@@ -103,14 +105,14 @@ class DgRosMapping {
   /** @brief Ros type as a shared pointer. */
   typedef std::shared_ptr<RosType> ros_shared_ptr_t;
   /** @brief Output signal type. */
-  typedef dynamicgraph::SignalTimeDependent<dg_t, int> signal_out_t;
+  typedef dg::SignalTimeDependent<dg_t, dg::sigtime_t> signal_out_t;
   /** @brief Output signal type. */
-  typedef dynamicgraph::SignalTimeDependent<timestamp_t, int>
+  typedef dg::SignalTimeDependent<timestamp_t, dg::sigtime_t>
       signal_timestamp_out_t;
   /** @brief Input signal type. */
-  typedef dynamicgraph::SignalPtr<dg_t, int> signal_in_t;
+  typedef dg::SignalPtr<dg_t, dg::sigtime_t> signal_in_t;
   /** @brief Signal callback function types. */
-  typedef std::function<dg_t&(dg_t&, int)> signal_callback_t;
+  typedef std::function<dg_t&(dg_t&, dg::sigtime_t)> signal_callback_t;
 
   /** @brief Name of the signal type. Used during the creation of signals. */
   static const std::string signal_type_name;

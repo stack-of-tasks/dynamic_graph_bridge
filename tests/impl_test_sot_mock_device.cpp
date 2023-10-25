@@ -99,25 +99,13 @@ ImplTestSotMockDevice::ImplTestSotMockDevice(std::string RobotName)
   dataForces.setZero();
   for (int i = 0; i < 4; i++) forcesSOUT[i]->setConstant(dataForces);
 
-  using namespace dynamicgraph::command;
-  std::string docstring;
-  /* Command increment. */
-  docstring =
-      "\n"
-      "    Integrate dynamics for time step provided as input\n"
-      "\n"
-      "      take one floating point number as input\n"
-      "\n";
-  addCommand("increment",
-             makeCommandVoid1((Device&)*this, &Device::increment, docstring));
-
   sotDEBUGOUT(25);
 }
 
 ImplTestSotMockDevice::~ImplTestSotMockDevice() {}
 
 void ImplTestSotMockDevice::setSensorsForce(
-    map<string, dgsot::SensorValues>& SensorsIn, int t) {
+    map<string, dgsot::SensorValues>& SensorsIn, dg::sigtime_t t) {
   int map_sot_2_urdf[4] = {2, 0, 3, 1};
   sotDEBUGIN(15);
   map<string, dgsot::SensorValues>::iterator it;
@@ -140,7 +128,7 @@ void ImplTestSotMockDevice::setSensorsForce(
 }
 
 void ImplTestSotMockDevice::setSensorsIMU(
-    map<string, dgsot::SensorValues>& SensorsIn, int t) {
+    map<string, dgsot::SensorValues>& SensorsIn, dg::sigtime_t t) {
   map<string, dgsot::SensorValues>::iterator it;
   // TODO: Confirm if this can be made quaternion
   it = SensorsIn.find("attitude");
@@ -171,7 +159,7 @@ void ImplTestSotMockDevice::setSensorsIMU(
 }
 
 void ImplTestSotMockDevice::setSensorsEncoders(
-    map<string, dgsot::SensorValues>& SensorsIn, int t) {
+    map<string, dgsot::SensorValues>& SensorsIn, dg::sigtime_t t) {
   map<string, dgsot::SensorValues>::iterator it;
 
   it = SensorsIn.find("motor-angles");
@@ -202,7 +190,7 @@ void ImplTestSotMockDevice::setSensorsEncoders(
 }
 
 void ImplTestSotMockDevice::setSensorsVelocities(
-    map<string, dgsot::SensorValues>& SensorsIn, int t) {
+    map<string, dgsot::SensorValues>& SensorsIn, dg::sigtime_t t) {
   map<string, dgsot::SensorValues>::iterator it;
 
   it = SensorsIn.find("velocities");
@@ -219,7 +207,7 @@ void ImplTestSotMockDevice::setSensorsVelocities(
 }
 
 void ImplTestSotMockDevice::setSensorsTorquesCurrents(
-    map<string, dgsot::SensorValues>& SensorsIn, int t) {
+    map<string, dgsot::SensorValues>& SensorsIn, dg::sigtime_t t) {
   map<string, dgsot::SensorValues>::iterator it;
   it = SensorsIn.find("torques");
   if (it != SensorsIn.end()) {
@@ -242,7 +230,7 @@ void ImplTestSotMockDevice::setSensorsTorquesCurrents(
 }
 
 void ImplTestSotMockDevice::setSensorsGains(
-    map<string, dgsot::SensorValues>& SensorsIn, int t) {
+    map<string, dgsot::SensorValues>& SensorsIn, dg::sigtime_t t) {
   map<string, dgsot::SensorValues>::iterator it;
   it = SensorsIn.find("p_gains");
   if (it != SensorsIn.end()) {
@@ -267,7 +255,7 @@ void ImplTestSotMockDevice::setSensors(
     map<string, dgsot::SensorValues>& SensorsIn) {
   sotDEBUGIN(25);
   map<string, dgsot::SensorValues>::iterator it;
-  int t = stateSOUT.getTime() + 1;
+  dg::sigtime_t t = stateSOUT.getTime() + 1;
 
   setSensorsForce(SensorsIn, t);
   setSensorsIMU(SensorsIn, t);
@@ -298,7 +286,7 @@ void ImplTestSotMockDevice::cleanupSetSensors(
 }
 
 void ImplTestSotMockDevice::getControl(
-    map<string, dgsot::ControlValues>& controlOut) {
+    map<string, dgsot::ControlValues>& controlOut, const double&) {
   ODEBUG5FULL("start");
   sotDEBUGIN(25);
   vector<double> anglesOut, velocityOut;
@@ -306,7 +294,6 @@ void ImplTestSotMockDevice::getControl(
   velocityOut.resize(state_.size());
 
   // Integrate control
-  increment(timestep_);
   sotDEBUG(25) << "state = " << state_ << std::endl;
   sotDEBUG(25) << "diff  = "
                << ((previousState_.size() == state_.size())
@@ -327,7 +314,7 @@ void ImplTestSotMockDevice::getControl(
     velocityOut.resize(state_.size() - 6);
   }
 
-  int time = controlSIN.getTime();
+  dg::sigtime_t time = controlSIN.getTime();
   for (unsigned int i = 6; i < state_.size(); ++i) {
     anglesOut[i - 6] = state_(i);
     velocityOut[i - 6] = controlSIN(time)(i);
@@ -342,31 +329,7 @@ void ImplTestSotMockDevice::getControl(
   dg::Vector zmpGlobal(4);
   for (unsigned int i = 0; i < 3; ++i) zmpGlobal(i) = zmpSIN(time + 1)(i);
   zmpGlobal(3) = 1.;
-  dgsot::MatrixHomogeneous inversePose;
 
-  inversePose = freeFlyerPose().inverse(Eigen::Affine);
-  dg::Vector localZmp(4);
-  localZmp = inversePose.matrix() * zmpGlobal;
-  vector<double> ZMPRef(3);
-  for (unsigned int i = 0; i < 3; ++i) ZMPRef[i] = localZmp(i);
-
-  controlOut["zmp"].setName("zmp");
-  controlOut["zmp"].setValues(ZMPRef);
-
-  // Update position of freeflyer in global frame
-  Eigen::Vector3d transq_(freeFlyerPose().translation());
-  dg::sot::VectorQuaternion qt_(freeFlyerPose().linear());
-
-  // translation
-  for (int i = 0; i < 3; i++) baseff_[i] = transq_(i);
-
-  // rotation: quaternion
-  baseff_[3] = qt_.w();
-  baseff_[4] = qt_.x();
-  baseff_[5] = qt_.y();
-  baseff_[6] = qt_.z();
-
-  controlOut["baseff"].setValues(baseff_);
   ODEBUG5FULL("end");
   sotDEBUGOUT(25);
 }

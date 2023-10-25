@@ -20,6 +20,8 @@
 
 #include "dg_ros_mapping.hpp"
 
+namespace dg = dynamicgraph;
+
 namespace dynamic_graph_bridge {
 /** @brief Publish dynamic-graph information into ROS. */
 class RosPublish : public dynamicgraph::Entity {
@@ -36,13 +38,14 @@ class RosPublish : public dynamicgraph::Entity {
    * @brief Tuple composed by the generated input signal and its callback
    * function. The callback function publishes the input signal content.
    */
-  typedef std::tuple<std::shared_ptr<dynamicgraph::SignalBase<int> >,
+  typedef std::tuple<std::shared_ptr<dg::SignalBase<dg::sigtime_t> >,
                      PublisherCallback>
       BindedSignal;
 
   /**
    * @brief Construct a new RosPublish object.
    *
+
    * @param n
    */
   RosPublish(const std::string& n);
@@ -79,6 +82,7 @@ class RosPublish : public dynamicgraph::Entity {
   void add(const std::string& signal, const std::string& topic);
 
   /**
+
    * @brief Remove a signal to publish to ROS.
    *
    * @param signal name.
@@ -130,7 +134,7 @@ class RosPublish : public dynamicgraph::Entity {
 
   /** @brief Trigger signal publishing the signal values every other
    * iterations. */
-  dynamicgraph::SignalTimeDependent<int, int> trigger_;
+  dynamicgraph::SignalTimeDependent<int, dg::sigtime_t> trigger_;
 
   /** @brief Publishing rate. Default is 50ms. */
   rclcpp::Duration rate_nanosec_;

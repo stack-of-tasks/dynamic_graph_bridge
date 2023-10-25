@@ -15,6 +15,7 @@
 #include <dynamic-graph/signal-ptr.h>
 #include <dynamic-graph/signal.h>
 
+#include <dynamic-graph/fwd.hh>
 #include <sot/core/abstract-sot-external-interface.hh>
 #include <sot/core/device.hh>
 #include <sot/core/matrix-geometry.hh>
@@ -40,7 +41,8 @@ class ImplTestSotMockDevice : public dgsot::Device {
 
   void cleanupSetSensors(std::map<std::string, dgsot::SensorValues> &sensorsIn);
 
-  void getControl(std::map<std::string, dgsot::ControlValues> &anglesOut);
+  void getControl(std::map<std::string, dgsot::ControlValues> &anglesOut,
+                  const double &period);
 
   void timeStep(double ts) { timestep_ = ts; }
 
@@ -52,34 +54,34 @@ class ImplTestSotMockDevice : public dgsot::Device {
   std::vector<double> baseff_;
 
   /// Accelerations measured by accelerometers
-  dynamicgraph::Signal<dg::Vector, int> accelerometerSOUT_;
+  dynamicgraph::Signal<dg::Vector, dg::sigtime_t> accelerometerSOUT_;
   /// Rotation velocity measured by gyrometers
-  dynamicgraph::Signal<dg::Vector, int> gyrometerSOUT_;
+  dynamicgraph::Signal<dg::Vector, dg::sigtime_t> gyrometerSOUT_;
   /// motor currents
-  dynamicgraph::Signal<dg::Vector, int> currentsSOUT_;
+  dynamicgraph::Signal<dg::Vector, dg::sigtime_t> currentsSOUT_;
   /// joint angles
-  dynamicgraph::Signal<dg::Vector, int> joint_anglesSOUT_;
+  dynamicgraph::Signal<dg::Vector, dg::sigtime_t> joint_anglesSOUT_;
   /// motor angles
-  dynamicgraph::Signal<dg::Vector, int> motor_anglesSOUT_;
+  dynamicgraph::Signal<dg::Vector, dg::sigtime_t> motor_anglesSOUT_;
 
   /// proportional and derivative position-control gains
-  dynamicgraph::Signal<dg::Vector, int> p_gainsSOUT_;
+  dynamicgraph::Signal<dg::Vector, dg::sigtime_t> p_gainsSOUT_;
 
-  dynamicgraph::Signal<dg::Vector, int> d_gainsSOUT_;
+  dynamicgraph::Signal<dg::Vector, dg::sigtime_t> d_gainsSOUT_;
 
   /// Protected methods for internal variables filling
   void setSensorsForce(std::map<std::string, dgsot::SensorValues> &SensorsIn,
-                       int t);
+                       dg::sigtime_t t);
   void setSensorsIMU(std::map<std::string, dgsot::SensorValues> &SensorsIn,
-                     int t);
+                     dg::sigtime_t t);
   void setSensorsEncoders(std::map<std::string, dgsot::SensorValues> &SensorsIn,
-                          int t);
+                          dg::sigtime_t t);
   void setSensorsVelocities(
-      std::map<std::string, dgsot::SensorValues> &SensorsIn, int t);
+      std::map<std::string, dgsot::SensorValues> &SensorsIn, dg::sigtime_t t);
   void setSensorsTorquesCurrents(
-      std::map<std::string, dgsot::SensorValues> &SensorsIn, int t);
+      std::map<std::string, dgsot::SensorValues> &SensorsIn, dg::sigtime_t t);
   void setSensorsGains(std::map<std::string, dgsot::SensorValues> &SensorsIn,
-                       int t);
+                       dg::sigtime_t t);
 
   /// Intermediate variables to avoid allocation during control
   dg::Vector dgforces_;

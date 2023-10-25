@@ -7,6 +7,7 @@
 
 #include "impl_test_sot_mock_device.hh"
 
+namespace dg = dynamicgraph;
 namespace dynamic_graph_bridge {
 class ImplTestSotExternalInterface
     : public dynamicgraph::sot::AbstractSotExternalInterface {
@@ -25,11 +26,14 @@ class ImplTestSotExternalInterface
   virtual void cleanupSetSensors(
       std::map<std::string, dynamicgraph::sot::SensorValues> &) final;
   virtual void getControl(
-      std::map<std::string, dynamicgraph::sot::ControlValues> &) final;
+      std::map<std::string, dynamicgraph::sot::ControlValues> &,
+      const double &) final;
 
   virtual void setSecondOrderIntegration(void);
 
   virtual void setNoIntegration(void);
+
+  virtual void setControlSize(const dg::size_type &);
 
   /// Embedded python interpreter accessible via Corba/ros
   boost::shared_ptr<dynamic_graph_bridge::RosPythonInterpreterServer>

@@ -21,6 +21,7 @@
 #include "dg_ros_mapping.hpp"
 #include "fwd.hpp"
 
+namespace dg = dynamicgraph;
 namespace dynamic_graph_bridge {
 /**
  * @brief  Publish ROS information in the dynamic-graph.
@@ -33,8 +34,8 @@ class RosSubscribe : public dynamicgraph::Entity {
    * @brief Tuple composed by the generated input signal and its callback
    * function. The callback function publishes the input signal content.
    */
-  typedef std::tuple<std::shared_ptr<dynamicgraph::SignalBase<int> >,
-                     std::shared_ptr<dynamicgraph::SignalBase<int> >,
+  typedef std::tuple<std::shared_ptr<dg::SignalBase<dg::sigtime_t> >,
+                     std::shared_ptr<dg::SignalBase<dg::sigtime_t> >,
                      rclcpp::SubscriptionBase::SharedPtr>
       BindedSignal;
 

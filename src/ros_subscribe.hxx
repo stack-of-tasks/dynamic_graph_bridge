@@ -68,7 +68,7 @@ void RosSubscribe::add(const std::string& signal_name,
       std::make_shared<signal_out_t>(full_signal_name);
   DgRosMapping<RosType, DgType>::set_default(signal_ptr);
   signal_ptr->setDependencyType(
-      dynamicgraph::TimeDependency<int>::ALWAYS_READY);
+      dynamicgraph::TimeDependency<dg::sigtime_t>::ALWAYS_READY);
   std::get<0>(binded_signal) = signal_ptr;
   this->signalRegistration(*std::get<0>(binded_signal));
 
@@ -83,7 +83,7 @@ void RosSubscribe::add(const std::string& signal_name,
     signal_timestamp_ptr->setConstant(
         DgRosMapping<RosType, DgType>::epoch_time());
     signal_timestamp_ptr->setDependencyType(
-        dynamicgraph::TimeDependency<int>::ALWAYS_READY);
+        dynamicgraph::TimeDependency<dg::sigtime_t>::ALWAYS_READY);
     this->signalRegistration(*signal_timestamp_ptr);
   }
   std::get<1>(binded_signal) = signal_timestamp_ptr;

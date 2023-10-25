@@ -3,6 +3,7 @@
 #include "dynamic_graph_bridge/ros.hpp"
 
 using namespace dynamic_graph_bridge;
+namespace dg = dynamicgraph;
 
 ImplTestSotExternalInterface::ImplTestSotExternalInterface()
     : device_(new ImplTestSotMockDevice("RobotName")) {
@@ -73,7 +74,8 @@ void ImplTestSotExternalInterface::cleanupSetSensors(
 }
 
 void ImplTestSotExternalInterface::getControl(
-    std::map<std::string, dynamicgraph::sot::ControlValues> &controlValues) {
+    std::map<std::string, dynamicgraph::sot::ControlValues> &controlValues,
+    const double &) {
   // Put the default named_ctrl_vec inside the map controlValues.
   controlValues["control"] = named_ctrl_vec_;
   controlValues["baseff"] = named_base_ff_vec_;
@@ -85,6 +87,10 @@ void ImplTestSotExternalInterface::setSecondOrderIntegration(void) {
 
 void ImplTestSotExternalInterface::setNoIntegration(void) {
   std::cout << "setNoIntegration" << std::endl;
+}
+
+void ImplTestSotExternalInterface::setControlSize(const dg::size_type &) {
+  std::cout << "setControlSize" << std::endl;
 }
 
 extern "C" {
