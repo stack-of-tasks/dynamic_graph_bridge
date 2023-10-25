@@ -102,4 +102,5 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest)
   create_ros_bridge_unittest(ros_init dynamic_graph_bridge)
   create_ros_bridge_unittest(ros_interpreter dynamic_graph_bridge)
+
 endif()
