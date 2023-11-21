@@ -1,16 +1,33 @@
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
 #include <gmock/gmock.h>
+#pragma clang diagnostic pop
 
 #include "dynamic_graph_bridge/ros.hpp"
 #include "dynamic_graph_bridge/sot_loader_basic.hh"
+
+
+namespace test_sot_loader_basic {
+int l_argc;
+char** l_argv;
+}
 
 class MockSotLoaderBasicTest : public ::testing::Test {
  public:
   class MockSotLoaderBasic : public SotLoaderBasic {
    public:
+    MockSotLoaderBasic(const std::string &aNodeName=
+                       std::string("MockSotLoaderBasic")) :
+        SotLoaderBasic(aNodeName)
+    {}
     virtual ~MockSotLoaderBasic() {}
 
     void checkStateVectorMap() {
+      // This test makes sure that the class test_sot_loader_basic is able to
+      // read parameters from the ROS-2 space.
+      // It is suppose to read :
+      // state_vector_map and populate member stateVectorMap_
+      // in this test we should have two joints: [ "joint1", "joint2"]
       readSotVectorStateParam();
       ASSERT_EQ(static_cast<int>(stateVectorMap_.size()), 2);
       ASSERT_EQ(nbOfJoints_, 2);
@@ -26,12 +43,14 @@ class MockSotLoaderBasicTest : public ::testing::Test {
       char argv1[30] = "mocktest";
       char *argv[3];
       argv[0] = argv1;
+      // Checking that parseOptions returns -1
       EXPECT_EQ(parseOptions(argc, argv), -1);
 
       // Test help call
       argc = 2;
       char argv2[30] = "--help";
       argv[1] = argv2;
+      // Checking that parseOptions returns -1
       EXPECT_EQ(parseOptions(argc, argv), -1);
 
       // Test input file
@@ -50,11 +69,11 @@ class MockSotLoaderBasicTest : public ::testing::Test {
       char argv1[30] = "mocktest";
       argv[0] = argv1;
       parseOptions(argc, argv);
+      initPublication();
+      EXPECT_TRUE(joint_pub_ != 0);
       initializeServices();
       EXPECT_TRUE(service_start_ != 0);
       EXPECT_TRUE(service_stop_ != 0);
-      initPublication();
-      EXPECT_TRUE(joint_pub_ != 0);
     }
 
     void testJointStatesPublication() {
@@ -122,16 +141,39 @@ class MockSotLoaderBasicTest : public ::testing::Test {
 
  public:
   MockSotLoaderBasic *mockSotLoaderBasic_ptr_;
+  unsigned int nb_tests_;
 
-  void SetUp() {
-    mockSotLoaderBasic_ptr_ = new MockSotLoaderBasic();
-    mockSotLoaderBasic_ptr_->initialize();
+  MockSotLoaderBasicTest() {
+    nb_tests_ = 0;
+  }
+      
+  // For the set of tests coded in this file.
+  static void SetUpTestCase() {
+    
+    rclcpp::init(test_sot_loader_basic::l_argc,
+                 test_sot_loader_basic::l_argv);
   }
 
+  // For each test specified in this file
+  static void TearDownTestCase() {
+    rclcpp::shutdown();
+  }
+  
+  // For each test specified by TEST_F
+  void SetUp() {
+    std::string aSotLoaderBasicName("MockSotLoaderBasic" +
+                                    std::to_string(nb_tests_));
+    mockSotLoaderBasic_ptr_ = new MockSotLoaderBasic(aSotLoaderBasicName);
+    mockSotLoaderBasic_ptr_->initialize();
+  }
+  
+  // For each test specified by TEST_F
   void TearDown() {
     delete mockSotLoaderBasic_ptr_;
     mockSotLoaderBasic_ptr_ = nullptr;
+    nb_tests_++;
   }
+
 };
 
 TEST_F(MockSotLoaderBasicTest, TestReadingParameters) {
@@ -160,12 +202,10 @@ TEST_F(MockSotLoaderBasicTest, CleanUp) {
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
-  rclcpp::init(argc, argv);
-
+  test_sot_loader_basic::l_argc = argc;
+  test_sot_loader_basic::l_argv = argv;
+  
   int r = RUN_ALL_TESTS();
 
-  std::cout << "ros shutdown" << std::endl;
-  rclcpp::shutdown();
-  std::cout << "ros shutdown done" << std::endl;
   return r;
 }

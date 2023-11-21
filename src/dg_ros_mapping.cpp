@@ -66,22 +66,25 @@ DG_TO_ROS_IMPL(DgRosMappingMatrix) {
   // For simplicity and easiness of maintenance we implement a slower version
   // of the copy here.
   ros_dst.width = static_cast<unsigned int>(dg_src.rows());
-  ros_dst.data.resize(dg_src.size());
-  for (int row = 0; row < dg_src.rows(); ++row) {
+  ros_dst.data.resize(static_cast<std::size_t>(dg_src.size()));
+  for (int row = 0 ; row < dg_src.rows(); ++row) {
     for (int col = 0; col < dg_src.cols(); ++col) {
-      ros_dst.data[row * ros_dst.width + col] = dg_src(row, col);
+      ros_dst.data[static_cast<unsigned int>(row) * ros_dst.width +
+                   static_cast<unsigned int>(col)] =
+          dg_src(row, col);
     }
   }
 }
 ROS_TO_DG_IMPL(DgRosMappingMatrix) {
   // For simplicity and easiness of maintenance we implement a slower version
   // of the copy here.
-  int rows = ros_src.width;
+  int rows = static_cast<int>(ros_src.width);
   int cols = static_cast<int>(ros_src.data.size()) / static_cast<int>(rows);
   dg_dst.resize(rows, cols);
   for (int row = 0; row < dg_dst.rows(); ++row) {
     for (int col = 0; col < dg_dst.cols(); ++col) {
-      dg_dst(row, col) = ros_src.data[row * rows + col];
+      dg_dst(row, col) =
+          ros_src.data[static_cast<std::vector<double>::size_type>(row * rows + col)];
     }
   }
 }

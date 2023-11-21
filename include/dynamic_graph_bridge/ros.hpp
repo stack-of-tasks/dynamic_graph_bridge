@@ -9,6 +9,8 @@
 
 #include <memory>
 
+#include <boost/chrono.hpp>
+
 // ROS includes
 #include "dynamic_graph_bridge_msgs/srv/run_python_command.hpp"
 #include "dynamic_graph_bridge_msgs/srv/run_python_file.hpp"

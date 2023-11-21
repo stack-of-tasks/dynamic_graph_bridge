@@ -8,10 +8,14 @@
  */
 #pragma once
 
+#include "fwd.hpp"
+
 // Standard includes
 #include <sstream>
 #include <utility>
 #include <vector>
+
+#include <boost/chrono.hpp>
 
 // Dynamic Graph types.
 #include <dynamic-graph/linear-algebra.h>
@@ -107,7 +111,7 @@ class DgRosMapping {
   /** @brief Output signal type. */
   typedef dg::SignalTimeDependent<dg_t, dg::sigtime_t> signal_out_t;
   /** @brief Output signal type. */
-  typedef dg::SignalTimeDependent<timestamp_t, dg::sigtime_t>
+  typedef dg::SignalTimeDependent<dynamic_graph_bridge::timestamp_t, dg::sigtime_t>
       signal_timestamp_out_t;
   /** @brief Input signal type. */
   typedef dg::SignalPtr<dg_t, dg::sigtime_t> signal_in_t;
@@ -126,7 +130,7 @@ class DgRosMapping {
    */
   template <typename SignalTypePtr>
   static void set_default(SignalTypePtr s) {
-    s->setConstant(DgRosMapping<RosType, DgType>::default_value);
+    s->setConstant(default_value);
   }
 
   /**
@@ -135,17 +139,17 @@ class DgRosMapping {
    * @param s
    */
   static void set_default(dg_t& d) {
-    d = DgRosMapping<RosType, DgType>::default_value;
+    d = default_value;
   }
 
   /**
-   * @brief Convert ROS time to std::chrono.
+   * @brief Convert ROS time to boost::chrono.
    *
    * @param ros_time
    * @return timestamp_t
    */
   static timestamp_t from_ros_time(rclcpp::Time ros_time) {
-    return epoch_time() + std::chrono::nanoseconds(ros_time.nanoseconds());
+    return epoch_time() + boost::chrono::nanoseconds(ros_time.nanoseconds());
   }
 
   /**
@@ -154,7 +158,7 @@ class DgRosMapping {
    * @return timestamp_t
    */
   static timestamp_t epoch_time() {
-    return std::chrono::time_point<std::chrono::high_resolution_clock>{};
+    return boost::chrono::time_point<boost::chrono::high_resolution_clock>{};
   }
 
   /**

@@ -116,9 +116,11 @@ void ImplTestSotMockDevice::setSensorsForce(
     for (int i = 0; i < 4; ++i) {
       sotDEBUG(15) << "Force sensor " << i << std::endl;
       int idx_sensor = map_sot_2_urdf[i];
-      for (int j = 0; j < 6; ++j) {
-        dgforces_(j) = forcesIn[idx_sensor * 6 + j];
-        sotDEBUG(15) << "Force value " << j << ":" << dgforces_(j) << std::endl;
+      for (std::vector<double>::size_type j = 0; j < 6; ++j) {
+        dgforces_(static_cast<Eigen::Index>(j)) =
+            forcesIn[static_cast<std::vector<double>::size_type>(idx_sensor * 6) + j];
+        sotDEBUG(15) << "Force value " << j << ":"
+                     << dgforces_(static_cast<Eigen::Index>(j)) << std::endl;
       }
       forcesSOUT[i]->setConstant(dgforces_);
       forcesSOUT[i]->setTime(t);
@@ -144,7 +146,8 @@ void ImplTestSotMockDevice::setSensorsIMU(
   if (it != SensorsIn.end()) {
     const vector<double>& accelerometer =
         SensorsIn["accelerometer_0"].getValues();
-    for (std::size_t i = 0; i < 3; ++i) accelerometer_(i) = accelerometer[i];
+    for (std::size_t i = 0; i < 3; ++i)
+      accelerometer_(static_cast<Eigen::Index>(i)) = accelerometer[i];
     accelerometerSOUT_.setConstant(accelerometer_);
     accelerometerSOUT_.setTime(t);
   }
@@ -152,7 +155,8 @@ void ImplTestSotMockDevice::setSensorsIMU(
   it = SensorsIn.find("gyrometer_0");
   if (it != SensorsIn.end()) {
     const vector<double>& gyrometer = SensorsIn["gyrometer_0"].getValues();
-    for (std::size_t i = 0; i < 3; ++i) gyrometer_(i) = gyrometer[i];
+    for (std::size_t i = 0; i < 3; ++i)
+      gyrometer_(static_cast<Eigen::Index>(i)) = gyrometer[i];
     gyrometerSOUT_.setConstant(gyrometer_);
     gyrometerSOUT_.setTime(t);
   }
@@ -165,8 +169,8 @@ void ImplTestSotMockDevice::setSensorsEncoders(
   it = SensorsIn.find("motor-angles");
   if (it != SensorsIn.end()) {
     const vector<double>& anglesIn = it->second.getValues();
-    dgRobotState_.resize(anglesIn.size() + 6);
-    motor_angles_.resize(anglesIn.size());
+    dgRobotState_.resize(static_cast<Eigen::Index>(anglesIn.size()) + 6);
+    motor_angles_.resize(static_cast<Eigen::Index>(anglesIn.size()));
     for (unsigned i = 0; i < 6; ++i) dgRobotState_(i) = 0.;
     for (unsigned i = 0; i < anglesIn.size(); ++i) {
       dgRobotState_(i + 6) = anglesIn[i];
@@ -181,7 +185,7 @@ void ImplTestSotMockDevice::setSensorsEncoders(
   it = SensorsIn.find("joint-angles");
   if (it != SensorsIn.end()) {
     const vector<double>& joint_anglesIn = it->second.getValues();
-    joint_angles_.resize(joint_anglesIn.size());
+    joint_angles_.resize(static_cast<Eigen::Index>(joint_anglesIn.size()));
     for (unsigned i = 0; i < joint_anglesIn.size(); ++i)
       joint_angles_(i) = joint_anglesIn[i];
     joint_anglesSOUT_.setConstant(joint_angles_);
@@ -196,9 +200,9 @@ void ImplTestSotMockDevice::setSensorsVelocities(
   it = SensorsIn.find("velocities");
   if (it != SensorsIn.end()) {
     const vector<double>& velocitiesIn = it->second.getValues();
-    dgRobotVelocity_.resize(velocitiesIn.size() + 6);
+    dgRobotVelocity_.resize(static_cast<Eigen::Index>(velocitiesIn.size()) + 6);
     for (unsigned i = 0; i < 6; ++i) dgRobotVelocity_(i) = 0.;
-    for (unsigned i = 0; i < velocitiesIn.size(); ++i) {
+    for (unsigned i = 0; i < static_cast<Eigen::Index>(velocitiesIn.size()); ++i) {
       dgRobotVelocity_(i + 6) = velocitiesIn[i];
     }
     robotVelocity_.setConstant(dgRobotVelocity_);
@@ -212,8 +216,9 @@ void ImplTestSotMockDevice::setSensorsTorquesCurrents(
   it = SensorsIn.find("torques");
   if (it != SensorsIn.end()) {
     const std::vector<double>& torques = SensorsIn["torques"].getValues();
-    torques_.resize(torques.size());
-    for (std::size_t i = 0; i < torques.size(); ++i) torques_(i) = torques[i];
+    torques_.resize(static_cast<Eigen::Index>(torques.size()));
+    for (std::size_t i = 0; i < torques.size(); ++i)
+      torques_(static_cast<Eigen::Index>(i)) = torques[i];
     pseudoTorqueSOUT.setConstant(torques_);
     pseudoTorqueSOUT.setTime(t);
   }
@@ -221,9 +226,9 @@ void ImplTestSotMockDevice::setSensorsTorquesCurrents(
   it = SensorsIn.find("currents");
   if (it != SensorsIn.end()) {
     const std::vector<double>& currents = SensorsIn["currents"].getValues();
-    currents_.resize(currents.size());
+    currents_.resize(static_cast<Eigen::Index>(currents.size()));
     for (std::size_t i = 0; i < currents.size(); ++i)
-      currents_(i) = currents[i];
+      currents_(static_cast<Eigen::Index>(i)) = currents[i];
     currentsSOUT_.setConstant(currents_);
     currentsSOUT_.setTime(t);
   }
@@ -235,8 +240,9 @@ void ImplTestSotMockDevice::setSensorsGains(
   it = SensorsIn.find("p_gains");
   if (it != SensorsIn.end()) {
     const std::vector<double>& p_gains = SensorsIn["p_gains"].getValues();
-    p_gains_.resize(p_gains.size());
-    for (std::size_t i = 0; i < p_gains.size(); ++i) p_gains_(i) = p_gains[i];
+    p_gains_.resize(static_cast<Eigen::Index>(p_gains.size()));
+    for (std::size_t i = 0; i < p_gains.size(); ++i)
+      p_gains_(static_cast<Eigen::Index>(i)) = p_gains[i];
     p_gainsSOUT_.setConstant(p_gains_);
     p_gainsSOUT_.setTime(t);
   }
@@ -244,8 +250,9 @@ void ImplTestSotMockDevice::setSensorsGains(
   it = SensorsIn.find("d_gains");
   if (it != SensorsIn.end()) {
     const std::vector<double>& d_gains = SensorsIn["d_gains"].getValues();
-    d_gains_.resize(d_gains.size());
-    for (std::size_t i = 0; i < d_gains.size(); ++i) d_gains_(i) = d_gains[i];
+    d_gains_.resize(static_cast<Eigen::Index>(d_gains.size()));
+    for (std::size_t i = 0; i < d_gains.size(); ++i)
+      d_gains_(static_cast<Eigen::Index>(i)) = d_gains[i];
     d_gainsSOUT_.setConstant(d_gains_);
     d_gainsSOUT_.setTime(t);
   }
@@ -290,8 +297,8 @@ void ImplTestSotMockDevice::getControl(
   ODEBUG5FULL("start");
   sotDEBUGIN(25);
   vector<double> anglesOut, velocityOut;
-  anglesOut.resize(state_.size());
-  velocityOut.resize(state_.size());
+  anglesOut.resize(static_cast<std::vector<double>::size_type>(state_.size()));
+  velocityOut.resize(static_cast<std::vector<double>::size_type>(state_.size()));
 
   // Integrate control
   sotDEBUG(25) << "state = " << state_ << std::endl;
@@ -310,8 +317,8 @@ void ImplTestSotMockDevice::getControl(
   // warning: we make here the asumption that the control signal contains the
   // velocity of the freeflyer joint. This may change in the future.
   if ((int)anglesOut.size() != state_.size() - 6) {
-    anglesOut.resize(state_.size() - 6);
-    velocityOut.resize(state_.size() - 6);
+    anglesOut.resize(static_cast<std::vector<double>::size_type>(state_.size() - 6));
+    velocityOut.resize(static_cast<std::vector<double>::size_type>(state_.size() - 6));
   }
 
   dg::sigtime_t time = controlSIN.getTime();

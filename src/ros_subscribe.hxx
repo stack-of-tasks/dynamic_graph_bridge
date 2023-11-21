@@ -74,6 +74,7 @@ void RosSubscribe::add(const std::string& signal_name,
 
   // Initialize the time stamp signal if needed.
   std::shared_ptr<signal_timestamp_out_t> signal_timestamp_ptr = nullptr;
+  /*
   if (message_filters::message_traits::HasHeader<ros_t>()) {
     std::string full_time_stamp_signal_name =
         this->getClassName() + "(" + this->getName() + ")::" + signal_name +
@@ -86,6 +87,7 @@ void RosSubscribe::add(const std::string& signal_name,
         dynamicgraph::TimeDependency<dg::sigtime_t>::ALWAYS_READY);
     this->signalRegistration(*signal_timestamp_ptr);
   }
+  */
   std::get<1>(binded_signal) = signal_timestamp_ptr;
 
   // Initialize the subscriber.

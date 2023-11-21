@@ -38,7 +38,7 @@ bool parameter_server_read_robot_description(rclcpp::Node::SharedPtr nh) {
     // Then set the robot model.
     aRobotUtil->set_parameter(parameter_name, robot_description);
     RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
-                "Set parameter_name : %s.", parameter_name.c_str());
+                "parameter_server_read_robot_description : Set parameter_name : %s.", parameter_name.c_str());
     // Everything went fine.
     return true;
   }
