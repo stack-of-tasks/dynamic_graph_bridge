@@ -16,7 +16,9 @@ if(BUILD_TESTING)
                                                              $ORIGIN)
   target_link_libraries(
     impl_test_sot_mock_device PUBLIC sot-core::sot-core
-                                     dynamic-graph-python::dynamic-graph-python)
+    dynamic-graph-python::dynamic-graph-python
+    ros_bridge
+  )
 
   install(
     TARGETS impl_test_sot_mock_device
@@ -24,21 +26,28 @@ if(BUILD_TESTING)
     DESTINATION ${DYNAMIC_GRAPH_PLUGINDIR})
 
   file(MAKE_DIRECTORY
-       ${PROJECT_BINARY_DIR}/tests/dynamic_graph/ros/impl_test_sot_mock_device)
-
+    ${PROJECT_BINARY_DIR}/tests/dynamic_graph/ros/tests/impl_test_sot_mock_device)
+  
   dynamic_graph_python_module(
-    "${PYTHON_DIR}/ros/impl_test_sot_mock_device" impl_test_sot_mock_device
+    "${PYTHON_DIR}/ros/tests/impl_test_sot_mock_device" impl_test_sot_mock_device
     dynamic_graph_bridge-impl_test_sot_mock_device-wrap SOURCE_PYTHON_MODULE
     "${CMAKE_CURRENT_SOURCE_DIR}/impl_test_sot_mock_device-python-module-py.cc")
 
   # Library for sot_external_interface
   add_library(impl_test_library SHARED impl_test_sot_external_interface.cpp)
+  set_target_properties(impl_test_library PROPERTIES INSTALL_RPATH
+    $ORIGIN)
 
-  target_include_directories(impl_test_library PUBLIC include)
   target_link_libraries(impl_test_library PUBLIC impl_test_sot_mock_device
                                                  sot-core::sot-core)
   ament_target_dependencies(impl_test_library PUBLIC dynamic_graph_bridge_msgs
-                            rclcpp rcl_interfaces std_srvs)
+    rclcpp rcl_interfaces std_srvs)
+
+  install(
+    TARGETS impl_test_library
+    EXPORT ${TARGETS_EXPORT_NAME}
+    DESTINATION ${DYNAMIC_GRAPH_PLUGINDIR})
+
   # Executable for SotLoaderBasic test
   add_executable(test_sot_loader_basic test_sot_loader_basic.cpp)
   target_include_directories(

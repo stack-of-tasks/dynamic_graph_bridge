@@ -41,7 +41,7 @@
 namespace po = boost::program_options;
 namespace dgs = dynamicgraph::sot;
 
-class SotLoaderBasic {
+class SotLoaderBasic : public rclcpp::Node {
  protected:
   // Dynamic graph is stopped.
   bool dynamic_graph_stopped_;
@@ -73,9 +73,6 @@ class SotLoaderBasic {
   // Joint state publication.
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_pub_;
 
-  // Node reference
-  rclcpp::Node::SharedPtr nh_;
-
   // Joint state to be published.
   sensor_msgs::msg::JointState joint_state_;
 
@@ -87,7 +84,7 @@ class SotLoaderBasic {
   std::vector<std::string> stateVectorMap_;
 
  public:
-  SotLoaderBasic();
+  SotLoaderBasic(const std::string & aNodeName=std::string("SotLoaderBasic"));
   virtual ~SotLoaderBasic();
 
   // \brief Read user input to extract the path of the SoT dynamic library.

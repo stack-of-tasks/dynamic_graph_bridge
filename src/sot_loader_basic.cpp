@@ -24,9 +24,15 @@ using namespace std;
 using namespace dynamicgraph::sot;
 namespace po = boost::program_options;
 
-SotLoaderBasic::SotLoaderBasic()
-    : dynamic_graph_stopped_(true), sotRobotControllerLibrary_(0) {
-  nh_ = dynamic_graph_bridge::get_ros_node("SotLoaderBasic");
+SotLoaderBasic::SotLoaderBasic(const std::string &aNodeName)
+    : rclcpp::Node(aNodeName),
+      dynamic_graph_stopped_(true),
+      sotRobotControllerLibrary_(0) {
+  RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge::"),
+              "Beginning of SotLoaderBasic");
+  //  nh_ = dynamic_graph_bridge::get_ros_node("SotLoaderBasic");
+  RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+              "End of SotLoaderBasic");  
 }
 
 SotLoaderBasic::~SotLoaderBasic() {
@@ -35,31 +41,41 @@ SotLoaderBasic::~SotLoaderBasic() {
 
 void SotLoaderBasic::initialize() {}
 
-rclcpp::Node::SharedPtr SotLoaderBasic::returnsNodeHandle() { return nh_; }
+//rclcpp::Node::SharedPtr SotLoaderBasic::returnsNodeHandle() { return nh_; }
 int SotLoaderBasic::initPublication() {
   // Prepare message to be published
+  RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+              "SotLoaderBasic::initPublication - create joint_pub");
+  
   joint_pub_ =
-      nh_->create_publisher<sensor_msgs::msg::JointState>("joint_states", 1);
+      create_publisher<sensor_msgs::msg::JointState>("joint_states", 1);
 
+  RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+              "SotLoaderBasic::initPublication - after create joint_pub");  
   return 0;
 }
 
 void SotLoaderBasic::initializeServices() {
   RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
-              "Ready to start dynamic graph.");
+              "SotLoaderBasic::initializeServices - Ready to start dynamic graph.");
 
   using namespace std::placeholders;
-  service_start_ = nh_->create_service<std_srvs::srv::Empty>(
+  service_start_ = create_service<std_srvs::srv::Empty>(
       "start_dynamic_graph",
       std::bind(&SotLoaderBasic::start_dg, this, std::placeholders::_1,
                 std::placeholders::_2));
+  RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+              "SotLoaderBasic::initializeServices - started dynamic graph.");
 
-  service_stop_ = nh_->create_service<std_srvs::srv::Empty>(
+  service_stop_ = create_service<std_srvs::srv::Empty>(
       "stop_dynamic_graph",
       std::bind(&SotLoaderBasic::stop_dg, this, std::placeholders::_1,
                 std::placeholders::_2));
+  RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+              "SotLoaderBasic::initializeServices - stopped dynamic graph.");
 
-  dynamicgraph::parameter_server_read_robot_description(nh_);
+  rclcpp::Node::SharedPtr a_node_ptr(this);
+  dynamicgraph::parameter_server_read_robot_description(a_node_ptr);
 }
 
 void SotLoaderBasic::setDynamicLibraryName(std::string& afilename) {
@@ -70,29 +86,24 @@ int SotLoaderBasic::readSotVectorStateParam() {
   std::map<std::string, int> from_state_name_to_state_vector;
   std::map<std::string, std::string> from_parallel_name_to_state_vector_name;
 
-  if (!nh_) {
-    throw std::logic_error(
-        "SotLoaderBasic::readSotVectorStateParam() nh_ not initialized");
-  }
-
   // It is necessary to declare parameters first
   // before trying to access them.
-  if (not nh_->has_parameter("state_vector_map"))
-    nh_->declare_parameter("state_vector_map", std::vector<std::string>{});
-  if (not nh_->has_parameter("joint_state_parallel"))
-    nh_->declare_parameter("joint_state_parallel", std::vector<std::string>{});
+  if (not has_parameter("state_vector_map"))
+    declare_parameter("state_vector_map", std::vector<std::string>{});
+  if (not has_parameter("joint_state_parallel"))
+    declare_parameter("joint_state_parallel", std::vector<std::string>{});
 
   // Read the state vector of the robot
   // Defines the order in which the actuators are ordered
   try {
     std::string aParameterName("state_vector_map");
-    if (!nh_->get_parameter(aParameterName, stateVectorMap_)) {
+    if (!get_parameter(aParameterName, stateVectorMap_)) {
       logic_error aLogicError(
           "SotLoaderBasic::readSotVectorStateParam : State_vector_map is "
           "empty");
       throw aLogicError;
     }
-    RCLCPP_INFO(nh_->get_logger(), "state_vector_map parameter size %d",
+    RCLCPP_INFO(get_logger(), "state_vector_map parameter size %ld",
                 stateVectorMap_.size());
   } catch (exception& e) {
     std::throw_with_nested(
@@ -108,7 +119,7 @@ int SotLoaderBasic::readSotVectorStateParam() {
 
   std::string prefix("joint_state_parallel");
   std::map<std::string, rclcpp::Parameter> joint_state_parallel;
-  nh_->get_parameters(prefix, joint_state_parallel);
+  get_parameters(prefix, joint_state_parallel);
 
   // Iterates over the map joint_state_parallel
   for (std::map<std::string, rclcpp::Parameter>::iterator it_map_expression =
@@ -172,11 +183,13 @@ int SotLoaderBasic::parseOptions(int argc, char* argv[]) {
   po::notify(vm_);
 
   if (vm_.count("help")) {
-    cout << desc << "\n";
+    RCLCPP_ERROR(rclcpp::get_logger("dynamic_graph_bridge"),
+                 " Help was called \n");
     return -1;
   }
   if (!vm_.count("input-file")) {
-    cout << "No filename specified\n";
+    RCLCPP_ERROR(rclcpp::get_logger("dynamic_graph_bridge"),
+                 "No filename specified\n");
     return -1;
   } else
     dynamicLibraryName_ = vm_["input-file"].as<string>();

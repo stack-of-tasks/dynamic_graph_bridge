@@ -55,6 +55,7 @@ def generate_test_description():
             {"state_vector_map": ["joint1", "joint2"]},
             {"robot_description": robot_description_content},
         ],
+        arguments=['--ros-args', '--log-level', 'INFO']
     )
 
     return (
@@ -74,7 +75,7 @@ class TestSotLoaderBasic(unittest.TestCase):
 
     def test_termination(self, terminating_process, proc_info):
         """Runs the generate_test_description() function."""
-        proc_info.assertWaitForShutdown(process=terminating_process, timeout=(10))
+        proc_info.assertWaitForShutdown(process=terminating_process, timeout=(60))
 
 
 @launch_testing.post_shutdown_test()

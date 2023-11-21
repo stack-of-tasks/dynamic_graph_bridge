@@ -40,7 +40,7 @@ void start_dg_ros_service() {
       std::make_shared<std_srvs::srv::Empty::Request>();
   std::shared_future<std_srvs::srv::Empty::Response::SharedPtr> response;
   // Call the service.
-  response = client->async_send_request(request);
+  response = client->async_send_request(request).future.share();
   // Wait for the answer.
   ASSERT_TRUE(response.valid());
   // wait_for_response(response);
@@ -61,7 +61,7 @@ void stop_dg_ros_service() {
       std::make_shared<std_srvs::srv::Empty::Request>();
   std::shared_future<std_srvs::srv::Empty::Response::SharedPtr> response;
   // Call the service.
-  response = client->async_send_request(request);
+  response = client->async_send_request(request).future.share();
   // Wait for the answer.
   ASSERT_TRUE(response.valid());
   // wait_for_response(response);
@@ -91,7 +91,7 @@ void start_run_python_command_ros_service(const std::string& cmd,
       response;
   request->input = cmd;
   // Call the service.
-  response = client->async_send_request(request);
+  response = client->async_send_request(request).future.share();
   // Wait for the answer.
   ASSERT_TRUE(response.valid());
   // wait_for_response(response);
@@ -123,7 +123,7 @@ void start_run_python_script_ros_service(const std::string& file_name,
       response;
   request->input = file_name;
   // Call the service.
-  response = client->async_send_request(request);
+  response = client->async_send_request(request).future.share();
   // Wait for the answer.
   ASSERT_TRUE(response.valid());
   // wait_for_response(response);

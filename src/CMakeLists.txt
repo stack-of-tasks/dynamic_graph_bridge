@@ -38,7 +38,9 @@ ament_target_dependencies(
   geometry_msgs
   sensor_msgs
   tf2_ros
-  rcutils)
+  rcutils
+  urdfdom)
+
 if(SUFFIX_SO_VERSION)
   set_target_properties(ros_bridge PROPERTIES SOVERSION ${PROJECT_VERSION})
 endif(SUFFIX_SO_VERSION)
@@ -62,9 +64,12 @@ foreach(plugin ${plugins})
                                                             ${PROJECT_VERSION})
   endif(SUFFIX_SO_VERSION)
   target_link_libraries(
-    ${plugin_library_name} ${${plugin_library_name}_deps} ${catkin_LIBRARIES}
-    ros_bridge
-    dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp
+     ${plugin_library_name} ${${plugin_library_name}_deps} 
+     ros_bridge
+     dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp
+     rclcpp::rclcpp
+     rcl_interfaces::rcl_interfaces__rosidl_typesupport_cpp
+     std_srvs::std_srvs__rosidl_typesupport_cpp
   )
   target_include_directories(
     ${plugin_library_name}

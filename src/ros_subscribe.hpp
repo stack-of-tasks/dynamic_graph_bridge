@@ -127,6 +127,7 @@ class RosSubscribe : public dynamicgraph::Entity {
   std::map<std::string, BindedSignal> binded_signals_;
 };
 
+
 namespace command {
 namespace ros_subscribe {
 using ::dynamicgraph::command::Command;

@@ -83,16 +83,10 @@ void SotLoader::initializeServices() {
   freeFlyerPose_.header.frame_id = "odom";
   freeFlyerPose_.child_frame_id = "base_link";
 
-  if (nh_ == 0) {
-    logic_error aLogicError(
-        "SotLoaderBasic::initializeFromRosContext aRosCtxt is empty !");
-    throw aLogicError;
-  }
+  if (not has_parameter("tf_base_link"))
+    declare_parameter("tf_base_link", std::string("base_link"));
 
-  if (not nh_->has_parameter("tf_base_link"))
-    nh_->declare_parameter("tf_base_link", std::string("base_link"));
-
-  if (nh_->get_parameter("tf_base_link", freeFlyerPose_.child_frame_id)) {
+  if (get_parameter("tf_base_link", freeFlyerPose_.child_frame_id)) {
     RCLCPP_INFO_STREAM(rclcpp::get_logger("dynamic_graph_bridge"),
                        "Publishing " << freeFlyerPose_.child_frame_id << " wrt "
                                      << freeFlyerPose_.header.frame_id);
@@ -104,7 +98,7 @@ void SotLoader::initializeServices() {
   control_.resize(static_cast<std::size_t>(nbOfJoints_));
 
   // Creates a publisher for the free flyer transform.
-  freeFlyerPublisher_ = std::make_shared<tf2_ros::TransformBroadcaster>(nh_);
+  freeFlyerPublisher_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 }
 
 void SotLoader::fillSensors(map<string, dgs::SensorValues> &sensorsIn) {
@@ -142,10 +136,12 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   }
   sotDEBUG(30) << "End ControlValues" << std::endl;
 #endif
+  std::size_t nbOfJoints_std_s = static_cast<std::size_t>(nbOfJoints_);
+  
   // Check if the size if coherent with the robot description.
   if (control_.size() != (unsigned int)nbOfJoints_) {
-    nbOfJoints_ = control_.size();
-    angleEncoder_.resize(nbOfJoints_);
+    nbOfJoints_ = static_cast<int>(control_.size());
+    angleEncoder_.resize(nbOfJoints_std_s);
   }
 
   // Publish the data.
@@ -154,16 +150,17 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   joint_state_.header.stamp = rclcpp::Clock().now();
 
   if (joint_state_.position.size() !=
-      nbOfJoints_ + parallel_joints_to_state_vector_.size()) {
-    joint_state_.position.resize(nbOfJoints_ +
+      static_cast<std::size_t>(nbOfJoints_) +
+      parallel_joints_to_state_vector_.size()) {
+    joint_state_.position.resize(nbOfJoints_std_s +
                                  parallel_joints_to_state_vector_.size());
-    joint_state_.velocity.resize(nbOfJoints_ +
+    joint_state_.velocity.resize(nbOfJoints_std_s +
                                  parallel_joints_to_state_vector_.size());
-    joint_state_.effort.resize(nbOfJoints_ +
+    joint_state_.effort.resize(nbOfJoints_std_s +
                                parallel_joints_to_state_vector_.size());
   }
 
-  for (int i = 0; i < nbOfJoints_; i++) {
+  for (std::size_t i = 0; i < nbOfJoints_std_s; i++) {
     joint_state_.position[i] = angleEncoder_[i];
   }
 
@@ -171,9 +168,9 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
             << parallel_joints_to_state_vector_.size() << std::endl;
 
   for (unsigned int i = 0; i < parallel_joints_to_state_vector_.size(); i++) {
-    joint_state_.position[i + nbOfJoints_] =
+    joint_state_.position[i + nbOfJoints_std_s] =
         coefficient_parallel_joints_[i] *
-        angleEncoder_[parallel_joints_to_state_vector_[i]];
+        angleEncoder_[static_cast<std::size_t>(parallel_joints_to_state_vector_[i])];
   }
 
   joint_pub_->publish(joint_state_);
@@ -232,12 +229,12 @@ void SotLoader::workThreadLoader() {
   double periodd;
 
   /// Declare parameters
-  if (not nh_->has_parameter("dt")) nh_->declare_parameter<double>("dt", 0.01);
-  if (not nh_->has_parameter("paused"))
-    nh_->declare_parameter<bool>("paused", false);
+  if (not has_parameter("dt")) declare_parameter<double>("dt", 0.01);
+  if (not has_parameter("paused"))
+    declare_parameter<bool>("paused", false);
 
   //
-  nh_->get_parameter_or("dt", periodd, 0.001);
+  get_parameter_or("dt", periodd, 0.001);
   rclcpp::Rate rate(1 / periodd);  // 1 kHz
 
   DataToLog dataToLog(5000);
@@ -253,7 +250,7 @@ void SotLoader::workThreadLoader() {
   rclcpp::Time time;
   while (rclcpp::ok() && !isDynamicGraphStopped()) {
     // Check if the user did not paused geometric_simu
-    nh_->get_parameter_or("paused", paused, false);
+    get_parameter_or("paused", paused, false);
 
     if (!paused) {
       time = aClock.now();

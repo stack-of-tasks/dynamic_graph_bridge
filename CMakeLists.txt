@@ -24,8 +24,6 @@ set(CATKIN_ENABLE_TESTING OFF)
 # JRL-cmakemodule setup
 include(cmake/base.cmake)
 include(cmake/boost.cmake)
-include(cmake/python.cmake)
-include(cmake/ros.cmake)
 
 # Project definition
 compute_project_args(PROJECT_ARGS LANGUAGES CXX)
@@ -44,13 +42,13 @@ find_package(std_srvs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(urdfdom REQUIRED)
 
 add_project_dependency(Boost REQUIRED COMPONENTS program_options)
 add_project_dependency(dynamic_graph_bridge_msgs 0.3.0 REQUIRED)
 add_project_dependency(sot-core REQUIRED)
 
 if(BUILD_PYTHON_INTERFACE)
-  findpython()
   search_for_boost_python()
   string(REGEX REPLACE "-" "_" PY_NAME ${PROJECT_NAME})
   add_project_dependency(dynamic-graph-python 4.0.0 REQUIRED)

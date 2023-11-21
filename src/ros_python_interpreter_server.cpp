@@ -14,7 +14,6 @@
 #include <memory>
 
 namespace dynamic_graph_bridge {
-static const int queueSize = 5;
 
 RosPythonInterpreterServer::RosPythonInterpreterServer()
     : interpreter_(),
