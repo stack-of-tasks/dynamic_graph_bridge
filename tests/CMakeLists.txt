@@ -15,33 +15,35 @@ if(BUILD_TESTING)
   set_target_properties(impl_test_sot_mock_device PROPERTIES INSTALL_RPATH
                                                              $ORIGIN)
   target_link_libraries(
-    impl_test_sot_mock_device PUBLIC sot-core::sot-core
-    dynamic-graph-python::dynamic-graph-python
-    ros_bridge
-  )
+    impl_test_sot_mock_device
+    PUBLIC sot-core::sot-core dynamic-graph-python::dynamic-graph-python
+           ros_bridge)
 
   install(
     TARGETS impl_test_sot_mock_device
     EXPORT ${TARGETS_EXPORT_NAME}
     DESTINATION ${DYNAMIC_GRAPH_PLUGINDIR})
 
-  file(MAKE_DIRECTORY
-    ${PROJECT_BINARY_DIR}/tests/dynamic_graph/ros/tests/impl_test_sot_mock_device)
-  
+  file(
+    MAKE_DIRECTORY
+    ${PROJECT_BINARY_DIR}/tests/dynamic_graph/ros/tests/impl_test_sot_mock_device
+  )
+
   dynamic_graph_python_module(
-    "${PYTHON_DIR}/ros/tests/impl_test_sot_mock_device" impl_test_sot_mock_device
-    dynamic_graph_bridge-impl_test_sot_mock_device-wrap SOURCE_PYTHON_MODULE
+    "${PYTHON_DIR}/ros/tests/impl_test_sot_mock_device"
+    impl_test_sot_mock_device
+    dynamic_graph_bridge-impl_test_sot_mock_device-wrap
+    SOURCE_PYTHON_MODULE
     "${CMAKE_CURRENT_SOURCE_DIR}/impl_test_sot_mock_device-python-module-py.cc")
 
   # Library for sot_external_interface
   add_library(impl_test_library SHARED impl_test_sot_external_interface.cpp)
-  set_target_properties(impl_test_library PROPERTIES INSTALL_RPATH
-    $ORIGIN)
+  set_target_properties(impl_test_library PROPERTIES INSTALL_RPATH $ORIGIN)
 
   target_link_libraries(impl_test_library PUBLIC impl_test_sot_mock_device
                                                  sot-core::sot-core)
   ament_target_dependencies(impl_test_library PUBLIC dynamic_graph_bridge_msgs
-    rclcpp rcl_interfaces std_srvs)
+                            rclcpp rcl_interfaces std_srvs)
 
   install(
     TARGETS impl_test_library
@@ -99,7 +101,11 @@ if(BUILD_TESTING)
       PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
     # Link the dependecies to it.
+    #
     target_link_libraries(test_${test_name} ros_bridge)
+    set(current_test_name test_${test_name})
+    ament_target_dependencies(${current_test_name} dynamic_graph_bridge_msgs
+                              rclcpp rcl_interfaces std_srvs)
 
     # add some preprocessor variable
     target_compile_definitions(

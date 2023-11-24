@@ -84,7 +84,7 @@ class SotLoaderBasic : public rclcpp::Node {
   std::vector<std::string> stateVectorMap_;
 
  public:
-  SotLoaderBasic(const std::string & aNodeName=std::string("SotLoaderBasic"));
+  SotLoaderBasic(const std::string& aNodeName = std::string("SotLoaderBasic"));
   virtual ~SotLoaderBasic();
 
   // \brief Read user input to extract the path of the SoT dynamic library.
@@ -124,6 +124,9 @@ class SotLoaderBasic : public rclcpp::Node {
 
   // \brief Specify the name of the dynamic library.
   void setDynamicLibraryName(std::string& afilename);
+
+  // \brief Read the parameters of the node
+  bool parameter_server_read_robot_description();
 };
 
 #endif /* _SOT_LOADER_BASIC_HH_ */
