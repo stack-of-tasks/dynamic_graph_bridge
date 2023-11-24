@@ -5,7 +5,6 @@
 
 # Main Library
 set(${PROJECT_NAME}_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/ros_parameter.hpp
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/ros_python_interpreter_client.hpp
     ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/ros_python_interpreter_server.hpp
     ${PROJECT_SOURCE_DIR}/src/dg_ros_mapping.hpp
@@ -16,7 +15,6 @@ set(${PROJECT_NAME}_SOURCES
     ${PROJECT_SOURCE_DIR}/src/ros_python_interpreter_client.cpp #
     ${PROJECT_SOURCE_DIR}/src/ros_python_interpreter_server.cpp #
     ${PROJECT_SOURCE_DIR}/src/ros.cpp #
-    ${PROJECT_SOURCE_DIR}/src/ros_parameter.cpp #
 )
 add_library(ros_bridge SHARED ${${PROJECT_NAME}_SOURCES}
                               ${${PROJECT_NAME}_HEADERS})
@@ -64,13 +62,13 @@ foreach(plugin ${plugins})
                                                             ${PROJECT_VERSION})
   endif(SUFFIX_SO_VERSION)
   target_link_libraries(
-     ${plugin_library_name} ${${plugin_library_name}_deps} 
-     ros_bridge
-     dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp
-     rclcpp::rclcpp
-     rcl_interfaces::rcl_interfaces__rosidl_typesupport_cpp
-     std_srvs::std_srvs__rosidl_typesupport_cpp
-  )
+    ${plugin_library_name}
+    ${${plugin_library_name}_deps}
+    ros_bridge
+    dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp
+    rclcpp::rclcpp
+    rcl_interfaces::rcl_interfaces__rosidl_typesupport_cpp
+    std_srvs::std_srvs__rosidl_typesupport_cpp)
   target_include_directories(
     ${plugin_library_name}
     PUBLIC $<INSTALL_INTERFACE:include>
