@@ -56,8 +56,8 @@ struct DataToLog {
   }
 };
 
-SotLoader::SotLoader()
-    : SotLoaderBasic(),
+SotLoader::SotLoader(const std::string &aNodeName)
+    : SotLoaderBasic(aNodeName),
       sensorsIn_(),
       controlValues_(),
       angleEncoder_(),
