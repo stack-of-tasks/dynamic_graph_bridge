@@ -67,11 +67,10 @@ DG_TO_ROS_IMPL(DgRosMappingMatrix) {
   // of the copy here.
   ros_dst.width = static_cast<unsigned int>(dg_src.rows());
   ros_dst.data.resize(static_cast<std::size_t>(dg_src.size()));
-  for (int row = 0 ; row < dg_src.rows(); ++row) {
+  for (int row = 0; row < dg_src.rows(); ++row) {
     for (int col = 0; col < dg_src.cols(); ++col) {
       ros_dst.data[static_cast<unsigned int>(row) * ros_dst.width +
-                   static_cast<unsigned int>(col)] =
-          dg_src(row, col);
+                   static_cast<unsigned int>(col)] = dg_src(row, col);
     }
   }
 }
@@ -84,7 +83,8 @@ ROS_TO_DG_IMPL(DgRosMappingMatrix) {
   for (int row = 0; row < dg_dst.rows(); ++row) {
     for (int col = 0; col < dg_dst.cols(); ++col) {
       dg_dst(row, col) =
-          ros_src.data[static_cast<std::vector<double>::size_type>(row * rows + col)];
+          ros_src.data[static_cast<std::vector<double>::size_type>(row * rows +
+                                                                   col)];
     }
   }
 }

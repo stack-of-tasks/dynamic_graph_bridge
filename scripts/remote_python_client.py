@@ -24,10 +24,10 @@ import sys
 from pathlib import Path
 
 import rclpy
-from dynamic_graph_bridge_cpp_bindings import RosPythonInterpreterClient
 
 # Used to connect to ROS services
 from dynamic_graph_bridge.ros.dgcompleter import DGCompleter
+from dynamic_graph_bridge_cpp_bindings import RosPythonInterpreterClient
 
 
 def signal_handler(sig, frame):

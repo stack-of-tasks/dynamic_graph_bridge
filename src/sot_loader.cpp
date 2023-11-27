@@ -137,7 +137,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   sotDEBUG(30) << "End ControlValues" << std::endl;
 #endif
   std::size_t nbOfJoints_std_s = static_cast<std::size_t>(nbOfJoints_);
-  
+
   // Check if the size if coherent with the robot description.
   if (control_.size() != (unsigned int)nbOfJoints_) {
     nbOfJoints_ = static_cast<int>(control_.size());
@@ -151,7 +151,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
 
   if (joint_state_.position.size() !=
       static_cast<std::size_t>(nbOfJoints_) +
-      parallel_joints_to_state_vector_.size()) {
+          parallel_joints_to_state_vector_.size()) {
     joint_state_.position.resize(nbOfJoints_std_s +
                                  parallel_joints_to_state_vector_.size());
     joint_state_.velocity.resize(nbOfJoints_std_s +
@@ -170,7 +170,8 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   for (unsigned int i = 0; i < parallel_joints_to_state_vector_.size(); i++) {
     joint_state_.position[i + nbOfJoints_std_s] =
         coefficient_parallel_joints_[i] *
-        angleEncoder_[static_cast<std::size_t>(parallel_joints_to_state_vector_[i])];
+        angleEncoder_[static_cast<std::size_t>(
+            parallel_joints_to_state_vector_[i])];
   }
 
   joint_pub_->publish(joint_state_);
@@ -230,8 +231,7 @@ void SotLoader::workThreadLoader() {
 
   /// Declare parameters
   if (not has_parameter("dt")) declare_parameter<double>("dt", 0.01);
-  if (not has_parameter("paused"))
-    declare_parameter<bool>("paused", false);
+  if (not has_parameter("paused")) declare_parameter<bool>("paused", false);
 
   //
   get_parameter_or("dt", periodd, 0.001);

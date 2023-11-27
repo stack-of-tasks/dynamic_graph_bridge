@@ -117,8 +117,8 @@ void ImplTestSotMockDevice::setSensorsForce(
       sotDEBUG(15) << "Force sensor " << i << std::endl;
       int idx_sensor = map_sot_2_urdf[i];
       for (std::vector<double>::size_type j = 0; j < 6; ++j) {
-        dgforces_(static_cast<Eigen::Index>(j)) =
-            forcesIn[static_cast<std::vector<double>::size_type>(idx_sensor * 6) + j];
+        dgforces_(static_cast<Eigen::Index>(j)) = forcesIn
+            [static_cast<std::vector<double>::size_type>(idx_sensor * 6) + j];
         sotDEBUG(15) << "Force value " << j << ":"
                      << dgforces_(static_cast<Eigen::Index>(j)) << std::endl;
       }
@@ -202,7 +202,8 @@ void ImplTestSotMockDevice::setSensorsVelocities(
     const vector<double>& velocitiesIn = it->second.getValues();
     dgRobotVelocity_.resize(static_cast<Eigen::Index>(velocitiesIn.size()) + 6);
     for (unsigned i = 0; i < 6; ++i) dgRobotVelocity_(i) = 0.;
-    for (unsigned i = 0; i < static_cast<Eigen::Index>(velocitiesIn.size()); ++i) {
+    for (unsigned i = 0; i < static_cast<Eigen::Index>(velocitiesIn.size());
+         ++i) {
       dgRobotVelocity_(i + 6) = velocitiesIn[i];
     }
     robotVelocity_.setConstant(dgRobotVelocity_);
@@ -298,7 +299,8 @@ void ImplTestSotMockDevice::getControl(
   sotDEBUGIN(25);
   vector<double> anglesOut, velocityOut;
   anglesOut.resize(static_cast<std::vector<double>::size_type>(state_.size()));
-  velocityOut.resize(static_cast<std::vector<double>::size_type>(state_.size()));
+  velocityOut.resize(
+      static_cast<std::vector<double>::size_type>(state_.size()));
 
   // Integrate control
   sotDEBUG(25) << "state = " << state_ << std::endl;
@@ -317,8 +319,10 @@ void ImplTestSotMockDevice::getControl(
   // warning: we make here the asumption that the control signal contains the
   // velocity of the freeflyer joint. This may change in the future.
   if ((int)anglesOut.size() != state_.size() - 6) {
-    anglesOut.resize(static_cast<std::vector<double>::size_type>(state_.size() - 6));
-    velocityOut.resize(static_cast<std::vector<double>::size_type>(state_.size() - 6));
+    anglesOut.resize(
+        static_cast<std::vector<double>::size_type>(state_.size() - 6));
+    velocityOut.resize(
+        static_cast<std::vector<double>::size_type>(state_.size() - 6));
   }
 
   dg::sigtime_t time = controlSIN.getTime();
