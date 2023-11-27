@@ -6,12 +6,11 @@
  * Gesellschaft.
  * @date 2019-05-22
  */
-#include "fwd.hpp"
-
 #include "ros_subscribe.hpp"
 
 #include <dynamic-graph/factory.h>
 
+#include "fwd.hpp"
 
 namespace dynamic_graph_bridge {
 /*

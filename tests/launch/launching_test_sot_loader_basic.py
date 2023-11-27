@@ -55,7 +55,7 @@ def generate_test_description():
             {"state_vector_map": ["joint1", "joint2"]},
             {"robot_description": robot_description_content},
         ],
-        arguments=['--ros-args', '--log-level', 'INFO']
+        arguments=["--ros-args", "--log-level", "INFO"],
     )
 
     return (

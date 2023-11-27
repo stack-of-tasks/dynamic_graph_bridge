@@ -11,11 +11,10 @@
 #include "fwd.hpp"
 
 // Standard includes
+#include <boost/chrono.hpp>
 #include <sstream>
 #include <utility>
 #include <vector>
-
-#include <boost/chrono.hpp>
 
 // Dynamic Graph types.
 #include <dynamic-graph/linear-algebra.h>
@@ -111,7 +110,8 @@ class DgRosMapping {
   /** @brief Output signal type. */
   typedef dg::SignalTimeDependent<dg_t, dg::sigtime_t> signal_out_t;
   /** @brief Output signal type. */
-  typedef dg::SignalTimeDependent<dynamic_graph_bridge::timestamp_t, dg::sigtime_t>
+  typedef dg::SignalTimeDependent<dynamic_graph_bridge::timestamp_t,
+                                  dg::sigtime_t>
       signal_timestamp_out_t;
   /** @brief Input signal type. */
   typedef dg::SignalPtr<dg_t, dg::sigtime_t> signal_in_t;
@@ -138,9 +138,7 @@ class DgRosMapping {
    *
    * @param s
    */
-  static void set_default(dg_t& d) {
-    d = default_value;
-  }
+  static void set_default(dg_t& d) { d = default_value; }
 
   /**
    * @brief Convert ROS time to boost::chrono.

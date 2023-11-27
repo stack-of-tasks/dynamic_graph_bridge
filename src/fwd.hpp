@@ -10,18 +10,19 @@
 
 #pragma once
 
-#include <chrono>
-#include <ostream>
-#include <iostream>
 #include <boost/chrono.hpp>
+#include <chrono>
+#include <iostream>
+#include <ostream>
 
 namespace dynamic_graph_bridge {
 /** @brief Time stamp type. */
-typedef boost::chrono::time_point<boost::chrono::high_resolution_clock> timestamp_t;
+typedef boost::chrono::time_point<boost::chrono::high_resolution_clock>
+    timestamp_t;
 
 }  // namespace dynamic_graph_bridge
 
-//namespace dynamicgraph {
+// namespace dynamicgraph {
 /**
  * @brief out stream the time stamp data.
  *
@@ -32,16 +33,15 @@ typedef boost::chrono::time_point<boost::chrono::high_resolution_clock> timestam
  * For clang this function needs to be forward declared before the template
  * using it. This is more in accordance to the standard.
  */
-std::ostream &operator<<(
-    std::ostream &os,
-    const dynamic_graph_bridge::timestamp_t &time_stamp) {
+std::ostream &operator<<(std::ostream &os,
+                         const dynamic_graph_bridge::timestamp_t &time_stamp) {
   boost::chrono::time_point<boost::chrono::high_resolution_clock,
-                          boost::chrono::milliseconds>
+                            boost::chrono::milliseconds>
       time_stamp_nanosec =
-      boost::chrono::time_point_cast<boost::chrono::milliseconds>(time_stamp);
+          boost::chrono::time_point_cast<boost::chrono::milliseconds>(
+              time_stamp);
   os << time_stamp_nanosec.time_since_epoch().count();
   return os;
 }
-
 
 //}  // namespace dynamicgraph

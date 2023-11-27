@@ -71,7 +71,8 @@ std::string RosPythonInterpreterClient::run_python_command(
       return_string += response.get()->result;
     }
   } catch (const std::exception& ex) {
-    RCLCPP_INFO(rclcpp::get_logger("RosPythonInterpreterClient"), "%s", ex.what());
+    RCLCPP_INFO(rclcpp::get_logger("RosPythonInterpreterClient"), "%s",
+                ex.what());
     connect_to_rosservice_run_python_command(timeout_connection_s_);
   } catch (...) {
     RCLCPP_INFO(rclcpp::get_logger("RosPythonInterpreterClient"),
