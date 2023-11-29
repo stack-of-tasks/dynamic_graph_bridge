@@ -66,6 +66,9 @@ if(BUILD_TESTING)
     test_sot_loader
     PUBLIC include "${GMOCK_INCLUDE_DIRS}"
     PRIVATE ${PROJECT_SOURCE_DIR}/include)
+  target_compile_definitions(
+      test_sot_loader
+      PUBLIC TEST_CONFIG_PATH="${CMAKE_CURRENT_LIST_DIR}/python_scripts/")
   target_link_libraries(test_sot_loader sot_loader "${GMOCK_LIBRARIES}")
 
   add_launch_test(launch/launching_test_sot_loader.py)
@@ -89,6 +92,11 @@ if(BUILD_TESTING)
     # Create the cmake target using ament and gtest.
     ament_add_gtest(test_${test_name} main.cpp test_${test_name}.cpp)
 
+    # add some preprocessor variable
+    target_compile_definitions(
+      test_${test_name}
+      PUBLIC TEST_CONFIG_PATH="${CMAKE_CURRENT_LIST_DIR}/python_scripts/")
+
     # Include dependencies.
     target_include_directories(
       test_${test_name}
@@ -107,10 +115,6 @@ if(BUILD_TESTING)
     ament_target_dependencies(${current_test_name} dynamic_graph_bridge_msgs
                               rclcpp rcl_interfaces std_srvs)
 
-    # add some preprocessor variable
-    target_compile_definitions(
-      test_${test_name}
-      PUBLIC TEST_CONFIG_PATH="${CMAKE_CURRENT_LIST_DIR}/python_scripts/")
   endmacro(create_ros_bridge_unittest test_name)
 
   # C++ unit-tests.
