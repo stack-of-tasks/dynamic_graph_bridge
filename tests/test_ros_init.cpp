@@ -139,7 +139,7 @@ TEST_F(TestRosInit, test_services_shut_down) {
       n1->create_client<std_srvs::srv::Empty>(service_name);
 
   /* Test */
-  ASSERT_FALSE(client->wait_for_service(100ms));
+  ASSERT_FALSE(client->wait_for_service(500ms));
 }
 
 /**
