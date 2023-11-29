@@ -55,6 +55,7 @@ void ImplTestSotExternalInterface::init() {
   double ts = 0.001;
 
   py_inter_ptr->declare_parameter<double>("/sot_controller/dt", ts);
+  py_interpreter_srv_->start_ros_service();
   device_->timeStep(ts);
 }
 
