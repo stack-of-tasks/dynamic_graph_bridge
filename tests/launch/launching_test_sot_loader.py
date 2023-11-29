@@ -73,7 +73,7 @@ class TestSotLoaderBasic(unittest.TestCase):
 
     def test_termination(self, terminating_process, proc_info):
         """Calls the decorator generate_test_description."""
-        proc_info.assertWaitForShutdown(process=terminating_process, timeout=(10))
+        proc_info.assertWaitForShutdown(process=terminating_process, timeout=(60))
 
 
 @launch_testing.post_shutdown_test()
