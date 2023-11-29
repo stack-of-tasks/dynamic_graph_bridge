@@ -30,13 +30,13 @@ void RosPythonInterpreterServer::start_ros_service() {
       std::bind(&RosPythonInterpreterServer::runCommandCallback, this,
                 std::placeholders::_1, std::placeholders::_2);
   run_python_command_srv_ = ros_node_->create_service<RunPythonCommandSrvType>(
-      "run_python_command", runCommandCb);
+      "/dynamic_graph_bridge/run_python_command", runCommandCb);
 
   run_python_file_callback_t runPythonFileCb =
       std::bind(&RosPythonInterpreterServer::runPythonFileCallback, this,
                 std::placeholders::_1, std::placeholders::_2);
   run_python_file_srv_ = ros_node_->create_service<RunPythonFileSrvType>(
-      "run_python_file", runPythonFileCb);
+      "/dynamic_graph_bridge/run_python_file", runPythonFileCb);
 }
 
 void RosPythonInterpreterServer::runCommandCallback(
