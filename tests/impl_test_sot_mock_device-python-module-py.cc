@@ -13,7 +13,7 @@
 namespace dg = dynamicgraph;
 
 BOOST_PYTHON_MODULE(wrap) {
-  bp::import("dynmic_graph.sot.core.wrap");
+  bp::import("dynamic_graph.sot.core.wrap");
 
   dg::python::exposeEntity<ImplTestSotMockDevice,
                            bp::bases<dg::sot::Device> >();
