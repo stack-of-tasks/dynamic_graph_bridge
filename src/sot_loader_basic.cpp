@@ -19,9 +19,6 @@
 #include <sot/core/robot-utils.hh>
 #include <stdexcept>
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/parsers/urdf.hpp"
-
 // POSIX.1-2001
 #include <dlfcn.h>
 
