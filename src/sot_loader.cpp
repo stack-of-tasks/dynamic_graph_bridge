@@ -226,8 +226,10 @@ void SotLoader::workThreadLoader() {
   double periodd;
 
   /// Declare parameters
-  if (not ros_node_->has_parameter("dt")) ros_node_->declare_parameter<double>("dt", 0.01);
-  if (not ros_node_->has_parameter("paused")) ros_node_->declare_parameter<bool>("paused", false);
+  if (not ros_node_->has_parameter("dt"))
+    ros_node_->declare_parameter<double>("dt", 0.01);
+  if (not ros_node_->has_parameter("paused"))
+    ros_node_->declare_parameter<bool>("paused", false);
 
   //
   ros_node_->get_parameter_or("dt", periodd, 0.001);

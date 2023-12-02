@@ -67,8 +67,8 @@ if(BUILD_TESTING)
     PUBLIC include "${GMOCK_INCLUDE_DIRS}"
     PRIVATE ${PROJECT_SOURCE_DIR}/include)
   target_compile_definitions(
-      test_sot_loader
-      PUBLIC TEST_CONFIG_PATH="${CMAKE_CURRENT_LIST_DIR}/python_scripts/")
+    test_sot_loader
+    PUBLIC TEST_CONFIG_PATH="${CMAKE_CURRENT_LIST_DIR}/python_scripts/")
   target_link_libraries(test_sot_loader sot_loader "${GMOCK_LIBRARIES}")
 
   add_launch_test(launch/launching_test_sot_loader.py)
@@ -116,8 +116,7 @@ if(BUILD_TESTING)
                               rclcpp rcl_interfaces std_srvs)
 
     # Install tests
-    install(TARGETS test_${test_name}
-      DESTINATION lib/${PROJECT_NAME})
+    install(TARGETS test_${test_name} DESTINATION lib/${PROJECT_NAME})
 
   endmacro(create_ros_bridge_unittest test_name)
 

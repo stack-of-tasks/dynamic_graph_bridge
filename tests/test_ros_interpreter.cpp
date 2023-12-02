@@ -286,5 +286,4 @@ TEST_F(TestRosInterpreter, test_call_run_script_ros_publish) {
 
   /* Tests the result. */
   ASSERT_EQ(result, "");
-
 }

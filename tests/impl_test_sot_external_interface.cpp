@@ -79,7 +79,8 @@ void ImplTestSotExternalInterface::setupSetSensors(
 
 void ImplTestSotExternalInterface::nominalSetSensors(
     std::map<std::string, dynamicgraph::sot::SensorValues> &) {
-  //  std::cout << "ImplTestSotExternalInterface::nominalSetSensors" << std::endl;
+  //  std::cout << "ImplTestSotExternalInterface::nominalSetSensors" <<
+  //  std::endl;
 }
 
 void ImplTestSotExternalInterface::cleanupSetSensors(

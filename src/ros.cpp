@@ -211,7 +211,6 @@ std::string executable_name() {
 #endif
 }
 
-
 /**
  * @brief Private function that allow us to initialize ROS only once.
  */
@@ -288,14 +287,13 @@ size_t ros_executor_get_nb_threads() {
 void ros_display_list_of_nodes() {
   GlobalListOfRosNodeType::iterator ros_node_it =
       GLOBAL_LIST_OF_ROS_NODE.begin();
-  while(ros_node_it!=GLOBAL_LIST_OF_ROS_NODE.end()) {
+  while (ros_node_it != GLOBAL_LIST_OF_ROS_NODE.end()) {
     RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
                 "ros_display_list_of_nodes: %s/%s",
                 ros_node_it->second->get_namespace(),
                 ros_node_it->second->get_name());
     ros_node_it++;
   }
-
 }
 
 void ros_clean() {

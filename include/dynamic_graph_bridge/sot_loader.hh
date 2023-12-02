@@ -80,7 +80,7 @@ class SotLoader : public SotLoaderBasic {
   geometry_msgs::msg::TransformStamped freeFlyerPose_;
 
  public:
-  SotLoader(const std::string &aNodeName=std::string("sot_loader"));
+  SotLoader(const std::string &aNodeName = std::string("sot_loader"));
   virtual ~SotLoader();
 
   // \brief Create a thread for ROS and start the control loop.

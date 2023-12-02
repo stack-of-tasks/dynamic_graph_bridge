@@ -67,7 +67,6 @@ typedef std_srvs::srv::Empty EmptyServiceType;
  */
 RosNodePtr get_ros_node(std::string node_name);
 
-
 size_t ros_executor_get_nb_threads();
 
 void ros_display_list_of_nodes();
