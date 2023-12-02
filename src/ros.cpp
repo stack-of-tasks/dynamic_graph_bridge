@@ -131,6 +131,13 @@ class Executor {
     }
   }
 
+  /**
+   * @brief Return the number of threads
+   */
+  size_t get_number_of_threads() {
+    return ros_executor_.get_number_of_threads();
+  }
+
  private:
   /**
    * @brief Thread callback function
@@ -204,6 +211,7 @@ std::string executable_name() {
 #endif
 }
 
+
 /**
  * @brief Private function that allow us to initialize ROS only once.
  */
@@ -271,6 +279,23 @@ void ros_shutdown(std::string node_name) {
 
 void ros_shutdown() {
   // rclcpp::shutdown();
+}
+
+size_t ros_executor_get_nb_threads() {
+  return get_ros_executor()->get_number_of_threads();
+}
+
+void ros_display_list_of_nodes() {
+  GlobalListOfRosNodeType::iterator ros_node_it =
+      GLOBAL_LIST_OF_ROS_NODE.begin();
+  while(ros_node_it!=GLOBAL_LIST_OF_ROS_NODE.end()) {
+    RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+                "ros_display_list_of_nodes: %s/%s",
+                ros_node_it->second->get_namespace(),
+                ros_node_it->second->get_name());
+    ros_node_it++;
+  }
+
 }
 
 void ros_clean() {
