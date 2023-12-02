@@ -83,10 +83,10 @@ void SotLoader::initializeServices() {
   freeFlyerPose_.header.frame_id = "odom";
   freeFlyerPose_.child_frame_id = "base_link";
 
-  if (not has_parameter("tf_base_link"))
-    declare_parameter("tf_base_link", std::string("base_link"));
+  if (not ros_node_->has_parameter("tf_base_link"))
+    ros_node_->declare_parameter("tf_base_link", std::string("base_link"));
 
-  if (get_parameter("tf_base_link", freeFlyerPose_.child_frame_id)) {
+  if (ros_node_->get_parameter("tf_base_link", freeFlyerPose_.child_frame_id)) {
     RCLCPP_INFO_STREAM(rclcpp::get_logger("dynamic_graph_bridge"),
                        "Publishing " << freeFlyerPose_.child_frame_id << " wrt "
                                      << freeFlyerPose_.header.frame_id);
@@ -98,7 +98,8 @@ void SotLoader::initializeServices() {
   control_.resize(static_cast<std::size_t>(nbOfJoints_));
 
   // Creates a publisher for the free flyer transform.
-  freeFlyerPublisher_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+  freeFlyerPublisher_ =
+      std::make_shared<tf2_ros::TransformBroadcaster>(ros_node_);
 }
 
 void SotLoader::fillSensors(map<string, dgs::SensorValues> &sensorsIn) {
@@ -164,9 +165,6 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
     joint_state_.position[i] = angleEncoder_[i];
   }
 
-  std::cerr << "parallel_joints_to_state_vector_.size(): "
-            << parallel_joints_to_state_vector_.size() << std::endl;
-
   for (unsigned int i = 0; i < parallel_joints_to_state_vector_.size(); i++) {
     joint_state_.position[i + nbOfJoints_std_s] =
         coefficient_parallel_joints_[i] *
@@ -184,7 +182,6 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
     throw anInvalidArgument;
   }
 
-  std::cerr << "Reached poseValue_" << std::endl;
   std::vector<double> poseValue = controlValues["baseff"].getValues();
 
   freeFlyerPose_.transform.translation.x = poseValue[0];
@@ -199,7 +196,6 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
   freeFlyerPose_.header.stamp = joint_state_.header.stamp;
   // Publish
   freeFlyerPublisher_->sendTransform(freeFlyerPose_);
-  std::cerr << "end of readControl" << std::endl;
 }
 
 void SotLoader::setup() {
@@ -230,11 +226,11 @@ void SotLoader::workThreadLoader() {
   double periodd;
 
   /// Declare parameters
-  if (not has_parameter("dt")) declare_parameter<double>("dt", 0.01);
-  if (not has_parameter("paused")) declare_parameter<bool>("paused", false);
+  if (not ros_node_->has_parameter("dt")) ros_node_->declare_parameter<double>("dt", 0.01);
+  if (not ros_node_->has_parameter("paused")) ros_node_->declare_parameter<bool>("paused", false);
 
   //
-  get_parameter_or("dt", periodd, 0.001);
+  ros_node_->get_parameter_or("dt", periodd, 0.001);
   rclcpp::Rate rate(1 / periodd);  // 1 kHz
 
   DataToLog dataToLog(5000);
@@ -250,15 +246,15 @@ void SotLoader::workThreadLoader() {
   rclcpp::Time time;
   while (rclcpp::ok() && !isDynamicGraphStopped()) {
     // Check if the user did not paused geometric_simu
-    get_parameter_or("paused", paused, false);
+    ros_node_->get_parameter_or("paused", paused, false);
 
     if (!paused) {
       time = aClock.now();
       oneIteration();
 
       rclcpp::Duration d = aClock.now() - time;
-      dataToLog.record((time - timeOrigin).nanoseconds() * 1.0e9,
-                       d.nanoseconds() * 1.0e9);
+      dataToLog.record((double)((time - timeOrigin).nanoseconds()) * 1.0e9,
+                       (double)(d.nanoseconds()) * 1.0e9);
     }
     rate.sleep();
   }
