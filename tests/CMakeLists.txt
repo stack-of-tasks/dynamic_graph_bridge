@@ -115,6 +115,10 @@ if(BUILD_TESTING)
     ament_target_dependencies(${current_test_name} dynamic_graph_bridge_msgs
                               rclcpp rcl_interfaces std_srvs)
 
+    # Install tests
+    install(TARGETS test_${test_name}
+      DESTINATION lib/${PROJECT_NAME})
+
   endmacro(create_ros_bridge_unittest test_name)
 
   # C++ unit-tests.

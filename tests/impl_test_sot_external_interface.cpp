@@ -25,6 +25,7 @@ ImplTestSotExternalInterface::ImplTestSotExternalInterface(
 ImplTestSotExternalInterface::~ImplTestSotExternalInterface() {}
 
 void ImplTestSotExternalInterface::init() {
+  std::cout << "ImplTestSotExternalInterface::init - begin" << std::endl;
   std::vector<double> ctrl_vector;
   ctrl_vector.resize(2);
 
@@ -52,11 +53,23 @@ void ImplTestSotExternalInterface::init() {
 
   RosNodePtr py_inter_ptr = get_ros_node("python_interpreter");
   // Set the control time step parameter to 0.001
-  double ts = 0.001;
+  double ts = 0.01;
 
+  // Publish parameters related to the control interface
   py_inter_ptr->declare_parameter<double>("/sot_controller/dt", ts);
+  // Create services to interact with the embedded python interpreter.
   py_interpreter_srv_->start_ros_service();
+
+  // Non blocking spinner to deal with ros.
+  // Be careful: here with tests we do not care about real time issue.
+  // In the real robot you need to make sure that the control loop is
+  // not block and that the thread associated with the services is not blocking
+  // the control loop.
+  ros_spin_non_blocking();
+
   device_->timeStep(ts);
+
+  std::cout << "ImplTestSotExternalInterface::init - end" << std::endl;
 }
 
 void ImplTestSotExternalInterface::setupSetSensors(
@@ -66,7 +79,7 @@ void ImplTestSotExternalInterface::setupSetSensors(
 
 void ImplTestSotExternalInterface::nominalSetSensors(
     std::map<std::string, dynamicgraph::sot::SensorValues> &) {
-  std::cout << "ImplTestSotExternalInterface::nominalSetSensors" << std::endl;
+  //  std::cout << "ImplTestSotExternalInterface::nominalSetSensors" << std::endl;
 }
 
 void ImplTestSotExternalInterface::cleanupSetSensors(
