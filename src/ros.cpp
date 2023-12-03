@@ -33,7 +33,8 @@ namespace dynamic_graph_bridge {
 /**
  * @brief Shortcut.
  */
-typedef std::map<std::string, RosNodePtr> GlobalListOfRosNodeType;
+typedef std::tuple<RosNodePtr, rclcpp::CallbackGroup::SharedPtr> NodeInfo;
+typedef std::map<std::string, NodeInfo> GlobalListOfRosNodeType;
 
 /**
  * @brief GLOBAL_LIST_OF_ROS_NODE is global variable that acts as a singleton on
@@ -57,7 +58,7 @@ static GlobalListOfRosNodeType GLOBAL_LIST_OF_ROS_NODE;
  */
 class Executor {
  public:
-  Executor() : ros_executor_(rclcpp::ExecutorOptions(), 4) {
+  Executor() : ros_executor_(rclcpp::ExecutorOptions(), 30) {
     is_thread_running_ = false;
     is_spinning_ = false;
     list_node_added_.clear();
@@ -234,7 +235,7 @@ bool ros_node_exists(std::string node_name) {
       GLOBAL_LIST_OF_ROS_NODE.end()) {
     return false;
   }
-  if (GLOBAL_LIST_OF_ROS_NODE.at(node_name) == nullptr) {
+  if (std::get<0>(GLOBAL_LIST_OF_ROS_NODE.at(node_name)) == nullptr) {
     return false;
   }
   return true;
@@ -248,19 +249,29 @@ ExecutorPtr get_ros_executor() {
   return EXECUTOR;
 }
 
+void create_ros_node(std::string& node_name) {
+  if (!ros_node_exists(node_name)) {
+    RosNodePtr a_ros_node_ptr =
+        std::make_shared<RosNode>(node_name, "dynamic_graph_bridge");
+    rclcpp::CallbackGroup::SharedPtr a_cb_group =
+        a_ros_node_ptr->create_callback_group(
+            rclcpp::CallbackGroupType::Reentrant);
+    /** RosNode instanciation */
+    GLOBAL_LIST_OF_ROS_NODE[node_name] = NodeInfo(a_ros_node_ptr, a_cb_group);
+  }
+}
 RosNodePtr get_ros_node(std::string node_name) {
   ros_init();
-  if (!ros_node_exists(node_name)) {
-    GLOBAL_LIST_OF_ROS_NODE[node_name] = RosNodePtr(nullptr);
-  }
-  if (!GLOBAL_LIST_OF_ROS_NODE[node_name] ||
-      GLOBAL_LIST_OF_ROS_NODE[node_name].get() == nullptr) {
-    /** RosNode instanciation */
-    GLOBAL_LIST_OF_ROS_NODE[node_name] =
-        std::make_shared<RosNode>(node_name, "dynamic_graph_bridge");
-  }
+  create_ros_node(node_name);
   /** Return a reference to the node handle so any function can use it */
-  return GLOBAL_LIST_OF_ROS_NODE[node_name];
+  return std::get<0>(GLOBAL_LIST_OF_ROS_NODE[node_name]);
+}
+
+rclcpp::CallbackGroup::SharedPtr get_callback_group(std::string node_name) {
+  ros_init();
+  create_ros_node(node_name);
+  /** Return a reference to the node handle so any function can use it */
+  return std::get<1>(GLOBAL_LIST_OF_ROS_NODE[node_name]);
 }
 
 void ros_add_node_to_executor(const std::string& node_name) {
@@ -290,8 +301,8 @@ void ros_display_list_of_nodes() {
   while (ros_node_it != GLOBAL_LIST_OF_ROS_NODE.end()) {
     RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
                 "ros_display_list_of_nodes: %s/%s",
-                ros_node_it->second->get_namespace(),
-                ros_node_it->second->get_name());
+                std::get<0>(ros_node_it->second)->get_namespace(),
+                std::get<0>(ros_node_it->second)->get_name());
     ros_node_it++;
   }
 }
