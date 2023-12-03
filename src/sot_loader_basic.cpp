@@ -8,8 +8,17 @@
 /* -------------------------------------------------------------------------- */
 /* --- INCLUDES ------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-#include "dynamic_graph_bridge/sot_loader_basic.hh"
+// This is imposed by pinocchio through the integration of robot-utils.hh
+#ifdef BOOST_MPL_LIMIT_VECTOR_SIZE
+#pragma push_macro("BOOST_MPL_LIMIT_VECTOR_SIZE")
+#undef BOOST_MPL_LIMIT_VECTOR_SIZE
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#pragma pop_macro("BOOST_MPL_LIMIT_VECTOR_SIZE")
+#else
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#endif
 
 #include <dynamic-graph/pool.h>
 
@@ -18,6 +27,8 @@
 #include <exception>
 #include <sot/core/robot-utils.hh>
 #include <stdexcept>
+
+#include "dynamic_graph_bridge/sot_loader_basic.hh"
 
 // POSIX.1-2001
 #include <dlfcn.h>
@@ -29,7 +40,7 @@ namespace po = boost::program_options;
 SotLoaderBasic::SotLoaderBasic(const std::string& aNodeName)
     : ros_node_(nullptr),
       dynamic_graph_stopped_(true),
-      sotController_(NULL),
+      sotController_(nullptr),
       sotRobotControllerLibrary_(0) {
   ros_node_ = dynamic_graph_bridge::get_ros_node(aNodeName);
 
