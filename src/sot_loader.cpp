@@ -199,6 +199,7 @@ void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
 }
 
 void SotLoader::setup() {
+  if (sotController_ == NULL) return;
   fillSensors(sensorsIn_);
   sotController_->setupSetSensors(sensorsIn_);
   sotController_->getControl(controlValues_);
@@ -206,6 +207,8 @@ void SotLoader::setup() {
 }
 
 void SotLoader::oneIteration() {
+  if (sotController_ == NULL) return;
+
   fillSensors(sensorsIn_);
   try {
     sotController_->nominalSetSensors(sensorsIn_);
