@@ -3,6 +3,8 @@
 #include <gmock/gmock.h>
 #pragma clang diagnostic pop
 
+#include <chrono>
+
 using namespace std::chrono_literals;
 
 #include <rclcpp/rclcpp.hpp>
@@ -27,14 +29,16 @@ class MockSotLoaderTest : public ::testing::Test {
         subscription_;
     bool service_done_;
     std::string node_name_;
-    std::string response_dg_python_result_;
 
-    MockSotLoader() : node_name_("unittest_sot_loader") {}
+    rclcpp::CallbackGroup::SharedPtr reentrant_cb_group_;
 
-    ~MockSotLoader() {
-      service_done_ = false;
-      response_dg_python_result_ = "";
+    MockSotLoader() : node_name_("unittest_sot_loader") {
+      reentrant_cb_group_ =
+          dynamic_graph_bridge::get_ros_node(node_name_)
+              ->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
     }
+
+    ~MockSotLoader() { service_done_ = false; }
 
     void topic_callback(
         const dynamic_graph_bridge_msgs::msg::Vector::SharedPtr msg) const {
@@ -48,45 +52,27 @@ class MockSotLoaderTest : public ::testing::Test {
     // This method is to listen to publication from the control signal (dg
     // world) to the control_ros topic (ros world).
     void subscribe_to_a_topic() {
+      rclcpp::SubscriptionOptions subscription_options;
+      subscription_options.callback_group = reentrant_cb_group_;
       subscription_ =
           dynamic_graph_bridge::get_ros_node(node_name_)
               ->create_subscription<dynamic_graph_bridge_msgs::msg::Vector>(
                   "control_ros", 1,
                   std::bind(&MockSotLoader::topic_callback, this,
-                            std::placeholders::_1));
-    }
-
-    // This method is to receive the result of client request to run_python_file
-    //
-    void response_dg_python(
-        const rclcpp::Client<dynamic_graph_bridge_msgs::srv::RunPythonFile>::
-            SharedFuture future) {
-      RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
-                  "response_dg_python:");
-      auto status = future.wait_for(500ms);
-      if (status == std::future_status::ready) {
-        // uncomment below line if using Empty() message
-        // RCLCPP_INFO(this->get_logger(), "Result: success");
-        // comment below line if using Empty() message
-        RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
-                    "response_dg_python - Result: %s",
-                    future.get()->result.c_str());
-        service_done_ = true;
-        response_dg_python_result_ = future.get()->result;
-      } else {
-        RCLCPP_INFO(rclcpp::get_logger("dynmic_graph_bridge"),
-                    "response_dg_python - Service In-Progress...");
-      }
+                            std::placeholders::_1),
+                  subscription_options);
     }
 
     void start_run_python_script_ros_service(const std::string& file_name) {
       // Service name.
       std::string service_name = "/dynamic_graph_bridge/run_python_file";
       // Create a client from a temporary node.
+      rclcpp::CallbackGroup::SharedPtr local_cb_group =
+          dynamic_graph_bridge::get_callback_group("python_interpreter");
       auto client =
-          dynamic_graph_bridge::get_ros_node(node_name_)
+          dynamic_graph_bridge::get_ros_node("python_interpreter")
               ->create_client<dynamic_graph_bridge_msgs::srv::RunPythonFile>(
-                  service_name);
+                  service_name, rclcpp::ServicesQoS(), local_cb_group);
       ASSERT_TRUE(client->wait_for_service(1s));
 
       // Fill the command message.
@@ -95,13 +81,13 @@ class MockSotLoaderTest : public ::testing::Test {
               dynamic_graph_bridge_msgs::srv::RunPythonFile::Request>();
       request->input = file_name;
       // Call the service.
-      auto response = client->async_send_request(
-          request, std::bind(&MockSotLoader::response_dg_python, this,
-                             std::placeholders::_1));
+      auto response = client->async_send_request(request);
       RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
                   "Send request to service %s - Waiting", service_name.c_str());
       response.wait();
-      RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"), "Get the answer");
+      RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+                  "start_run_python_script_ros_service - Result: %s",
+                  response.get()->result.c_str());
     }
 
     void display_services(std::map<std::string, std::vector<std::string>>&
@@ -178,7 +164,6 @@ class MockSotLoaderTest : public ::testing::Test {
 
       // Start the control loop thread.
       startControlLoop();
-
       // Start the thread generating events.
       std::thread local_events(&MockSotLoader::generateEvents, this);
 
