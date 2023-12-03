@@ -53,12 +53,16 @@ void ImplTestSotExternalInterface::init() {
 
   RosNodePtr py_inter_ptr = get_ros_node("python_interpreter");
   // Set the control time step parameter to 0.001
-  double ts = 0.01;
+  double ts = 0.001;
 
   // Publish parameters related to the control interface
   py_inter_ptr->declare_parameter<double>("/sot_controller/dt", ts);
   // Create services to interact with the embedded python interpreter.
-  py_interpreter_srv_->start_ros_service();
+
+  rclcpp::CallbackGroup::SharedPtr reentrant_cb_group;
+  reentrant_cb_group = get_callback_group("python_interpreter");
+  py_interpreter_srv_->start_ros_service(rclcpp::ServicesQoS(),
+                                         reentrant_cb_group);
 
   // Non blocking spinner to deal with ros.
   // Be careful: here with tests we do not care about real time issue.
