@@ -25,18 +25,26 @@ RosPythonInterpreterServer::RosPythonInterpreterServer()
 
 RosPythonInterpreterServer::~RosPythonInterpreterServer() {}
 
-void RosPythonInterpreterServer::start_ros_service() {
+void RosPythonInterpreterServer::start_ros_service(
+    const rclcpp::QoS& qos, rclcpp::CallbackGroup::SharedPtr group) {
   run_python_command_callback_t runCommandCb =
       std::bind(&RosPythonInterpreterServer::runCommandCallback, this,
                 std::placeholders::_1, std::placeholders::_2);
   run_python_command_srv_ = ros_node_->create_service<RunPythonCommandSrvType>(
-      "run_python_command", runCommandCb);
+      "/dynamic_graph_bridge/run_python_command", runCommandCb, qos, group);
+  RCLCPP_INFO(
+      rclcpp::get_logger("dynamic_graph_bridge"),
+      "RosPythonInterpreterServer::start_ros_service - run_python_command...");
 
   run_python_file_callback_t runPythonFileCb =
       std::bind(&RosPythonInterpreterServer::runPythonFileCallback, this,
                 std::placeholders::_1, std::placeholders::_2);
   run_python_file_srv_ = ros_node_->create_service<RunPythonFileSrvType>(
-      "run_python_file", runPythonFileCb);
+      "/dynamic_graph_bridge/run_python_file", runPythonFileCb, qos, group);
+
+  RCLCPP_INFO(
+      rclcpp::get_logger("dynamic_graph_bridge"),
+      "RosPythonInterpreterServer::start_ros_service - run_python_file...");
 }
 
 void RosPythonInterpreterServer::runCommandCallback(
@@ -61,7 +69,11 @@ void RosPythonInterpreterServer::runCommandCallback(
 
 void RosPythonInterpreterServer::runPythonFileCallback(
     RunPythonFileRequestPtr req, RunPythonFileResponsePtr res) {
+  RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+              "RosPythonInterpreterServer::runPythonFileCallback- begin");
   run_python_file(req->input, res->result);
+  RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+              "RosPythonInterpreterServer::runPythonFileCallback- end");
 }
 
 void RosPythonInterpreterServer::run_python_command(const std::string& command,

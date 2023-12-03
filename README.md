@@ -30,8 +30,11 @@ cd sot_ws/src
 To build this package after installing all the dependencies:
 ```
 cd sot_ws
-colcon build --merge-install --packages-select dynamic_graph_bridge
+colcon build --merge-install --packages-select dynamic_graph_bridge --cmake-args ' -DPYTHON_STANDARD_LAYOUT:BOOL=ON'
 ```
+
+You need to install everything at the same level specifically for the python modules, and in addition it is necessary to install everything with the standard python layout.
+Note that the same option need to be used for all the packages.
 
 ### Test
 

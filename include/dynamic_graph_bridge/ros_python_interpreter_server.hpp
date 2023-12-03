@@ -85,8 +85,11 @@ class RosPythonInterpreterServer {
   /**
    * @brief start_ros_service advertize the "run_python_command" and
    * "run_python_scripts" ros services
+   * @param qos: Quality of Service
+   * @param callback_group: Callback group
    */
-  void start_ros_service();
+  void start_ros_service(const rclcpp::QoS& qos = rclcpp::ServicesQoS(),
+                         rclcpp::CallbackGroup::SharedPtr group = nullptr);
 
  protected:
   /**

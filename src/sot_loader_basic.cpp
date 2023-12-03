@@ -8,8 +8,17 @@
 /* -------------------------------------------------------------------------- */
 /* --- INCLUDES ------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-#include "dynamic_graph_bridge/sot_loader_basic.hh"
+// This is imposed by pinocchio through the integration of robot-utils.hh
+#ifdef BOOST_MPL_LIMIT_VECTOR_SIZE
+#pragma push_macro("BOOST_MPL_LIMIT_VECTOR_SIZE")
+#undef BOOST_MPL_LIMIT_VECTOR_SIZE
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#pragma pop_macro("BOOST_MPL_LIMIT_VECTOR_SIZE")
+#else
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#endif
 
 #include <dynamic-graph/pool.h>
 
@@ -19,8 +28,7 @@
 #include <sot/core/robot-utils.hh>
 #include <stdexcept>
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/parsers/urdf.hpp"
+#include "dynamic_graph_bridge/sot_loader_basic.hh"
 
 // POSIX.1-2001
 #include <dlfcn.h>
@@ -30,10 +38,12 @@ using namespace dynamicgraph::sot;
 namespace po = boost::program_options;
 
 SotLoaderBasic::SotLoaderBasic(const std::string& aNodeName)
-    : rclcpp::Node(aNodeName),
+    : ros_node_(nullptr),
       dynamic_graph_stopped_(true),
-      sotController_(NULL),
+      sotController_(nullptr),
       sotRobotControllerLibrary_(0) {
+  ros_node_ = dynamic_graph_bridge::get_ros_node(aNodeName);
+
   RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge::"),
               "Beginning of SotLoaderBasic");
   RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
@@ -51,8 +61,8 @@ int SotLoaderBasic::initPublication() {
   RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
               "SotLoaderBasic::initPublication - create joint_pub");
 
-  joint_pub_ =
-      create_publisher<sensor_msgs::msg::JointState>("joint_states", 1);
+  joint_pub_ = ros_node_->create_publisher<sensor_msgs::msg::JointState>(
+      "joint_states", 1);
 
   RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
               "SotLoaderBasic::initPublication - after create joint_pub");
@@ -65,19 +75,19 @@ void SotLoaderBasic::initializeServices() {
       "SotLoaderBasic::initializeServices - Ready to start dynamic graph.");
 
   using namespace std::placeholders;
-  service_start_ = create_service<std_srvs::srv::Empty>(
+  service_start_ = ros_node_->create_service<std_srvs::srv::Empty>(
       "start_dynamic_graph",
       std::bind(&SotLoaderBasic::start_dg, this, std::placeholders::_1,
                 std::placeholders::_2));
   RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
-              "SotLoaderBasic::initializeServices - started dynamic graph.");
+              "SotLoaderBasic::initializeServices - start_dynamic_graph.");
 
-  service_stop_ = create_service<std_srvs::srv::Empty>(
+  service_stop_ = ros_node_->create_service<std_srvs::srv::Empty>(
       "stop_dynamic_graph",
       std::bind(&SotLoaderBasic::stop_dg, this, std::placeholders::_1,
                 std::placeholders::_2));
   RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
-              "SotLoaderBasic::initializeServices - stopped dynamic graph.");
+              "SotLoaderBasic::initializeServices - stop_dynamic_graph.");
 
   parameter_server_read_robot_description();
 }
@@ -92,22 +102,24 @@ int SotLoaderBasic::readSotVectorStateParam() {
 
   // It is necessary to declare parameters first
   // before trying to access them.
-  if (not has_parameter("state_vector_map"))
-    declare_parameter("state_vector_map", std::vector<std::string>{});
-  if (not has_parameter("joint_state_parallel"))
-    declare_parameter("joint_state_parallel", std::vector<std::string>{});
+  if (not ros_node_->has_parameter("state_vector_map"))
+    ros_node_->declare_parameter("state_vector_map",
+                                 std::vector<std::string>{});
+  if (not ros_node_->has_parameter("joint_state_parallel"))
+    ros_node_->declare_parameter("joint_state_parallel",
+                                 std::vector<std::string>{});
 
   // Read the state vector of the robot
   // Defines the order in which the actuators are ordered
   try {
     std::string aParameterName("state_vector_map");
-    if (!get_parameter(aParameterName, stateVectorMap_)) {
+    if (!ros_node_->get_parameter(aParameterName, stateVectorMap_)) {
       logic_error aLogicError(
           "SotLoaderBasic::readSotVectorStateParam : State_vector_map is "
           "empty");
       throw aLogicError;
     }
-    RCLCPP_INFO(get_logger(), "state_vector_map parameter size %ld",
+    RCLCPP_INFO(ros_node_->get_logger(), "state_vector_map parameter size %ld",
                 stateVectorMap_.size());
   } catch (exception& e) {
     std::throw_with_nested(std::logic_error("Unable to call get_parameter"));
@@ -122,7 +134,7 @@ int SotLoaderBasic::readSotVectorStateParam() {
 
   std::string prefix("joint_state_parallel");
   std::map<std::string, rclcpp::Parameter> joint_state_parallel;
-  get_parameters(prefix, joint_state_parallel);
+  ros_node_->get_parameters(prefix, joint_state_parallel);
 
   // Iterates over the map joint_state_parallel
   for (std::map<std::string, rclcpp::Parameter>::iterator it_map_expression =
@@ -205,7 +217,8 @@ void SotLoaderBasic::loadController() {
   sotRobotControllerLibrary_ =
       dlopen(dynamicLibraryName_.c_str(), RTLD_LAZY | RTLD_GLOBAL);
   if (!sotRobotControllerLibrary_) {
-    std::cerr << "Cannot load library: " << dlerror() << '\n';
+    RCLCPP_ERROR(rclcpp::get_logger("dynamic_graph_bridge"),
+                 "Cannot load library: %s", dlerror());
     return;
   }
 
@@ -218,14 +231,16 @@ void SotLoaderBasic::loadController() {
           dlsym(sotRobotControllerLibrary_, "createSotExternalInterface")));
   const char* dlsym_error = dlerror();
   if (dlsym_error) {
-    std::cerr << "Cannot load symbol create: " << dlsym_error << " from "
-              << dynamicLibraryName_ << '\n';
+    RCLCPP_ERROR(rclcpp::get_logger("dynamic_graph_bridge"),
+                 "Cannot load symbol create: %s from %s", dlsym_error,
+                 dynamicLibraryName_.c_str());
     return;
   }
 
   // Create robot-controller
   sotController_ = createSot();
-  cout << "Went out from loadController." << endl;
+  RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+              "Went out from loadController.");
 }
 
 void SotLoaderBasic::CleanUp() {
@@ -272,13 +287,13 @@ void SotLoaderBasic::stop_dg(
 }
 
 bool SotLoaderBasic::parameter_server_read_robot_description() {
-  if (!has_parameter("robot_description")) {
-    declare_parameter("robot_description", std::string(""));
+  if (!ros_node_->has_parameter("robot_description")) {
+    ros_node_->declare_parameter("robot_description", std::string(""));
   }
 
   std::string robot_description;
   std::string parameter_name("robot_description");
-  get_parameter(parameter_name, robot_description);
+  ros_node_->get_parameter(parameter_name, robot_description);
   if (robot_description.empty()) {
     RCLCPP_FATAL(rclcpp::get_logger("dynamic_graph_bridge"),
                  "Parameter robot_description is empty");

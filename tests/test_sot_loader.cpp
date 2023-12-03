@@ -1,29 +1,142 @@
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
 #include <gmock/gmock.h>
+#pragma clang diagnostic pop
+
+#include <chrono>
+
+using namespace std::chrono_literals;
+
+#include <rclcpp/rclcpp.hpp>
 
 #include "dynamic_graph_bridge/ros.hpp"
+#include "dynamic_graph_bridge/ros_python_interpreter_server.hpp"
 #include "dynamic_graph_bridge/sot_loader.hh"
+#include "dynamic_graph_bridge_msgs/msg/vector.hpp"
+
+namespace test_sot_loader {
+int l_argc;
+char** l_argv;
+}  // namespace test_sot_loader
+
+namespace dg = dynamicgraph;
 
 class MockSotLoaderTest : public ::testing::Test {
  public:
   class MockSotLoader : public SotLoader {
    public:
-    ~MockSotLoader() {}
+    rclcpp::Subscription<dynamic_graph_bridge_msgs::msg::Vector>::SharedPtr
+        subscription_;
+    bool service_done_;
+    std::string node_name_;
+
+    rclcpp::CallbackGroup::SharedPtr reentrant_cb_group_;
+
+    MockSotLoader() : node_name_("unittest_sot_loader") {
+      reentrant_cb_group_ =
+          dynamic_graph_bridge::get_ros_node(node_name_)
+              ->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+    }
+
+    ~MockSotLoader() { service_done_ = false; }
+
+    void topic_callback(
+        const dynamic_graph_bridge_msgs::msg::Vector::SharedPtr msg) const {
+      bool ok = true;
+      for (std::vector<double>::size_type idx = 0; idx < msg->data.size();
+           idx++) {
+        if (msg->data[idx] != 0.0) ok = false;
+      }
+      ASSERT_TRUE(ok);
+    }
+    // This method is to listen to publication from the control signal (dg
+    // world) to the control_ros topic (ros world).
+    void subscribe_to_a_topic() {
+      rclcpp::SubscriptionOptions subscription_options;
+      subscription_options.callback_group = reentrant_cb_group_;
+      subscription_ =
+          dynamic_graph_bridge::get_ros_node(node_name_)
+              ->create_subscription<dynamic_graph_bridge_msgs::msg::Vector>(
+                  "control_ros", 1,
+                  std::bind(&MockSotLoader::topic_callback, this,
+                            std::placeholders::_1),
+                  subscription_options);
+    }
+
+    void start_run_python_script_ros_service(const std::string& file_name) {
+      // Service name.
+      std::string service_name = "/dynamic_graph_bridge/run_python_file";
+      // Create a client from a temporary node.
+      rclcpp::CallbackGroup::SharedPtr local_cb_group =
+          dynamic_graph_bridge::get_callback_group("python_interpreter");
+      auto client =
+          dynamic_graph_bridge::get_ros_node("python_interpreter")
+              ->create_client<dynamic_graph_bridge_msgs::srv::RunPythonFile>(
+                  service_name, rclcpp::ServicesQoS(), local_cb_group);
+      ASSERT_TRUE(client->wait_for_service(1s));
+
+      // Fill the command message.
+      dynamic_graph_bridge_msgs::srv::RunPythonFile::Request::SharedPtr
+          request = std::make_shared<
+              dynamic_graph_bridge_msgs::srv::RunPythonFile::Request>();
+      request->input = file_name;
+      // Call the service.
+      auto response = client->async_send_request(request);
+      RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+                  "Send request to service %s - Waiting", service_name.c_str());
+      response.wait();
+      RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+                  "start_run_python_script_ros_service - Result: %s",
+                  response.get()->result.c_str());
+    }
+
+    void display_services(std::map<std::string, std::vector<std::string>>&
+                              list_service_and_types) {
+      for (std::map<std::string, std::vector<std::string>>::const_iterator
+               const_it = list_service_and_types.begin();
+           const_it != list_service_and_types.end(); ++const_it) {
+        std::cerr << const_it->first << "\t\t\t";
+        for (unsigned i = 0; i < const_it->second.size(); ++i) {
+          std::cerr << std::right;
+          std::cerr << const_it->second[i] << std::endl;
+        }
+      }
+    }
+
+    void local_ros_spin() {
+      RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"), "local_ros_spin");
+      dynamic_graph_bridge::ros_spin();
+    }
 
     void generateEvents() {
       usleep(20000);
-      std::cerr << "Start Dynamic Graph " << std::endl;
+      RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+                  "Start Dynamic Graph ");
       dynamic_graph_stopped_ = false;
 
-      usleep(20000);
-      std::cerr << "Stop Dynamic Graph " << std::endl;
+      std::string file_name =
+          TEST_CONFIG_PATH + std::string("simple_ros_publish.py");
+      std::string result = "";
+      std::string standard_output = "";
+      std::string standard_error = "";
+      start_run_python_script_ros_service(file_name);
+
+      usleep(100000);
+      std::map<std::string, std::vector<std::string>> list_service_and_types;
+      dynamic_graph_bridge::RosNodePtr ros_node =
+          dynamic_graph_bridge::get_ros_node(node_name_);
+      bool simple_service_exists = false;
+
+      usleep(30720000);  // Wait 30s
+      RCLCPP_INFO(rclcpp::get_logger("dynamic_graph_bridge"),
+                  "Stop Dynamic Graph ");
       dynamic_graph_stopped_ = true;
     }
 
     void testLoadController() {
       // Set input  call
       int argc = 2;
-      char *argv[2];
+      char* argv[2];
       char argv1[30] = "mocktest";
       argv[0] = argv1;
       char argv2[60] = "--input-file=libimpl_test_library.so";
@@ -33,6 +146,7 @@ class MockSotLoaderTest : public ::testing::Test {
       std::string finalname("libimpl_test_library.so");
       EXPECT_TRUE(finalname == dynamicLibraryName_);
 
+      readSotVectorStateParam();
       // Performs initialization of libimpl_test_library.so
       loadController();
       EXPECT_TRUE(sotRobotControllerLibrary_ != 0);
@@ -50,27 +164,39 @@ class MockSotLoaderTest : public ::testing::Test {
 
       // Start the control loop thread.
       startControlLoop();
-
       // Start the thread generating events.
       std::thread local_events(&MockSotLoader::generateEvents, this);
 
+      // Start the thread for ros events.
+      std::thread local_ros_spin_thread(&MockSotLoader::local_ros_spin, this);
+
       // Wait for each threads.
-      SotLoader::lthread_join();  // Wait 100 ms
+      SotLoader::lthread_join();
       local_events.join();
     }
   };
 
  public:
-  MockSotLoader *mockSotLoader_ptr_;
+  MockSotLoader* mockSotLoader_ptr_;
+
+  // For the set of tests coded in this file.
+  static void SetUpTestCase() {
+    rclcpp::init(test_sot_loader::l_argc, test_sot_loader::l_argv);
+  }
+
+  // For each test specified in this file
+  static void TearDownTestCase() { rclcpp::shutdown(); }
 
   void SetUp() {
     mockSotLoader_ptr_ = new MockSotLoader();
     mockSotLoader_ptr_->initialize();
+    dynamic_graph_bridge::ros_spin_non_blocking();
   }
 
   void TearDown() {
     delete mockSotLoader_ptr_;
     mockSotLoader_ptr_ = nullptr;
+    dynamic_graph_bridge::ros_clean();
   }
 };
 
@@ -78,12 +204,13 @@ TEST_F(MockSotLoaderTest, TestLoadController) {
   mockSotLoader_ptr_->testLoadController();
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
-  rclcpp::init(argc, argv);
+
+  test_sot_loader::l_argc = argc;
+  test_sot_loader::l_argv = argv;
 
   int r = RUN_ALL_TESTS();
 
-  rclcpp::shutdown();
   return r;
 }

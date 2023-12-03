@@ -60,12 +60,31 @@ typedef rclcpp::Service<std_srvs::srv::Empty>::SharedPtr EmptyServicePtr;
 typedef std_srvs::srv::Empty EmptyServiceType;
 
 /**
- * @brief rosInit is a global method that uses the structure GlobalRos.
- * Its role is to create the ros::nodeHandle and the ros::spinner once at the
- * first call. It always returns a reference to the node hanlde.
- * @return the reference of GLOBAL_ROS_VAR.node_.
+ * @brief If the node named node_name does not exist create it with a reentrant
+ * group
+ * @param node_name
+ */
+void create_ros_node(std::string& node_name);
+
+/**
+ * @brief Get the node shared pointer providing the node name.
+ * @param node_name
+ * @return A pointer towards the node.
  */
 RosNodePtr get_ros_node(std::string node_name);
+
+/**
+ * @brief Returns a Reentrant Callback group initialized with the ros node
+ * specifed by node_name
+ * @param node_name
+ * @param Returns a shared pointer towards the described callback group of type
+ * reentrant.
+ */
+rclcpp::CallbackGroup::SharedPtr get_callback_group(std::string node_name);
+
+size_t ros_executor_get_nb_threads();
+
+void ros_display_list_of_nodes();
 
 /**
  * @brief Add a ros node to the global executor.

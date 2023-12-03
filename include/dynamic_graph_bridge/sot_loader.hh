@@ -18,9 +18,6 @@
 // STL includes
 #include <map>
 
-// Pinocchio includes
-#include <pinocchio/fwd.hpp>
-
 // Boost includes
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
@@ -83,7 +80,7 @@ class SotLoader : public SotLoaderBasic {
   geometry_msgs::msg::TransformStamped freeFlyerPose_;
 
  public:
-  SotLoader();
+  SotLoader(const std::string &aNodeName = std::string("sot_loader"));
   virtual ~SotLoader();
 
   // \brief Create a thread for ROS and start the control loop.

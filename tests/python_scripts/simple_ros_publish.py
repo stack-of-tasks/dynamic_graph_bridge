@@ -4,7 +4,7 @@ from dynamic_graph import plug
 from dynamic_graph.ros.ros_publish import RosPublish
 from dynamic_graph.ros.tests.impl_test_sot_mock_device import ImplTestSotMockDevice
 
-# Create a topic from the SoT to the ROS world
+# # Create a topic from the SoT to the ROS world
 ros_publish = RosPublish("rosPublish")
 
 name = "control"

@@ -43,6 +43,7 @@ class TestRosInterpreter : public ::testing::Test {
     // delete the ros node
     ros_clean();
   }
+
   /**
    * @brief Node name
    */
@@ -271,7 +272,6 @@ TEST_F(TestRosInterpreter, test_call_run_script_standarderror) {
 
 TEST_F(TestRosInterpreter, test_call_run_script_ros_publish) {
   /* Setup. */
-
   // Create the ros python interpreter.
   RosPythonInterpreterServer rpi;
   rpi.start_ros_service();
@@ -284,6 +284,6 @@ TEST_F(TestRosInterpreter, test_call_run_script_ros_publish) {
   std::string standard_error = "";
   start_run_python_script_ros_service(file_name, result);
 
-  /* Tests. */
+  /* Tests the result. */
   ASSERT_EQ(result, "");
 }

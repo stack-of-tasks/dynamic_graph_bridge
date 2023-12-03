@@ -18,9 +18,6 @@
 // STL includes
 #include <map>
 
-// Pinocchio includes
-#include <pinocchio/fwd.hpp>
-
 // Boost includes
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
@@ -41,8 +38,11 @@
 namespace po = boost::program_options;
 namespace dgs = dynamicgraph::sot;
 
-class SotLoaderBasic : public rclcpp::Node {
+class SotLoaderBasic {
  protected:
+  // RosNode
+  dynamic_graph_bridge::RosNodePtr ros_node_;
+
   // Dynamic graph is stopped.
   bool dynamic_graph_stopped_;
 
@@ -84,7 +84,8 @@ class SotLoaderBasic : public rclcpp::Node {
   std::vector<std::string> stateVectorMap_;
 
  public:
-  SotLoaderBasic(const std::string& aNodeName = std::string("SotLoaderBasic"));
+  SotLoaderBasic(
+      const std::string& aNodeName = std::string("sot_loader_basic"));
   virtual ~SotLoaderBasic();
 
   // \brief Read user input to extract the path of the SoT dynamic library.

@@ -106,7 +106,7 @@ if(BUILD_PYTHON_INTERFACE)
 endif(BUILD_PYTHON_INTERFACE)
 
 # Sot loader library
-add_library(sot_loader sot_loader.cpp sot_loader_basic.cpp)
+add_library(sot_loader SHARED sot_loader.cpp sot_loader_basic.cpp)
 target_link_libraries(
   sot_loader Boost::program_options ${catkin_LIBRARIES} ros_bridge
   dynamic_graph_bridge_msgs::dynamic_graph_bridge_msgs__rosidl_typesupport_cpp)
