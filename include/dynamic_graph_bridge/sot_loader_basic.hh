@@ -80,7 +80,7 @@ class SotLoaderBasic {
 
  public:
   SotLoaderBasic();
-  ~SotLoaderBasic(){};
+  ~SotLoaderBasic() {};
 
   // \brief Read user input to extract the path of the SoT dynamic library.
   int parseOptions(int argc, char* argv[]);
