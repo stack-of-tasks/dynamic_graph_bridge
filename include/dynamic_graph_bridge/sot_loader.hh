@@ -84,17 +84,17 @@ class SotLoader : public SotLoaderBasic {
   ~SotLoader();
 
   // \brief Create a thread for ROS and start the control loop.
-  void initializeRosNode(int argc, char *argv[]);
+  void initializeRosNode(int argc, char* argv[]);
 
   // \brief Compute one iteration of control.
   // Basically calls fillSensors, the SoT and the readControl.
-  void oneIteration(const double &period = 0);
+  void oneIteration(const double& period = 0);
 
   // \brief Fill the sensors value for the SoT.
-  void fillSensors(std::map<std::string, dgs::SensorValues> &sensorsIn);
+  void fillSensors(std::map<std::string, dgs::SensorValues>& sensorsIn);
 
   // \brief Read the control computed by the SoT framework.
-  void readControl(std::map<std::string, dgs::ControlValues> &controlValues);
+  void readControl(std::map<std::string, dgs::ControlValues>& controlValues);
 
   // \brief Prepare the SoT framework.
   void setup();

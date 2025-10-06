@@ -42,7 +42,7 @@ struct DataToLog {
     if (idx == N) idx = 0;
   }
 
-  void save(const char *prefix) {
+  void save(const char* prefix) {
     std::ostringstream oss;
     oss << prefix << "-times.log";
 
@@ -57,7 +57,7 @@ struct DataToLog {
   }
 };
 
-void workThreadLoader(SotLoader *aSotLoader) {
+void workThreadLoader(SotLoader* aSotLoader) {
   ros::Rate rate(1000);  // 1 kHz
   double periodd(1e-3);
 
@@ -123,7 +123,7 @@ void SotLoader::startControlLoop() {
   thread_ = boost::thread(workThreadLoader, this);
 }
 
-void SotLoader::initializeRosNode(int argc, char *argv[]) {
+void SotLoader::initializeRosNode(int argc, char* argv[]) {
   SotLoaderBasic::initializeRosNode(argc, argv);
   // Temporary fix. TODO: where should nbOfJoints_ be initialized from?
   if (ros::param::has("/sot/state_vector_map")) {
@@ -134,7 +134,7 @@ void SotLoader::initializeRosNode(int argc, char *argv[]) {
   startControlLoop();
 }
 
-void SotLoader::fillSensors(map<string, dgs::SensorValues> &sensorsIn) {
+void SotLoader::fillSensors(map<string, dgs::SensorValues>& sensorsIn) {
   // Update joint values.w
   assert(angleControl_.size() == angleEncoder_.size());
 
@@ -144,7 +144,7 @@ void SotLoader::fillSensors(map<string, dgs::SensorValues> &sensorsIn) {
   sensorsIn["joints"].setValues(angleEncoder_);
 }
 
-void SotLoader::readControl(map<string, dgs::ControlValues> &controlValues) {
+void SotLoader::readControl(map<string, dgs::ControlValues>& controlValues) {
   // Update joint values.
   angleControl_ = controlValues["control"].getValues();
 
@@ -205,12 +205,12 @@ void SotLoader::setup() {
   readControl(controlValues_);
 }
 
-void SotLoader::oneIteration(const double &period) {
+void SotLoader::oneIteration(const double& period) {
   fillSensors(sensorsIn_);
   try {
     sotController_->nominalSetSensors(sensorsIn_);
     sotController_->getControl(controlValues_, period);
-  } catch (std::exception &) {
+  } catch (std::exception&) {
     throw;
   }
 
