@@ -14,7 +14,7 @@
 
 #include <dynamic_graph_bridge/sot_loader.hh>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   ::dynamicgraph::RealTimeLogger::instance().addOutputStream(
       ::dynamicgraph::LoggerStreamPtr_t(
           new dynamicgraph::LoggerIOStream(std::cout)));
